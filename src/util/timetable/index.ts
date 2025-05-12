@@ -1659,7 +1659,12 @@ export class Timetable {
             background-color: #2d2d33;
           }
           .free { 
-            color: #6b7280; 
+            color:rgb(0, 185, 0); 
+            font-style: italic;
+          }
+          .unavailable {
+            background-color:rgb(255, 233, 224);
+            color:rgb(255, 0, 0);
             font-style: italic;
           }
           .teacher-section { 
@@ -1697,6 +1702,12 @@ export class Timetable {
     for (const teacherName of sortedTeachers) {
       const teacherSchedule = teacherSchedules.get(teacherName)!;
       
+      // Find the teacher object to check availability
+      const teacher = this.classes.flatMap(cls => cls.lessons.map(l => l.teacher))
+        .find(t => t.name === teacherName);
+      
+      if (!teacher) continue;
+      
       html += `<div class="teacher-section"><h2>Teacher: ${teacherName}</h2>`;
       html += "<table><tr><th></th>";
       
@@ -1716,8 +1727,11 @@ export class Timetable {
           
           if (lesson) {
             html += `<td><div class="subject-name">${lesson.lessonName}</div><div class="class-name">Class ${lesson.class}</div></td>`;
+          } else if (teacher && !teacher.isAvailable(day, period)) {
+            // Teacher is unavailable during this period
+            html += '<td class="unavailable">Indisponibil</td>';
           } else {
-            html += '<td class="free">Free</td>';
+            html += '<td class="free">Liber</td>';
           }
         }
         
@@ -1803,6 +1817,11 @@ export class Timetable {
                   }
                   .free { 
                     color: #6b7280; 
+                    font-style: italic;
+                  }
+                  .unavailable {
+                    background-color: #c2410c;
+                    color: #f1f5f9;
                     font-style: italic;
                   }
                   .teacher-section { 
