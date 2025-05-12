@@ -1659,7 +1659,7 @@ export class Timetable {
             background-color: #2d2d33;
           }
           .free { 
-            color:rgb(0, 185, 0); 
+            color:rgb(0, 171, 0); 
             font-style: italic;
           }
           .unavailable {
