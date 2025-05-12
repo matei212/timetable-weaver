@@ -106,14 +106,16 @@ const Sidebar: React.FC<SidebarProps> = ({ mode, onModeChange }) => {
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="border-b border-blue-500/20 p-6">
-          <h1 className="text-2xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+        <div className="border-b border-blue-500/20 p-6" >
+
+          <h1 className="text-2xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500" onClick={handleCancelTimetable}>
             Timetable Weaver 
           </h1>
           {mode === "timetable" && (
             <p className="mt-2 text-sm font-light text-blue-300/80 flex items-center">
               <span className="mr-2 animate-pulse text-cyan-400">◉</span>
               Creare Orar Nou
+              
             </p>
           )}
         </div>
