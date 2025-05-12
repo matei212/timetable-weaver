@@ -1,50 +1,46 @@
-# Timetable Weaver
+# Timetable Weaver - Descriere
 
-O aplicație web pentru generarea orarelor școlare.
+Timetable Weaver este o aplicație web modernă și eficientă, concepută pentru generarea automată a orarelor școlare. Aplicația folosește algoritmi avansați de optimizare pentru a crea orare care respectă toate constrângerile necesare, oferind o soluție elegantă pentru o problemă complexă de planificare.
 
-## Caracteristici
+## Caracteristici principale
 
-- Crearea claselor, profesorilor și a lecților
-- Importarea datelor sub forma de CSV
-- Generarea orarelor optimizate
-- Exportarea orarelor în format PDF
+- **Interfață intuitivă**: Interfață prietenoasă care permite gestionarea claselor, profesorilor și lecțiilor.
+- **Import și export de date**: Posibilitatea de a importa date în format CSV și de a exporta orarele generate în format PDF.
+- **Algoritm avansat de optimizare**: Utilizează o combinație inovatoare între algoritmi genetici și simulare de recoacere pentru a genera orare optimale.
+- **Gestionare constrângeri**: Respectă atât constrângeri stricte (profesori care nu pot fi programați simultan la mai multe clase, disponibilitatea profesorilor), cât și constrângeri flexibile (distribuția uniformă a lecțiilor, evitarea orelor libere).
+- **Salvare automată**: Datele introduse sunt salvate automat în browser pentru a preveni pierderea informațiilor.
 
-## Tehnologii folosite
+## Cum să utilizați aplicația
 
-- [React](https://react.dev/) - pentru frontend
-- [TailwindCSS](https://tailwindcss.com/) - pentru stilizare
-- [TypeScript](https://www.typescriptlang.org/) - limbajul de programare folosit
-- [Vite](https://vite.dev/) - instrumentl folosit pentru build
+1. **Instalare și pornire**:
+   ```
+   git clone [repository-url]
+   npm install
+   npm run dev
+   ```
+   Aplicația va fi disponibilă la adresa http://localhost:3000.
 
-## Cum să începeți
+2. **Configurarea datelor**:
+   - Accesați secțiunea "Profesori" pentru a adăuga și configura disponibilitatea profesorilor
+   - Accesați secțiunea "Clase" pentru a defini clasele și a adăuga elevii
+   - În secțiunea "Lecții" configurați materiile și alocați profesorii pentru fiecare clasă
 
-### Instalare
+3. **Generarea orarului**:
+   - Accesați secțiunea "Prezentare generală" și utilizați butonul "Generează orar"
+   - Algoritmul va procesa toate constrângerile și va genera un orar optim
+   - Puteți vizualiza orarul și îl puteți ajusta după necesitate
 
-1. Clonați repository-ul
+4. **Exportarea rezultatelor**:
+   - După ce sunteți mulțumiți de orar, acesta poate fi exportat în format PDF
+   - Orarul poate fi distribuit profesorilor și elevilor
 
-```sh
-git clone
-```
+5. **Tehnologii utilizate**:
+   - React pentru interfața utilizator
+   - TailwindCSS pentru stilizare
+   - TypeScript pentru siguranța tipurilor
+   - Vite pentru procesul de dezvoltare și compilare
 
-2. Instalați dependențele necesare:
-
-```sh
-  npm install
-```
-
-### Rularea Serverului
-
-```sh
-npm run dev
-```
-
-Aceasta va porni serverul de dezvoltare la adresa http://localhost:3000.
-
-### Pentru a compila proiectul pentru producție folosiți
-
-```
-npm run build
-```
+Timetable Weaver reprezintă soluția ideală pentru instituțiile de învățământ care doresc să automatizeze și să optimizeze procesul de creare a orarelor, reducând timpul necesar și eliminând conflictele de programare.
 
 ## Algoritmul de Generare a Orarelor
 
@@ -60,3 +56,12 @@ Constrângeri ușoare:
 
 - Distribuție uniformă a lecțiilor de-a lungul săptămânii
 - Fără ore libere la începutul zilei
+
+## Autori și contribuții
+
+- Costan Matei Ștefan - a lucrat la algorimtul de generare al orarelor și a ajutat la inbunatațirea interfața aplicației
+- Lungu Răzvan-Tudor - a lucrat la interfața aplicației și a ajutat la creearea algorimtului de generare
+
+Ambii autori sunt elevi la Colegiul Național I. L. Caragiale din București, sub îndrumarea profesorului coordonator Florea Andrei.
+
+_Nota: Inteligența artificială a fost folosită pentru a găsi metode de a optimiza codul sursă al algrotimului de generare al orarelor_
