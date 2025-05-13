@@ -2,6 +2,8 @@
 
 Timetable Weaver este o aplicație web modernă și eficientă, concepută pentru generarea automată a orarelor școlare. Aplicația folosește algoritmi avansați de optimizare pentru a crea orare care respectă toate constrângerile necesare, oferind o soluție elegantă pentru o problemă complexă de planificare.
 
+Poate fi accesat aici: https://timetable-weaver.vercel.app/
+
 ## Caracteristici principale
 
 - **Interfață intuitivă**: Interfață prietenoasă care permite gestionarea claselor, profesorilor și lecțiilor.
