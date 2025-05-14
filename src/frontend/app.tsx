@@ -532,7 +532,7 @@ const TimetableLayout: React.FC<{
     <div className="flex flex-col lg:flex-row h-screen overflow-hidden">
       <Sidebar mode={sidebarMode} onModeChange={onSidebarModeChange} />
 
-      <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 dark:text-white pt-16 lg:pt-0">
+      <div className="flex-1 overflow-y-auto bg-gray-900 dark:bg-gray-900 text-white pt-16 lg:pt-0">
         <div className="container mx-auto px-4">
           {children}
         </div>

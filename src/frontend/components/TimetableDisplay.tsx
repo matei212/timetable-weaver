@@ -122,8 +122,8 @@ const MetricsPanel: React.FC<{
       <div
         className={`rounded-lg border backdrop-blur-sm p-5 shadow-lg transition-all duration-300 hover:shadow-xl transform hover:scale-105 ${
           metrics.conflicts > 0
-            ? "border-red-400/30 bg-red-900/10 dark:border-red-500/30 dark:bg-red-900/20"
-            : "border-emerald-400/30 bg-emerald-900/10 dark:border-emerald-500/30 dark:bg-emerald-900/20"
+            ? "border-red-500/30 bg-red-900/20"
+            : "border-emerald-500/30 bg-emerald-900/20"
         }`}
       >
         <h4 className="mb-2 font-medium tracking-wide">Conflicte Profesori</h4>
@@ -144,11 +144,11 @@ const MetricsPanel: React.FC<{
       <div
         className={`rounded-lg border backdrop-blur-sm p-5 shadow-lg transition-all duration-300 hover:shadow-xl transform hover:scale-105 ${
           metrics.unscheduled > 0
-            ? "border-orange-400/30 bg-orange-900/10 dark:border-orange-500/30 dark:bg-orange-900/20"
+            ? " border-orange-500/30 bg-orange-900/20"
             : "border-emerald-400/30 bg-emerald-900/10 dark:border-emerald-500/30 dark:bg-emerald-900/20"
         }`}
       >
-        <h4 className="mb-2 font-medium tracking-wide">ore Neprogramate</h4>
+        <h4 className="mb-2 font-medium tracking-wide">Ore Neprogramate</h4>
         <p
           className={`text-2xl font-bold ${
             metrics.unscheduled > 0

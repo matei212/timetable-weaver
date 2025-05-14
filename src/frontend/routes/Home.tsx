@@ -28,7 +28,7 @@ const Home: React.FC<HomeProps> = ({
       <h1 className="mb-6 text-3xl font-bold dark:text-white">
         Bine ați venit la Timetable Weaver 
       </h1>
-      <p className="mb-8 text-gray-600 dark:text-gray-300">
+      <p className="mb-8 text-gray-400">
         Creați orare optime pentru școala sau instituția dumneavoastră cu sistemul nostru 
         inteligent de programare.
       </p>
@@ -42,7 +42,9 @@ const Home: React.FC<HomeProps> = ({
 
       <button
         onClick={handleCreateTimetable}
-        className="rounded-lg bg-blue-600 px-6 py-3 text-lg font-medium text-white transition-colors hover:bg-blue-700"
+        className="rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-lg font-medium
+                        transition-all duration-300 hover:shadow-lg hover:shadow-blue-900/30 transform hover:-translate-y-0.5
+                        hover:from-blue-700 hover:to-blue-800 backdrop-blur-sm"
       >
         Creează Orar Nou
       </button>
@@ -51,13 +53,17 @@ const Home: React.FC<HomeProps> = ({
         <div className="mt-4 flex justify-center gap-4">
           <button
             onClick={onClearData}
-            className="rounded-lg bg-red-600 px-6 py-3 text-lg font-medium text-white transition-colors hover:bg-red-700"
+            className="rounded-lg bg-gradient-to-r from-red-600 to-pink-600 px-6 py-3 text-lg font-medium
+                        transition-all duration-300 hover:shadow-lg hover:shadow-red-500/30 transform hover:-translate-y-0.5
+                        hover:from-red-700 hover:to-pink-700 backdrop-blur-sm"
           >
             Șterge Datele Salvate
           </button>
           <button
             onClick={onForceSave}
-            className="rounded-lg bg-green-600 px-6 py-3 text-lg font-medium text-white transition-colors hover:bg-green-700"
+            className="rounded-lg bg-gradient-to-r from-green-600 to-green-700 px-6 py-3 text-lg font-medium
+                        transition-all duration-300 hover:shadow-lg hover:shadow-green-900/30 transform hover:-translate-y-0.5
+                        hover:from-green-700 hover:to-green-800 backdrop-blur-sm"
           >
             Forțează Salvarea Datelor
           </button>

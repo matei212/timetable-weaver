@@ -1659,13 +1659,14 @@ export class Timetable {
             background-color: #2d2d33;
           }
           .free { 
-            color:rgb(0, 185, 0); 
+            color:rgb(0, 171, 0); 
             font-style: italic;
           }
           .unavailable {
             background-color:rgb(255, 233, 224);
             color:rgb(255, 0, 0);
             font-style: italic;
+            font-weight: 900;
           }
           .teacher-section { 
             page-break-after: always; 
