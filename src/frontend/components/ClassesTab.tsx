@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Class, Lesson, exportClassesToCSV } from "../../util/timetable";
 import GradientButton from "./common/GradientButton";
+import GradientContainer from "./common/GradientContainer";
 
 interface ClassesTabProps {
   classes: Class[];
@@ -71,7 +72,7 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
         Gestionare Clase
       </h2>
 
-      <div className="mb-8 rounded-xl border border-blue-500/20 bg-white bg-gradient-to-b p-8 shadow-xl backdrop-blur-sm dark:from-slate-800 dark:to-slate-900">
+      <GradientContainer className="mb-8 p-8">
         <h3 className="mb-6 flex items-center text-xl font-semibold text-blue-300">
           <span className="mr-3 text-2xl">🏛️</span> Adaugă Clasă Nouă
         </h3>
@@ -91,10 +92,10 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
             Adaugă Clasă
           </GradientButton>
         </div>
-      </div>
+      </GradientContainer>
 
       {classes.length > 0 ? (
-        <div className="rounded-xl border border-blue-500/20 bg-white bg-gradient-to-b p-8 shadow-xl backdrop-blur-sm dark:from-slate-800 dark:to-slate-900">
+        <GradientContainer className="p-8">
           <div className="mb-6 flex items-center justify-between">
             <h3 className="flex items-center text-xl font-semibold text-blue-300">
               <span className="mr-3 text-2xl">📋</span> Listă Clase
@@ -188,9 +189,9 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
               </tbody>
             </table>
           </div>
-        </div>
+        </GradientContainer>
       ) : (
-        <div className="rounded-xl border border-blue-500/20 bg-white bg-gradient-to-b p-8 text-center shadow-xl backdrop-blur-sm dark:from-slate-800 dark:to-slate-900">
+        <GradientContainer className="p-8">
           <div className="flex flex-col items-center justify-center py-8">
             <span className="mb-4 text-4xl">🏛️</span>
             <p className="mb-2 text-slate-300">
@@ -200,7 +201,7 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
               Clasele sunt folosite pentru a organiza lecțiile și a crea orare.
             </p>
           </div>
-        </div>
+        </GradientContainer>
       )}
 
       <div className="mt-6 rounded-lg border border-blue-500/10 bg-blue-300/30 p-4 text-sm text-blue-300 backdrop-blur-sm dark:bg-blue-900/10">

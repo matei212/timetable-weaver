@@ -12,6 +12,7 @@ import {
   generateExampleDataFile,
 } from "../../util/timetable";
 import GradientButton from "./common/GradientButton";
+import GradientContainer from "./common/GradientContainer";
 
 interface OverviewTabProps {
   classes: Class[];
@@ -165,7 +166,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         Overview & Generate
       </h2>
 
-      <div className="to slate-300 mb-8 rounded-xl border border-blue-500/20 bg-white bg-gradient-to-b p-8 shadow-xl backdrop-blur-sm dark:from-slate-800 dark:to-slate-900">
+      <GradientContainer className="mb-8 p-8">
         <h3 className="mb-6 flex items-center text-xl font-semibold text-blue-300">
           <span className="mr-3 text-2xl">📊</span> Configurație Curentă
         </h3>
@@ -238,9 +239,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             </div>
           )}
         </div>
-      </div>
+      </GradientContainer>
 
-      <div className="mb-8 rounded-xl border border-blue-500/20 bg-white p-8 shadow-xl backdrop-blur-sm dark:bg-gradient-to-b dark:from-slate-800 dark:to-slate-900">
+      <GradientContainer className="mb-8 p-8">
         <h3 className="mb-6 flex items-center text-xl font-semibold text-blue-300">
           <span className="mr-3 text-2xl">💾</span> Management Date
         </h3>
@@ -297,7 +298,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             </GradientButton>
           </div>
         </div>
-      </div>
+      </GradientContainer>
     </div>
   );
 };

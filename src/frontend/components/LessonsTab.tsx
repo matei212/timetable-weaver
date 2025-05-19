@@ -8,6 +8,7 @@ import {
   exportClassLessonsToCSV,
 } from "../../util/timetable";
 import GradientButton from "./common/GradientButton";
+import GradientContainer from "./common/GradientContainer";
 
 interface LessonsTabProps {
   classes: Class[];
@@ -436,7 +437,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
       </h2>
 
       {classes.length === 0 ? (
-        <div className="rounded-xl border border-blue-500/20 bg-gradient-to-b from-slate-800 to-slate-900 p-4 text-center shadow-xl backdrop-blur-sm md:p-8">
+        <GradientContainer className="p-8">
           <div className="flex flex-col items-center justify-center py-8">
             <span className="mb-4 text-4xl">📚</span>
             <p className="mb-2 text-slate-300">
@@ -447,10 +448,10 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
               lecții.
             </p>
           </div>
-        </div>
+        </GradientContainer>
       ) : (
         <>
-          <div className="mb-8 rounded-xl border border-blue-500/20 bg-white bg-gradient-to-b p-4 shadow-xl backdrop-blur-sm md:p-8 dark:from-slate-800 dark:to-slate-900">
+          <GradientContainer className="mb-8 p-8">
             <h3 className="mb-6 flex items-center text-xl font-semibold text-blue-300">
               <span className="mr-3 text-2xl">🏛️</span> Selectați Clasa
             </h3>
@@ -505,10 +506,10 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                 <span className="font-medium">Importă Toate Lecțiile</span>
               </label>
             </div>
-          </div>
+          </GradientContainer>
 
           {selectedClassIndex !== null && (
-            <div className="mb-8 rounded-xl border border-blue-500/20 bg-white bg-gradient-to-b p-4 shadow-xl backdrop-blur-sm md:p-8 dark:from-slate-800 dark:to-slate-900">
+            <GradientContainer className="mb-8 p-8">
               <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <h3 className="flex items-center text-xl font-semibold text-blue-300">
                   <span className="mr-3 text-2xl">📚</span> Adaugă Lecție la{" "}
@@ -552,7 +553,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
               </div>
 
               {/* Add Teacher Periods Summary Section */}
-              <div className="mb-6 rounded-lg border border-slate-600/50 bg-slate-100 p-4 dark:bg-slate-700/30">
+              <GradientContainer variant="light" className="mb-6 p-4">
                 <h4 className="text-md mb-3 flex items-center font-semibold text-blue-300">
                   <span className="mr-2">👩‍🏫</span> Rezumat de ore Profesori
                 </h4>
@@ -591,7 +592,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                     );
                   })}
                 </div>
-              </div>
+              </GradientContainer>
 
               <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
@@ -671,7 +672,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
 
               {/* Show list of lessons for this class with ability to edit periods */}
               <ClassLessonsList classIndex={selectedClassIndex} />
-            </div>
+            </GradientContainer>
           )}
         </>
       )}

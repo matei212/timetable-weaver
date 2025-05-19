@@ -11,6 +11,7 @@ import {
 } from "../../util/timetable";
 import TeacherAvailabilityModal from "./TeacherAvailabilityModal";
 import GradientButton from "./common/GradientButton";
+import GradientContainer from "./common/GradientContainer";
 
 interface TeachersTabProps {
   teachers: Teacher[];
@@ -196,7 +197,7 @@ const TeacherForm: React.FC<{
   };
 
   return (
-    <div className="mb-8 rounded-xl border border-blue-500/20 bg-white bg-gradient-to-b p-8 shadow-xl backdrop-blur-sm dark:from-slate-800 dark:to-slate-900">
+    <GradientContainer className="mb-8 p-8">
       <h3 className="mb-6 flex items-center text-xl font-semibold text-blue-300">
         <span className="mr-3 text-2xl">👨‍🏫</span> Adaugă Profesor Nou
       </h3>
@@ -215,7 +216,7 @@ const TeacherForm: React.FC<{
           Adaugă Profesor
         </button>
       </form>
-    </div>
+    </GradientContainer>
   );
 };
 
@@ -481,7 +482,7 @@ const TeacherList: React.FC<{
   };
 
   return (
-    <div className="rounded-xl border border-blue-500/20 bg-white p-4 shadow-xl backdrop-blur-sm sm:p-8 dark:bg-gradient-to-b dark:from-slate-800 dark:to-slate-900">
+    <GradientContainer className="p-8">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="flex items-center text-xl font-semibold text-blue-300">
           <span className="mr-3 text-2xl">👩‍🏫</span> Listă Profesori
@@ -562,7 +563,7 @@ const TeacherList: React.FC<{
           </p>
         </div>
       )}
-    </div>
+    </GradientContainer>
   );
 };
 
