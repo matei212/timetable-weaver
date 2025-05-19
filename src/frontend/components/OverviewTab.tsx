@@ -11,6 +11,7 @@ import {
   importAllDataFromCSV,
   generateExampleDataFile,
 } from "../../util/timetable";
+import GradientButton from "./common/GradientButton";
 
 interface OverviewTabProps {
   classes: Class[];
@@ -287,12 +288,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               Exportă toate datele dumneavoastră (profesori, clase, lecții) în
               fișierul CSV care poate fi importat mai târziu.
             </p>
-            <button
+            <GradientButton
               onClick={handleExportAllData}
-              className="inline-flex transform items-center justify-center rounded-lg bg-gradient-to-r from-teal-600 to-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:from-teal-700 hover:to-emerald-700 hover:shadow-teal-500/20"
+              variant="green"
+              className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium"
             >
               <span className="mr-2">📥</span> Exportă Toate Datele
-            </button>
+            </GradientButton>
           </div>
         </div>
       </div>

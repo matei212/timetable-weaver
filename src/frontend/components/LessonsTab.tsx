@@ -7,6 +7,7 @@ import {
   importLessonsFromCSV,
   exportClassLessonsToCSV,
 } from "../../util/timetable";
+import GradientButton from "./common/GradientButton";
 
 interface LessonsTabProps {
   classes: Class[];
@@ -475,13 +476,14 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
 
             {/* Export/Import buttons for all classes */}
             <div className="mt-6 flex flex-wrap justify-center gap-3 md:justify-end">
-              <button
+              <GradientButton
+                variant="green"
                 onClick={handleExportAllLessonsToCSV}
-                className="flex transform items-center rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2 text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-emerald-500/20"
+                className="flex items-center justify-center px-4 py-2"
               >
                 <span className="mr-2">📥</span>
                 <span className="font-medium">Exportă Toate Lecțiile</span>
-              </button>
+              </GradientButton>
 
               <input
                 type="file"

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
+import GradientButton from "./common/GradientButton";
 
 interface SidebarProps {
   mode: "default" | "timetable";
@@ -172,12 +173,13 @@ const Sidebar: React.FC<SidebarProps> = ({ mode, onModeChange }) => {
 
         {mode === "timetable" && (
           <div className="border-t border-blue-500/20 p-5">
-            <button
-              className="w-full transform rounded-lg bg-gradient-to-r from-red-600 to-pink-600 px-4 py-3 font-medium text-white backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:from-red-700 hover:to-pink-700 hover:shadow-lg hover:shadow-red-500/30"
+            <GradientButton
+              variant="red"
               onClick={handleCancelTimetable}
+              className="w-full px-4 py-3 font-medium"
             >
               Anulează Orarul
-            </button>
+            </GradientButton>
           </div>
         )}
       </div>

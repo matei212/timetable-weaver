@@ -10,6 +10,7 @@ import {
   importTeachersFromCSV,
 } from "../../util/timetable";
 import TeacherAvailabilityModal from "./TeacherAvailabilityModal";
+import GradientButton from "./common/GradientButton";
 
 interface TeachersTabProps {
   teachers: Teacher[];
@@ -507,13 +508,14 @@ const TeacherList: React.FC<{
             <span className="font-medium">Importă CSV</span>
           </label>
 
-          <button
+          <GradientButton
+            variant="green"
             onClick={handleExportToCSV}
-            className="flex transform items-center rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2 text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-emerald-500/20"
+            className="flex items-center justify-center px-4 py-2"
           >
             <span className="mr-2">📥</span>
             <span className="font-medium">Exportă CSV</span>
-          </button>
+          </GradientButton>
         </div>
       </div>
 

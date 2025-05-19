@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import GradientButton from "../components/common/GradientButton";
 
 interface HomeProps {
   storageAvailable: boolean;
@@ -26,47 +27,44 @@ const Home: React.FC<HomeProps> = ({
     <div className="mx-auto max-w-2xl p-6 text-center">
       <img src="./vite.svg" className="logo mx-auto mb-8" alt="Logo Vite" />
       <h1 className="mb-6 text-3xl font-bold dark:text-white">
-        Bine ați venit la Timetable Weaver 
+        Bine ați venit la Timetable Weaver
       </h1>
       <p className="mb-8 text-gray-400">
-        Creați orare optime pentru școala sau instituția dumneavoastră cu sistemul nostru 
-        inteligent de programare.
+        Creați orare optime pentru școala sau instituția dumneavoastră cu
+        sistemul nostru inteligent de programare.
       </p>
 
       {!storageAvailable && (
         <div className="mb-4 rounded border border-yellow-300 bg-yellow-100 p-3 text-yellow-800 dark:border-yellow-900 dark:bg-yellow-900/20 dark:text-yellow-300">
-          Avertisment: Stocarea locală nu este disponibilă. Modificările dumneavoastră nu vor fi salvate
-          între sesiuni.
+          Avertisment: Stocarea locală nu este disponibilă. Modificările
+          dumneavoastră nu vor fi salvate între sesiuni.
         </div>
       )}
 
-      <button
+      <GradientButton
+        variant="blue"
         onClick={handleCreateTimetable}
-        className="rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-lg font-medium
-                        transition-all duration-300 hover:shadow-lg hover:shadow-blue-900/30 transform hover:-translate-y-0.5
-                        hover:from-blue-700 hover:to-blue-800 backdrop-blur-sm"
+        className="px-6 py-3 text-lg font-medium"
       >
         Creează Orar Nou
-      </button>
+      </GradientButton>
 
       {hasData && (
         <div className="mt-4 flex justify-center gap-4">
-          <button
+          <GradientButton
             onClick={onClearData}
-            className="rounded-lg bg-gradient-to-r from-red-600 to-pink-600 px-6 py-3 text-lg font-medium
-                        transition-all duration-300 hover:shadow-lg hover:shadow-red-500/30 transform hover:-translate-y-0.5
-                        hover:from-red-700 hover:to-pink-700 backdrop-blur-sm"
+            variant="red"
+            className="px-6 py-3 text-lg font-medium"
           >
             Șterge Datele Salvate
-          </button>
-          <button
+          </GradientButton>
+
+          <GradientButton
             onClick={onForceSave}
-            className="rounded-lg bg-gradient-to-r from-green-600 to-green-700 px-6 py-3 text-lg font-medium
-                        transition-all duration-300 hover:shadow-lg hover:shadow-green-900/30 transform hover:-translate-y-0.5
-                        hover:from-green-700 hover:to-green-800 backdrop-blur-sm"
+            className="px-6 py-3 text-lg font-medium"
           >
             Forțează Salvarea Datelor
-          </button>
+          </GradientButton>
         </div>
       )}
     </div>

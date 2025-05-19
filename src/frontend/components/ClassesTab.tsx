@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Class, Lesson, exportClassesToCSV } from "../../util/timetable";
+import GradientButton from "./common/GradientButton";
 
 interface ClassesTabProps {
   classes: Class[];
@@ -82,12 +83,13 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
             placeholder="Numele clasei (ex., '10A', '11B')"
             className="flex-1 rounded-lg border border-slate-600/50 bg-slate-100 p-3 placeholder-slate-400 backdrop-blur-sm transition-all duration-300 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
           />
-          <button
+          <GradientButton
             onClick={handleAddClass}
-            className="transform rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 px-6 py-3 font-medium text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:from-cyan-700 hover:to-blue-700 hover:shadow-blue-500/30"
+            variant="cyan"
+            className="px-6 py-3 font-medium"
           >
             Adaugă Clasă
-          </button>
+          </GradientButton>
         </div>
       </div>
 
@@ -97,13 +99,14 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
             <h3 className="flex items-center text-xl font-semibold text-blue-300">
               <span className="mr-3 text-2xl">📋</span> Listă Clase
             </h3>
-            <button
+            <GradientButton
+              variant="green"
               onClick={handleExportToCSV}
-              className="flex transform items-center rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2 text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-emerald-500/20"
+              className="flex items-center justify-center px-4 py-2"
             >
               <span className="mr-2">📥</span>
               <span className="font-medium">Exportă în CSV</span>
-            </button>
+            </GradientButton>
           </div>
           <div className="overflow-x-auto rounded-lg">
             <table className="w-full border-collapse">
