@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Class, Lesson, exportClassesToCSV } from "../../util/timetable";
 import GradientButton from "./common/GradientButton";
 import GradientContainer from "./common/GradientContainer";
+import TextInput from "./common/TextInput";
 
 interface ClassesTabProps {
   classes: Class[];
@@ -77,12 +78,11 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
           <span className="mr-3 text-2xl">🏛️</span> Adaugă Clasă Nouă
         </h3>
         <div className="flex gap-3">
-          <input
-            type="text"
+          <TextInput
             value={newClassName}
             onChange={e => setNewClassName(e.target.value)}
             placeholder="Numele clasei (ex., '10A', '11B')"
-            className="flex-1 rounded-lg border border-slate-600/50 bg-slate-100 p-3 placeholder-slate-400 backdrop-blur-sm transition-all duration-300 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
+            className="flex-1 p-3"
           />
           <GradientButton
             onClick={handleAddClass}

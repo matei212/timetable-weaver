@@ -12,6 +12,7 @@ import {
 import TeacherAvailabilityModal from "./TeacherAvailabilityModal";
 import GradientButton from "./common/GradientButton";
 import GradientContainer from "./common/GradientContainer";
+import TextInput from "./common/TextInput";
 
 interface TeachersTabProps {
   teachers: Teacher[];
@@ -202,12 +203,11 @@ const TeacherForm: React.FC<{
         <span className="mr-3 text-2xl">👨‍🏫</span> Adaugă Profesor Nou
       </h3>
       <form onSubmit={handleSubmit} className="flex gap-3">
-        <input
-          type="text"
+        <TextInput
           value={newTeacherName}
           onChange={e => setNewTeacherName(e.target.value)}
           placeholder="Numele profesorului"
-          className="flex-1 rounded-lg border border-slate-600/50 bg-slate-100 p-3 placeholder-slate-400 backdrop-blur-sm transition-all duration-300 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
+          className="flex-1 p-3"
         />
         <button
           type="submit"

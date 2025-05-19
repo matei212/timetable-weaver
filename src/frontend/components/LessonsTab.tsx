@@ -9,6 +9,7 @@ import {
 } from "../../util/timetable";
 import GradientButton from "./common/GradientButton";
 import GradientContainer from "./common/GradientContainer";
+import TextInput from "./common/TextInput";
 
 interface LessonsTabProps {
   classes: Class[];
@@ -599,12 +600,11 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                   <label className="mb-2 block text-sm text-blue-300">
                     Numele Materiei
                   </label>
-                  <input
-                    type="text"
+                  <TextInput
                     value={newLessonName}
                     onChange={e => setNewLessonName(e.target.value)}
                     placeholder="Numele materiei (ex. 'Matematică', 'Fizică')"
-                    className="w-full rounded-lg border border-slate-600/50 bg-slate-100 p-3 placeholder-slate-400 backdrop-blur-sm transition-all duration-300 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
+                    className="w-full p-3"
                   />
                 </div>
 
