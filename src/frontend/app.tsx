@@ -529,13 +529,11 @@ const TimetableLayout: React.FC<{
   children,
 }) => {
   return (
-    <div className="flex flex-col lg:flex-row h-screen overflow-hidden">
+    <div className="flex h-screen flex-col overflow-hidden lg:flex-row">
       <Sidebar mode={sidebarMode} onModeChange={onSidebarModeChange} />
 
-      <div className="flex-1 overflow-y-auto bg-gray-900 dark:bg-gray-900 text-white pt-16 lg:pt-0">
-        <div className="container mx-auto px-4">
-          {children}
-        </div>
+      <div className="flex-1 overflow-y-auto bg-gray-100 pt-16 lg:pt-0 dark:bg-gray-900 dark:text-white">
+        <div className="container mx-auto px-4">{children}</div>
       </div>
 
       {generatedTimetable && (

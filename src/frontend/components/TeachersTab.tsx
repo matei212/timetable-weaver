@@ -120,39 +120,45 @@ const useTeacherManagement = (
   };
 
   // Add a function to update lesson periods
-  const updateLessonPeriods = (teacherName: string, className: string, subjectName: string, newPeriods: number) => {
+  const updateLessonPeriods = (
+    teacherName: string,
+    className: string,
+    subjectName: string,
+    newPeriods: number,
+  ) => {
     if (newPeriods < 1) return false;
-    
+
     const updatedClasses = [...classes];
     let changed = false;
-    
+
     // Find the class and lesson to update
     updatedClasses.forEach((cls, classIndex) => {
       if (cls.name === className) {
         const lessonIndex = cls.lessons.findIndex(
-          lesson => lesson.teacher.name === teacherName && lesson.name === subjectName
+          lesson =>
+            lesson.teacher.name === teacherName && lesson.name === subjectName,
         );
-        
+
         if (lessonIndex !== -1) {
           // Create a new lesson with updated periods
           const oldLesson = cls.lessons[lessonIndex];
           const newLesson = new Lesson(
             oldLesson.name,
             oldLesson.teacher,
-            newPeriods
+            newPeriods,
           );
-          
+
           // Update the lesson in the class
           const updatedLessons = [...cls.lessons];
           updatedLessons[lessonIndex] = newLesson;
-          
+
           // Create a new class with updated lessons
           updatedClasses[classIndex] = new Class(cls.name, updatedLessons);
           changed = true;
         }
       }
     });
-    
+
     if (changed) {
       onClassesChange(updatedClasses);
       return true;
@@ -189,8 +195,8 @@ const TeacherForm: React.FC<{
   };
 
   return (
-    <div className="mb-8 rounded-xl bg-gradient-to-b from-slate-800 to-slate-900 p-8 shadow-xl border border-blue-500/20 backdrop-blur-sm">
-      <h3 className="mb-6 text-xl font-semibold text-blue-300 flex items-center">
+    <div className="mb-8 rounded-xl border border-blue-500/20 bg-white bg-gradient-to-b p-8 shadow-xl backdrop-blur-sm dark:from-slate-800 dark:to-slate-900">
+      <h3 className="mb-6 flex items-center text-xl font-semibold text-blue-300">
         <span className="mr-3 text-2xl">👨‍🏫</span> Adaugă Profesor Nou
       </h3>
       <form onSubmit={handleSubmit} className="flex gap-3">
@@ -199,11 +205,11 @@ const TeacherForm: React.FC<{
           value={newTeacherName}
           onChange={e => setNewTeacherName(e.target.value)}
           placeholder="Numele profesorului"
-          className="flex-1 rounded-lg border border-slate-600/50 bg-slate-700/30 p-3 text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300 backdrop-blur-sm"
+          className="flex-1 rounded-lg border border-slate-600/50 bg-slate-100 p-3 placeholder-slate-400 backdrop-blur-sm transition-all duration-300 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
         />
         <button
           type="submit"
-          className="rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-white font-medium shadow-lg hover:shadow-blue-500/30 transform hover:-translate-y-0.5 transition-all duration-300 hover:from-blue-700 hover:to-indigo-700"
+          className="transform rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 font-medium text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:from-blue-700 hover:to-indigo-700 hover:shadow-blue-500/30"
         >
           Adaugă Profesor
         </button>
@@ -217,8 +223,10 @@ const TeacherForm: React.FC<{
  */
 const getTeacherSubjects = (teacherName: string, classes: Class[]) => {
   // Map of subject name to array of {className, periodsPerWeek}
-  const subjects: { [subject: string]: { className: string; periodsPerWeek: number }[] } = {};
-  
+  const subjects: {
+    [subject: string]: { className: string; periodsPerWeek: number }[];
+  } = {};
+
   classes.forEach(cls => {
     cls.lessons.forEach(lesson => {
       if (lesson.teacher.name === teacherName) {
@@ -227,12 +235,12 @@ const getTeacherSubjects = (teacherName: string, classes: Class[]) => {
         }
         subjects[lesson.name].push({
           className: cls.name,
-          periodsPerWeek: lesson.periodsPerWeek
+          periodsPerWeek: lesson.periodsPerWeek,
         });
       }
     });
   });
-  
+
   return subjects;
 };
 
@@ -246,20 +254,25 @@ const TeacherListItem: React.FC<{
   onRemove: () => void;
   onEditAvailability: () => void;
   onUpdateName: (name: string) => boolean;
-  onUpdateLessonPeriods: (teacherName: string, className: string, subjectName: string, newPeriods: number) => boolean;
-}> = ({ 
-  teacher, 
-  classes, 
-  index, 
-  onRemove, 
-  onEditAvailability, 
+  onUpdateLessonPeriods: (
+    teacherName: string,
+    className: string,
+    subjectName: string,
+    newPeriods: number,
+  ) => boolean;
+}> = ({
+  teacher,
+  classes,
+  index,
+  onRemove,
+  onEditAvailability,
   onUpdateName,
-  onUpdateLessonPeriods 
+  onUpdateLessonPeriods,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(teacher.name);
   const [isExpanded, setIsExpanded] = useState(false);
-  
+
   // Get all subjects taught by this teacher
   const subjects = getTeacherSubjects(teacher.name, classes);
   const hasSubjects = Object.keys(subjects).length > 0;
@@ -279,7 +292,11 @@ const TeacherListItem: React.FC<{
     setIsEditing(false);
   };
 
-  const handlePeriodChange = (className: string, subjectName: string, newValue: string) => {
+  const handlePeriodChange = (
+    className: string,
+    subjectName: string,
+    newValue: string,
+  ) => {
     const periods = parseInt(newValue, 10);
     if (!isNaN(periods) && periods > 0) {
       onUpdateLessonPeriods(teacher.name, className, subjectName, periods);
@@ -288,27 +305,27 @@ const TeacherListItem: React.FC<{
 
   return (
     <>
-      <tr className="border-b border-slate-700/50 hover:bg-slate-700/20 transition-all duration-300">
+      <tr className="border-b border-slate-700/50 transition-all duration-300 hover:bg-slate-400/10 dark:hover:bg-slate-700/20">
         <td className="p-3">
           {isEditing ? (
-            <div className="flex flex-col sm:flex-row gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <input
                 type="text"
                 value={editName}
                 onChange={e => setEditName(e.target.value)}
-                className="flex-1 rounded-lg border border-slate-600/50 bg-slate-700/30 p-2 text-white transition-all focus:ring-2 focus:ring-blue-500/50"
+                className="flex-1 rounded-lg border border-slate-600/50 bg-slate-200 p-2 transition-all focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
                 autoFocus
               />
-              <div className="flex gap-2 mt-2 sm:mt-0">
+              <div className="mt-2 flex gap-2 sm:mt-0">
                 <button
                   onClick={handleSaveEdit}
-                  className="rounded-lg bg-emerald-600 px-3 py-1 text-xs text-white hover:bg-emerald-700 transition-all duration-300"
+                  className="rounded-lg bg-emerald-600 px-3 py-1 text-xs text-white transition-all duration-300 hover:bg-emerald-700"
                 >
                   Salvează
                 </button>
                 <button
                   onClick={handleCancelEdit}
-                  className="rounded-lg bg-slate-600 px-3 py-1 text-xs text-white hover:bg-slate-700 transition-all duration-300"
+                  className="rounded-lg bg-slate-600 px-3 py-1 text-xs text-white transition-all duration-300 hover:bg-slate-700"
                 >
                   Anulează
                 </button>
@@ -316,79 +333,103 @@ const TeacherListItem: React.FC<{
             </div>
           ) : (
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex flex-col mb-2 sm:mb-0">
-                <span className="font-medium text-slate-100">{teacher.name}</span>
+              <div className="mb-2 flex flex-col sm:mb-0">
+                <span className="font-medium text-slate-700 dark:text-slate-100">
+                  {teacher.name}
+                </span>
                 {hasSubjects && (
                   <button
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="text-s text-blue-400 hover:text-blue-300 mt-1 flex items-center"
+                    className="text-s mt-1 flex items-center text-blue-400 hover:text-blue-300"
                   >
-                    <span className="mr-1">{isExpanded ? "Ascunde" : "Arată"} clasele la care preda</span>
+                    <span className="mr-1">
+                      {isExpanded ? "Ascunde" : "Arată"} clasele la care preda
+                    </span>
                     <span>{isExpanded ? "▲" : "▼"}</span>
                   </button>
                 )}
               </div>
               <button
                 onClick={handleStartEdit}
-                className="text-sm rounded-lg bg-blue-500/20 px-2 py-1 text-blue-300 hover:bg-blue-500/30 hover:text-blue-200 transition-all duration-300"
+                className="rounded-lg bg-blue-200 px-2 py-1 text-sm text-blue-500 transition-all duration-300 hover:bg-blue-300/80 dark:bg-blue-500/20 dark:text-blue-300 dark:hover:bg-blue-500/30 dark:hover:text-blue-200"
               >
                 Editează
               </button>
             </div>
           )}
         </td>
-        <td className="p-3 hidden sm:table-cell">
+        <td className="hidden p-3 sm:table-cell">
           <button
             onClick={onEditAvailability}
-            className="rounded-lg bg-indigo-500/20 px-3 py-1.5 text-indigo-300 hover:bg-indigo-500/30 hover:text-indigo-200 transition-all duration-300"
+            className="rounded-lg bg-indigo-600/20 px-3 py-1.5 text-indigo-500 transition-all duration-300 hover:bg-indigo-600/30 dark:bg-indigo-500/20 dark:text-indigo-300 dark:hover:bg-indigo-500/30 dark:hover:text-indigo-200"
           >
             Setează Disponibilitate
           </button>
         </td>
         <td className="p-3 text-right sm:text-center">
-          <div className="flex flex-col sm:flex-row gap-2 justify-end sm:justify-center">
+          <div className="flex flex-col justify-end gap-2 sm:flex-row sm:justify-center">
             <button
               onClick={onEditAvailability}
-              className="rounded-lg bg-indigo-500/20 px-3 py-1.5 text-indigo-300 hover:bg-indigo-500/30 hover:text-indigo-200 transition-all duration-300 sm:hidden"
+              className="rounded-lg bg-indigo-500/20 px-3 py-1.5 text-indigo-300 transition-all duration-300 hover:bg-indigo-500/30 hover:text-indigo-200 sm:hidden"
             >
               Disponibilitate
             </button>
             <button
               onClick={onRemove}
-              className="rounded-lg bg-red-500/20 px-3 py-1.5 text-red-300 hover:bg-red-500/30 hover:text-red-200 transition-all duration-300"
+              className="rounded-lg bg-red-500/20 px-3 py-1.5 text-red-500 transition-all duration-300 hover:bg-red-500/30 dark:text-red-300 dark:hover:bg-red-500/30 dark:hover:text-red-200"
             >
               Șterge
             </button>
           </div>
         </td>
       </tr>
-      {isExpanded && hasSubjects && Object.entries(subjects).map(([subjectName, classDetails]) => (
-        <tr key={`${teacher.name}-${subjectName}`} className="bg-slate-800/30">
-          <td colSpan={3} className="pl-8 pr-3 py-2 border-b border-slate-700/30">
-            <div className="text-slate-300 font-medium">
-              Materie: <span className="text-cyan-300">{subjectName}</span>
-            </div>
-            <div className="mt-2 space-y-2">
-              {classDetails.map(detail => (
-                <div key={`${teacher.name}-${subjectName}-${detail.className}`} 
-                     className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-2 rounded-lg bg-slate-700/20 gap-2">
-                  <span className="text-slate-400">Clasa: {detail.className}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-slate-400">Numar de ore</span>
-                    <input
-                      type="number"
-                      min="1"
-                      value={detail.periodsPerWeek}
-                      onChange={(e) => handlePeriodChange(detail.className, subjectName, e.target.value)}
-                      className="w-16 rounded-lg border border-blue-500/30 bg-slate-800/50 p-1 text-center text-blue-300 focus:ring-2 focus:ring-blue-500/50"
-                    />
+      {isExpanded &&
+        hasSubjects &&
+        Object.entries(subjects).map(([subjectName, classDetails]) => (
+          <tr
+            key={`${teacher.name}-${subjectName}`}
+            className="bg-slate-800/30"
+          >
+            <td
+              colSpan={3}
+              className="border-b border-slate-700/30 py-2 pr-3 pl-8"
+            >
+              <div className="font-medium text-slate-300">
+                Materie: <span className="text-cyan-300">{subjectName}</span>
+              </div>
+              <div className="mt-2 space-y-2">
+                {classDetails.map(detail => (
+                  <div
+                    key={`${teacher.name}-${subjectName}-${detail.className}`}
+                    className="flex flex-col gap-2 rounded-lg bg-slate-700/20 p-2 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <span className="text-slate-400">
+                      Clasa: {detail.className}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-slate-400">
+                        Numar de ore
+                      </span>
+                      <input
+                        type="number"
+                        min="1"
+                        value={detail.periodsPerWeek}
+                        onChange={e =>
+                          handlePeriodChange(
+                            detail.className,
+                            subjectName,
+                            e.target.value,
+                          )
+                        }
+                        className="w-16 rounded-lg border border-blue-500/30 bg-slate-800/50 p-1 text-center text-blue-300 focus:ring-2 focus:ring-blue-500/50"
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </td>
-        </tr>
-      ))}
+                ))}
+              </div>
+            </td>
+          </tr>
+        ))}
     </>
   );
 };
@@ -402,7 +443,12 @@ const TeacherList: React.FC<{
   onRemoveTeacher: (index: number) => void;
   onEditAvailability: (index: number) => void;
   onUpdateTeacherName: (index: number, name: string) => boolean;
-  onUpdateLessonPeriods: (teacherName: string, className: string, subjectName: string, newPeriods: number) => boolean;
+  onUpdateLessonPeriods: (
+    teacherName: string,
+    className: string,
+    subjectName: string,
+    newPeriods: number,
+  ) => boolean;
   onImportTeachers: (importedTeachers: Teacher[]) => void;
 }> = ({
   teachers,
@@ -434,9 +480,9 @@ const TeacherList: React.FC<{
   };
 
   return (
-    <div className="rounded-xl bg-gradient-to-b from-slate-800 to-slate-900 p-4 sm:p-8 shadow-xl border border-blue-500/20 backdrop-blur-sm">
-      <div className="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <h3 className="text-xl font-semibold text-blue-300 flex items-center">
+    <div className="rounded-xl border border-blue-500/20 bg-white p-4 shadow-xl backdrop-blur-sm sm:p-8 dark:bg-gradient-to-b dark:from-slate-800 dark:to-slate-900">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h3 className="flex items-center text-xl font-semibold text-blue-300">
           <span className="mr-3 text-2xl">👩‍🏫</span> Listă Profesori
         </h3>
 
@@ -455,7 +501,7 @@ const TeacherList: React.FC<{
           />
           <label
             htmlFor="import-teachers-file"
-            className="cursor-pointer rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2 text-white flex items-center transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/20"
+            className="flex transform cursor-pointer items-center rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2 text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/20"
           >
             <span className="mr-2">📤</span>
             <span className="font-medium">Importă CSV</span>
@@ -463,7 +509,7 @@ const TeacherList: React.FC<{
 
           <button
             onClick={handleExportToCSV}
-            className="rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2 text-white flex items-center transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg hover:shadow-emerald-500/20"
+            className="flex transform items-center rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2 text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-emerald-500/20"
           >
             <span className="mr-2">📥</span>
             <span className="font-medium">Exportă CSV</span>
@@ -475,14 +521,14 @@ const TeacherList: React.FC<{
         <div className="overflow-x-auto rounded-lg">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="bg-gradient-to-r from-slate-700/50 to-slate-800/50 text-slate-200">
+              <tr className="bg-slate-200 dark:bg-slate-700/50 dark:text-slate-200">
                 <th className="border-b border-slate-600/50 p-3 text-left font-medium tracking-wide">
                   Nume
                 </th>
-                <th className="border-b border-slate-600/50 p-3 text-left font-medium tracking-wide hidden sm:table-cell">
+                <th className="hidden border-b border-slate-600/50 p-3 text-left font-medium tracking-wide sm:table-cell">
                   Disponibilitate
                 </th>
-                <th className="w-28 border-b border-slate-600/50 p-3 text-right sm:text-center font-medium tracking-wide">
+                <th className="w-28 border-b border-slate-600/50 p-3 text-right font-medium tracking-wide sm:text-center">
                   Acțiuni
                 </th>
               </tr>
@@ -505,11 +551,11 @@ const TeacherList: React.FC<{
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-8">
-          <span className="text-4xl mb-4">👨‍🏫</span>
-          <p className="text-slate-300 mb-2 text-center">
+          <span className="mb-4 text-4xl">👨‍🏫</span>
+          <p className="mb-2 text-center text-slate-300">
             Nu există profesori adăugați încă. Adăugați primul profesor mai sus.
           </p>
-          <p className="text-blue-400/80 text-sm text-center">
+          <p className="text-center text-sm text-blue-400/80">
             Profesorii sunt necesari pentru a crea lecții și a genera orare.
           </p>
         </div>
@@ -537,13 +583,20 @@ const TeachersTab: React.FC<TeachersTabProps> = ({
     saveAvailability,
     updateTeacherName,
     updateLessonPeriods,
-  } = useTeacherManagement(teachers, classes, onTeachersChange, onClassesChange);
+  } = useTeacherManagement(
+    teachers,
+    classes,
+    onTeachersChange,
+    onClassesChange,
+  );
 
   const handleImportTeachers = (importedTeachers: Teacher[]) => {
     if (importedTeachers.length > 0) {
       // Append imported teachers to existing ones
       onTeachersChange([...teachers, ...importedTeachers]);
-      alert(`Au fost importați cu succes ${importedTeachers.length} profesori.`);
+      alert(
+        `Au fost importați cu succes ${importedTeachers.length} profesori.`,
+      );
     } else {
       alert("Nu au fost găsiți profesori în fișierul importat.");
     }
@@ -551,7 +604,7 @@ const TeachersTab: React.FC<TeachersTabProps> = ({
 
   return (
     <div className="mx-auto w-full max-w-5xl p-8">
-      <h2 className="mb-4 md:mb-8 text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-500">
+      <h2 className="mb-4 bg-gradient-to-r from-blue-400 to-cyan-500 bg-clip-text text-2xl font-bold text-transparent md:mb-8 md:text-3xl">
         Gestionare Profesori
       </h2>
 
@@ -567,10 +620,11 @@ const TeachersTab: React.FC<TeachersTabProps> = ({
         onImportTeachers={handleImportTeachers}
       />
 
-      <div className="mt-6 rounded-lg bg-blue-900/10 p-4 text-sm text-blue-300 border border-blue-500/10 backdrop-blur-sm">
-        <p className="flex items-center flex-wrap">
+      <div className="mt-6 rounded-lg border border-blue-500/10 bg-blue-300/30 p-4 text-sm text-blue-300 backdrop-blur-sm dark:bg-blue-900/10">
+        <p className="flex flex-wrap items-center">
           <span className="mr-2">ℹ️</span>
-          Setați disponibilitatea fiecărui profesor apăsând pe "Setează Disponibilitate". Implicit, toate intervalele orare sunt disponibile.
+          Setați disponibilitatea fiecărui profesor apăsând pe "Setează
+          Disponibilitate". Implicit, toate intervalele orare sunt disponibile.
         </p>
       </div>
 

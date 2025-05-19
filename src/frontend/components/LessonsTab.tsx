@@ -1,5 +1,12 @@
 import { useState, useRef } from "react";
-import { Class, Lesson, Teacher, exportLessonsToCSV, importLessonsFromCSV, exportClassLessonsToCSV } from "../../util/timetable";
+import {
+  Class,
+  Lesson,
+  Teacher,
+  exportLessonsToCSV,
+  importLessonsFromCSV,
+  exportClassLessonsToCSV,
+} from "../../util/timetable";
 
 interface LessonsTabProps {
   classes: Class[];
@@ -35,16 +42,17 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
 
   // Create refs array for class imports
   const classFileInputRefs = useRef<Array<HTMLInputElement | null>>([]);
-  
+
   // Initialize refs for each class
   if (classFileInputRefs.current.length !== classes.length) {
     classFileInputRefs.current = Array(classes.length).fill(null);
   }
 
   // Create a ref callback for each class input
-  const setClassFileInputRef = (index: number) => (el: HTMLInputElement | null) => {
-    classFileInputRefs.current[index] = el;
-  };
+  const setClassFileInputRef =
+    (index: number) => (el: HTMLInputElement | null) => {
+      classFileInputRefs.current[index] = el;
+    };
 
   const handleAddLesson = () => {
     if (
@@ -162,30 +170,30 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
   // Update the export all lessons handler
   const handleExportAllLessonsToCSV = () => {
     if (classes.length === 0) return;
-    
+
     // Create CSV header
     let csvContent = "Subject,Teacher,PeriodsPerWeek,Class\r\n";
-    
+
     // Add data for each class with better class separation
-    classes.forEach((cls) => {
+    classes.forEach(cls => {
       // Add class separator before each class except the first
       cls.lessons.forEach(lesson => {
         csvContent += `${lesson.name},${lesson.teacher.name},${lesson.periodsPerWeek},${cls.name}\r\n`;
       });
     });
-    
+
     // Create and download the file
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
-    
+
     const downloadLink = document.createElement("a");
     downloadLink.href = url;
     downloadLink.download = "all-lessons.csv";
     downloadLink.style.display = "none";
-    
+
     document.body.appendChild(downloadLink);
     downloadLink.click();
-    
+
     setTimeout(() => {
       document.body.removeChild(downloadLink);
       URL.revokeObjectURL(url);
@@ -198,13 +206,23 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
   };
 
   // Update the import handler to support class-specific imports
-  const handleImportFromCSV = async (file: File, targetClassName: string | null = null) => {
+  const handleImportFromCSV = async (
+    file: File,
+    targetClassName: string | null = null,
+  ) => {
     try {
-      const updatedClasses = await importLessonsFromCSV(file, teachers, classes, targetClassName);
+      const updatedClasses = await importLessonsFromCSV(
+        file,
+        teachers,
+        classes,
+        targetClassName,
+      );
       onClassesChange(updatedClasses);
     } catch (error) {
       console.error("Error importing lessons:", error);
-      alert("Eroare la importarea lecțiilor. Vă rugăm verificați fișierul CSV.");
+      alert(
+        "Eroare la importarea lecțiilor. Vă rugăm verificați fișierul CSV.",
+      );
     }
   };
 
@@ -215,22 +233,24 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
 
     if (lessons.length === 0) {
       return (
-        <div className="text-center py-8 text-slate-400">
+        <div className="py-8 text-center text-slate-400">
           <p>Nu există lecții adăugate pentru această clasă.</p>
-          <p className="text-sm mt-2">Folosiți formularul de mai sus pentru a adăuga lecții.</p>
+          <p className="mt-2 text-sm">
+            Folosiți formularul de mai sus pentru a adăuga lecții.
+          </p>
         </div>
       );
     }
 
     return (
       <div className="mt-8">
-        <h4 className="text-lg font-semibold text-blue-300 mb-4 flex items-center">
+        <h4 className="mb-4 flex items-center text-lg font-semibold text-blue-300">
           <span className="mr-2">📚</span> Lecții pentru {currentClass.name}
         </h4>
         <div className="overflow-x-auto rounded-lg">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="bg-gradient-to-r from-slate-700/50 to-slate-800/50 text-slate-200">
+              <tr className="bg-slate-200 dark:bg-slate-700/50 dark:text-slate-200">
                 <th className="border-b border-slate-600/50 p-3 text-left font-medium tracking-wide">
                   Materie
                 </th>
@@ -240,7 +260,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                 <th className="border-b border-slate-600/50 p-3 text-center font-medium tracking-wide">
                   de ore
                 </th>
-                <th className="w-32 border-b border-slate-600/50 p-3 text-center font-medium tracking-wide hidden md:table-cell">
+                <th className="hidden w-32 border-b border-slate-600/50 p-3 text-center font-medium tracking-wide md:table-cell">
                   Acțiuni
                 </th>
               </tr>
@@ -249,38 +269,44 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
               {lessons.map((lesson, lessonIndex) => (
                 <tr
                   key={lessonIndex}
-                  className="border-b border-slate-700/50 hover:bg-slate-700/20 transition-all duration-300"
+                  className="border-b border-slate-700/50 transition-all duration-300 hover:bg-slate-400/10 dark:hover:bg-slate-700/20"
                 >
                   <td className="p-3">
-                    {editingLesson && 
-                     editingLesson.classIndex === classIndex && 
-                     editingLesson.lessonIndex === lessonIndex ? (
+                    {editingLesson &&
+                    editingLesson.classIndex === classIndex &&
+                    editingLesson.lessonIndex === lessonIndex ? (
                       <input
                         type="text"
                         value={editingLesson.name}
-                        onChange={(e) => 
+                        onChange={e =>
                           setEditingLesson({
                             ...editingLesson,
                             name: e.target.value,
                           })
                         }
-                        className="w-full rounded-lg border border-slate-600/50 bg-slate-700/30 p-2 text-white focus:ring-2 focus:ring-blue-500/50"
+                        className="w-full rounded-lg border border-slate-600/50 bg-slate-100 p-2 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
                         autoFocus
                       />
                     ) : (
                       <div>
-                        <span className="font-medium text-slate-100">{lesson.name}</span>
-                        <div className="md:hidden mt-1">
-                          <div className="flex gap-2 mt-2">
+                        <span className="font-medium text-slate-700 dark:text-slate-100">
+                          {lesson.name}
+                        </span>
+                        <div className="mt-1 md:hidden">
+                          <div className="mt-2 flex gap-2">
                             <button
-                              onClick={() => handleStartEditLesson(classIndex, lessonIndex)}
-                              className="rounded-lg bg-blue-500/20 px-2 py-1 text-xs text-blue-300 hover:bg-blue-500/30 hover:text-blue-200 transition-all duration-300"
+                              onClick={() =>
+                                handleStartEditLesson(classIndex, lessonIndex)
+                              }
+                              className="rounded-lg bg-blue-200 px-2 py-1 text-blue-500 transition-all duration-300 hover:bg-blue-300/80 dark:bg-blue-500/20 dark:text-blue-300 dark:hover:bg-blue-500/30 dark:hover:text-blue-200"
                             >
                               Editează
                             </button>
                             <button
-                              onClick={() => handleRemoveLesson(classIndex, lessonIndex)}
-                              className="rounded-lg bg-red-500/20 px-2 py-1 text-xs text-red-300 hover:bg-red-500/30 hover:text-red-200 transition-all duration-300"
+                              onClick={() =>
+                                handleRemoveLesson(classIndex, lessonIndex)
+                              }
+                              className="rounded-lg bg-red-500/20 px-3 py-1.5 text-red-500 transition-all duration-300 hover:bg-red-500/30 dark:text-red-300 dark:hover:text-red-200"
                             >
                               Șterge
                             </button>
@@ -290,18 +316,18 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                     )}
                   </td>
                   <td className="p-3">
-                    {editingLesson && 
-                     editingLesson.classIndex === classIndex && 
-                     editingLesson.lessonIndex === lessonIndex ? (
+                    {editingLesson &&
+                    editingLesson.classIndex === classIndex &&
+                    editingLesson.lessonIndex === lessonIndex ? (
                       <select
                         value={editingLesson.teacherIndex}
-                        onChange={(e) => 
+                        onChange={e =>
                           setEditingLesson({
                             ...editingLesson,
                             teacherIndex: parseInt(e.target.value, 10),
                           })
                         }
-                        className="w-full rounded-lg border border-slate-600/50 bg-slate-700/30 p-2 text-white focus:ring-2 focus:ring-blue-500/50"
+                        className="w-full rounded-lg border border-slate-600/50 bg-slate-100 p-2 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
                       >
                         {teachers.map((teacher, idx) => (
                           <option key={idx} value={idx}>
@@ -311,25 +337,30 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                       </select>
                     ) : (
                       <div className="flex flex-col">
-                        <span className="text-cyan-300">{lesson.teacher.name}</span>
+                        <span className="text-cyan-300">
+                          {lesson.teacher.name}
+                        </span>
                       </div>
                     )}
                   </td>
                   <td className="p-3 text-center">
-                    {editingLesson && 
-                     editingLesson.classIndex === classIndex && 
-                     editingLesson.lessonIndex === lessonIndex ? (
+                    {editingLesson &&
+                    editingLesson.classIndex === classIndex &&
+                    editingLesson.lessonIndex === lessonIndex ? (
                       <input
                         type="number"
                         min="1"
                         value={editingLesson.periodsPerWeek}
-                        onChange={(e) => 
+                        onChange={e =>
                           setEditingLesson({
                             ...editingLesson,
-                            periodsPerWeek: Math.max(1, parseInt(e.target.value, 10) || 1),
+                            periodsPerWeek: Math.max(
+                              1,
+                              parseInt(e.target.value, 10) || 1,
+                            ),
                           })
                         }
-                        className="w-20 rounded-lg border border-slate-600/50 bg-slate-700/30 p-2 text-center text-white focus:ring-2 focus:ring-blue-500/50"
+                        className="w-20 rounded-lg border border-slate-600/50 bg-slate-100 p-2 text-center focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
                       />
                     ) : (
                       <div className="flex justify-center">
@@ -337,30 +368,32 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                           type="number"
                           min="1"
                           value={lesson.periodsPerWeek}
-                          onChange={(e) => handleQuickEditPeriodsPerWeek(
-                            classIndex,
-                            lessonIndex,
-                            parseInt(e.target.value, 10) || 1
-                          )}
-                          className="w-16 rounded-lg border border-blue-500/30 bg-slate-800/50 p-1 text-center text-blue-300 focus:ring-2 focus:ring-blue-500/50"
+                          onChange={e =>
+                            handleQuickEditPeriodsPerWeek(
+                              classIndex,
+                              lessonIndex,
+                              parseInt(e.target.value, 10) || 1,
+                            )
+                          }
+                          className="w-16 rounded-lg border border-blue-500/30 bg-slate-100 p-1 text-center focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-800/50 dark:text-blue-300"
                         />
                       </div>
                     )}
                   </td>
-                  <td className="p-3 text-center hidden md:table-cell">
-                    {editingLesson && 
-                     editingLesson.classIndex === classIndex && 
-                     editingLesson.lessonIndex === lessonIndex ? (
+                  <td className="hidden p-3 text-center md:table-cell">
+                    {editingLesson &&
+                    editingLesson.classIndex === classIndex &&
+                    editingLesson.lessonIndex === lessonIndex ? (
                       <div className="flex justify-center gap-2">
                         <button
                           onClick={handleSaveEditLesson}
-                          className="rounded-lg bg-emerald-600 px-3 py-1 text-xs text-white hover:bg-emerald-700 transition-all duration-300"
+                          className="rounded-lg bg-emerald-600 px-3 py-1 text-xs text-white transition-all duration-300 hover:bg-emerald-700"
                         >
                           Salvează
                         </button>
                         <button
                           onClick={handleCancelEditLesson}
-                          className="rounded-lg bg-slate-600 px-3 py-1 text-xs text-white hover:bg-slate-700 transition-all duration-300"
+                          className="rounded-lg bg-slate-600 px-3 py-1 text-xs text-white transition-all duration-300 hover:bg-slate-700"
                         >
                           Anulează
                         </button>
@@ -368,14 +401,18 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                     ) : (
                       <div className="flex justify-center gap-2">
                         <button
-                          onClick={() => handleStartEditLesson(classIndex, lessonIndex)}
-                          className="rounded-lg bg-blue-500/20 px-3 py-1 text-xs text-blue-300 hover:bg-blue-500/30 hover:text-blue-200 transition-all duration-300"
+                          onClick={() =>
+                            handleStartEditLesson(classIndex, lessonIndex)
+                          }
+                          className="rounded-lg bg-blue-500/20 px-3 py-1 text-xs text-blue-300 transition-all duration-300 hover:bg-blue-500/30 hover:text-blue-200"
                         >
                           Editează
                         </button>
                         <button
-                          onClick={() => handleRemoveLesson(classIndex, lessonIndex)}
-                          className="rounded-lg bg-red-500/20 px-3 py-1 text-xs text-red-300 hover:bg-red-500/30 hover:text-red-200 transition-all duration-300"
+                          onClick={() =>
+                            handleRemoveLesson(classIndex, lessonIndex)
+                          }
+                          className="rounded-lg bg-red-500/20 px-3 py-1 text-xs text-red-300 transition-all duration-300 hover:bg-red-500/30 hover:text-red-200"
                         >
                           Șterge
                         </button>
@@ -393,62 +430,64 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
 
   return (
     <div className="mx-auto w-full max-w-5xl p-8">
-      <h2 className="mb-4 md:mb-8 text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+      <h2 className="mb-4 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-2xl font-bold text-transparent md:mb-8 md:text-3xl">
         Gestionare Lecții
       </h2>
 
       {classes.length === 0 ? (
-        <div className="rounded-xl bg-gradient-to-b from-slate-800 to-slate-900 p-4 md:p-8 text-center shadow-xl border border-blue-500/20 backdrop-blur-sm">
+        <div className="rounded-xl border border-blue-500/20 bg-gradient-to-b from-slate-800 to-slate-900 p-4 text-center shadow-xl backdrop-blur-sm md:p-8">
           <div className="flex flex-col items-center justify-center py-8">
-            <span className="text-4xl mb-4">📚</span>
-            <p className="text-slate-300 mb-2">
+            <span className="mb-4 text-4xl">📚</span>
+            <p className="mb-2 text-slate-300">
               Nu există clase disponibile. Vă rugăm adăugați clase mai întâi.
             </p>
-            <p className="text-blue-400/80 text-sm">
-              Accesați secțiunea Clase pentru a crea clase înainte de a adăuga lecții.
+            <p className="text-sm text-blue-400/80">
+              Accesați secțiunea Clase pentru a crea clase înainte de a adăuga
+              lecții.
             </p>
           </div>
         </div>
       ) : (
         <>
-          <div className="mb-8 rounded-xl bg-gradient-to-b from-slate-800 to-slate-900 p-4 md:p-8 shadow-xl border border-blue-500/20 backdrop-blur-sm">
-            <h3 className="mb-6 text-xl font-semibold text-blue-300 flex items-center">
+          <div className="mb-8 rounded-xl border border-blue-500/20 bg-white bg-gradient-to-b p-4 shadow-xl backdrop-blur-sm md:p-8 dark:from-slate-800 dark:to-slate-900">
+            <h3 className="mb-6 flex items-center text-xl font-semibold text-blue-300">
               <span className="mr-3 text-2xl">🏛️</span> Selectați Clasa
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
               {classes.map((cls, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedClassIndex(index)}
-                  className={`p-4 rounded-lg border ${
+                  className={`rounded-lg border p-4 ${
                     selectedClassIndex === index
-                      ? "border-cyan-500/50 bg-cyan-900/20 text-cyan-100 shadow-lg shadow-cyan-500/10"
-                      : "border-slate-600/30 bg-slate-700/30 text-slate-300 hover:bg-slate-700/50 hover:border-slate-500/50"
-                  } transition-all duration-300 transform hover:-translate-y-1`}
+                      ? "border-cyan-500/50 bg-blue-600/20 shadow-lg shadow-cyan-500/10 dark:bg-cyan-900/20 dark:text-cyan-100"
+                      : "border-slate-600/30 bg-slate-100 text-slate-400 hover:border-slate-500/50 dark:bg-slate-700/30 dark:text-slate-300 dark:hover:bg-slate-700/50"
+                  } transform transition-all duration-300 hover:-translate-y-1`}
                 >
                   <div className="font-medium">{cls.name}</div>
-                  <div className="text-sm mt-1 opacity-80">
-                    {cls.lessons.length} lecții, {cls.getTotalPeriodsPerWeek()} de ore
+                  <div className="mt-1 text-sm opacity-80">
+                    {cls.lessons.length} lecții, {cls.getTotalPeriodsPerWeek()}{" "}
+                    de ore
                   </div>
                 </button>
               ))}
             </div>
 
             {/* Export/Import buttons for all classes */}
-            <div className="mt-6 flex flex-wrap gap-3 justify-center md:justify-end">
+            <div className="mt-6 flex flex-wrap justify-center gap-3 md:justify-end">
               <button
                 onClick={handleExportAllLessonsToCSV}
-                className="rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2 text-white flex items-center transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg hover:shadow-emerald-500/20"
+                className="flex transform items-center rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2 text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-emerald-500/20"
               >
                 <span className="mr-2">📥</span>
                 <span className="font-medium">Exportă Toate Lecțiile</span>
               </button>
-              
+
               <input
                 type="file"
                 ref={fileInputRef}
                 accept=".csv"
-                onChange={(e) => {
+                onChange={e => {
                   if (e.target.files && e.target.files[0]) {
                     handleImportFromCSV(e.target.files[0]);
                   }
@@ -458,7 +497,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
               />
               <label
                 htmlFor="import-all-lessons"
-                className="cursor-pointer rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2 text-white flex items-center transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/20"
+                className="flex transform cursor-pointer items-center rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2 text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/20"
               >
                 <span className="mr-2">📤</span>
                 <span className="font-medium">Importă Toate Lecțiile</span>
@@ -467,20 +506,24 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
           </div>
 
           {selectedClassIndex !== null && (
-            <div className="mb-8 rounded-xl bg-gradient-to-b from-slate-800 to-slate-900 p-4 md:p-8 shadow-xl border border-blue-500/20 backdrop-blur-sm">
-              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
-                <h3 className="text-xl font-semibold text-blue-300 flex items-center">
-                  <span className="mr-3 text-2xl">📚</span> Adaugă Lecție la {classes[selectedClassIndex].name}
+            <div className="mb-8 rounded-xl border border-blue-500/20 bg-white bg-gradient-to-b p-4 shadow-xl backdrop-blur-sm md:p-8 dark:from-slate-800 dark:to-slate-900">
+              <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <h3 className="flex items-center text-xl font-semibold text-blue-300">
+                  <span className="mr-3 text-2xl">📚</span> Adaugă Lecție la{" "}
+                  {classes[selectedClassIndex].name}
                 </h3>
-                
+
                 <div className="flex flex-wrap gap-3">
                   <input
                     type="file"
-                    ref={(el) => setClassFileInputRef(selectedClassIndex)(el)}
+                    ref={el => setClassFileInputRef(selectedClassIndex)(el)}
                     accept=".csv"
-                    onChange={(e) => {
+                    onChange={e => {
                       if (e.target.files && e.target.files[0]) {
-                        handleImportFromCSV(e.target.files[0], classes[selectedClassIndex].name);
+                        handleImportFromCSV(
+                          e.target.files[0],
+                          classes[selectedClassIndex].name,
+                        );
                       }
                     }}
                     className="hidden"
@@ -488,50 +531,57 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                   />
                   <label
                     htmlFor={`import-class-${selectedClassIndex}`}
-                    className="cursor-pointer rounded-lg bg-indigo-500/20 px-3 py-1.5 text-indigo-300 hover:bg-indigo-500/30 hover:text-indigo-200 transition-all duration-300 flex items-center"
+                    className="flex cursor-pointer items-center rounded-lg bg-indigo-500/20 px-3 py-1.5 text-indigo-300 transition-all duration-300 hover:bg-indigo-500/30 hover:text-indigo-200"
                   >
                     <span className="mr-2">📤</span>
                     <span>Importă</span>
                   </label>
-                  
+
                   <button
-                    onClick={() => handleExportClassLessonsToCSV(classes[selectedClassIndex])}
-                    className="rounded-lg bg-teal-500/20 px-3 py-1.5 text-teal-300 hover:bg-teal-500/30 hover:text-teal-200 transition-all duration-300 flex items-center"
+                    onClick={() =>
+                      handleExportClassLessonsToCSV(classes[selectedClassIndex])
+                    }
+                    className="flex items-center rounded-lg bg-teal-500/20 px-3 py-1.5 text-teal-300 transition-all duration-300 hover:bg-teal-500/30 hover:text-teal-200"
                   >
                     <span className="mr-2">📥</span>
                     <span>Exportă</span>
                   </button>
                 </div>
               </div>
-              
+
               {/* Add Teacher Periods Summary Section */}
-              <div className="mb-6 p-4 rounded-lg bg-slate-700/30 border border-slate-600/50">
-                <h4 className="text-md font-semibold text-blue-300 mb-3 flex items-center">
+              <div className="mb-6 rounded-lg border border-slate-600/50 bg-slate-100 p-4 dark:bg-slate-700/30">
+                <h4 className="text-md mb-3 flex items-center font-semibold text-blue-300">
                   <span className="mr-2">👩‍🏫</span> Rezumat de ore Profesori
                 </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                  {teachers.map((teacher) => {
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+                  {teachers.map(teacher => {
                     // Calculate total periods this teacher has with this class
                     const teacherPeriods = classes[selectedClassIndex].lessons
                       .filter(lesson => lesson.teacher.name === teacher.name)
-                      .reduce((total, lesson) => total + lesson.periodsPerWeek, 0);
-                    
+                      .reduce(
+                        (total, lesson) => total + lesson.periodsPerWeek,
+                        0,
+                      );
+
                     return (
-                      <div 
+                      <div
                         key={teacher.name}
-                        className={`p-3 rounded-lg ${
-                          teacherPeriods > 0 
-                            ? 'bg-blue-900/20 border border-blue-500/30' 
-                            : 'bg-slate-800/30 border border-slate-600/30'
+                        className={`rounded-lg p-3 ${
+                          teacherPeriods > 0
+                            ? "border border-blue-500/30 bg-blue-600/10 dark:bg-blue-900/20"
+                            : "border border-slate-600/30 bg-slate-300 dark:bg-slate-800/30"
                         } transition-all duration-300`}
                       >
-                        <div className="flex justify-between items-center">
+                        <div className="flex items-center justify-between">
                           <span className="font-medium">{teacher.name}</span>
-                          <span className={`px-2 py-1 rounded-full text-xs ${
-                            teacherPeriods > 0 
-                              ? 'bg-blue-500/30 text-blue-200' 
-                              : 'bg-slate-700/50 text-slate-400'
-                          }`}>
+                          <span
+                            className={`rounded-full px-2 py-1 text-xs ${
+                              teacherPeriods > 0
+                                ? "bg-blue-500/30 text-gray-50 dark:text-blue-200"
+                                : "bg-slate-700/50 dark:text-slate-400"
+                            }`}
+                          >
                             {teacherPeriods} de ore
                           </span>
                         </div>
@@ -540,25 +590,35 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                   })}
                 </div>
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+
+              <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
-                  <label className="block mb-2 text-blue-300 text-sm">Numele Materiei</label>
+                  <label className="mb-2 block text-sm text-blue-300">
+                    Numele Materiei
+                  </label>
                   <input
                     type="text"
                     value={newLessonName}
-                    onChange={(e) => setNewLessonName(e.target.value)}
+                    onChange={e => setNewLessonName(e.target.value)}
                     placeholder="Numele materiei (ex. 'Matematică', 'Fizică')"
-                    className="w-full rounded-lg border border-slate-600/50 bg-slate-700/30 p-3 text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300 backdrop-blur-sm"
+                    className="w-full rounded-lg border border-slate-600/50 bg-slate-100 p-3 placeholder-slate-400 backdrop-blur-sm transition-all duration-300 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
                   />
                 </div>
-                
+
                 <div>
-                  <label className="block mb-2 text-blue-300 text-sm">Profesor</label>
+                  <label className="mb-2 block text-sm text-blue-300">
+                    Profesor
+                  </label>
                   <select
-                    value={selectedTeacherIndex !== null ? selectedTeacherIndex : ""}
-                    onChange={(e) => setSelectedTeacherIndex(e.target.value ? parseInt(e.target.value, 10) : null)}
-                    className="w-full rounded-lg border border-slate-600/50 bg-slate-700/30 p-3 text-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300 backdrop-blur-sm"
+                    value={
+                      selectedTeacherIndex !== null ? selectedTeacherIndex : ""
+                    }
+                    onChange={e =>
+                      setSelectedTeacherIndex(
+                        e.target.value ? parseInt(e.target.value, 10) : null,
+                      )
+                    }
+                    className="w-full rounded-lg border border-slate-600/50 bg-slate-100 p-3 backdrop-blur-sm transition-all duration-300 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
                   >
                     <option value="">Selectează Profesor</option>
                     {teachers.map((teacher, index) => (
@@ -569,38 +629,44 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                   </select>
                 </div>
               </div>
-              
+
               <div className="mb-6">
-                <label className="block mb-2 text-blue-300 text-sm">ore pe Săptămână</label>
+                <label className="mb-2 block text-sm text-blue-300">
+                  ore pe Săptămână
+                </label>
                 <div className="flex items-center gap-4">
                   <input
                     type="range"
                     min="1"
                     max="10"
                     value={periodsPerWeek}
-                    onChange={(e) => setPeriodsPerWeek(parseInt(e.target.value, 10))}
-                    className="flex-1 h-2 rounded-lg appearance-none bg-slate-600/50 accent-blue-500 cursor-pointer"
+                    onChange={e =>
+                      setPeriodsPerWeek(parseInt(e.target.value, 10))
+                    }
+                    className="h-2 flex-1 cursor-pointer appearance-none rounded-lg bg-slate-200 accent-blue-500 dark:bg-slate-600/50"
                   />
-                  <div className="w-12 h-10 flex items-center justify-center rounded-lg bg-blue-900/20 text-blue-300 border border-blue-500/30">
+                  <div className="flex h-10 w-12 items-center justify-center rounded-lg border border-blue-500/30 bg-slate-200 dark:bg-blue-900/20 dark:text-blue-300">
                     {periodsPerWeek}
                   </div>
                 </div>
               </div>
-              
+
               <div className="text-center">
                 <button
                   onClick={handleAddLesson}
-                  disabled={!newLessonName.trim() || selectedTeacherIndex === null}
-                  className={`relative rounded-xl px-6 py-2 md:px-8 md:py-3 text-lg font-semibold text-white shadow-lg transition-all duration-300 transform hover:scale-105 ${
+                  disabled={
                     !newLessonName.trim() || selectedTeacherIndex === null
-                      ? "bg-gray-600 cursor-not-allowed"
+                  }
+                  className={`relative transform rounded-xl px-6 py-2 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 md:px-8 md:py-3 ${
+                    !newLessonName.trim() || selectedTeacherIndex === null
+                      ? "cursor-not-allowed bg-gray-600"
                       : "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 hover:shadow-blue-500/30"
                   }`}
                 >
                   Adaugă Lecție
                 </button>
               </div>
-              
+
               {/* Show list of lessons for this class with ability to edit periods */}
               <ClassLessonsList classIndex={selectedClassIndex} />
             </div>
