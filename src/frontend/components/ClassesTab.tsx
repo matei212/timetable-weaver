@@ -69,7 +69,7 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
 
   return (
     <div className="mx-auto w-full max-w-5xl p-8">
-      <h2 className="mb-8 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-3xl font-bold text-transparent">
+      <h2 className="text-gradient-blue mb-8 text-3xl font-bold">
         Gestionare Clase
       </h2>
 

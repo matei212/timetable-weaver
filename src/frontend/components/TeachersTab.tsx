@@ -607,7 +607,7 @@ const TeachersTab: React.FC<TeachersTabProps> = ({
 
   return (
     <div className="mx-auto w-full max-w-5xl p-8">
-      <h2 className="mb-4 bg-gradient-to-r from-blue-400 to-cyan-500 bg-clip-text text-2xl font-bold text-transparent md:mb-8 md:text-3xl">
+      <h2 className="text-gradient-blue mb-4 text-2xl font-bold md:mb-8 md:text-3xl">
         Gestionare Profesori
       </h2>
 

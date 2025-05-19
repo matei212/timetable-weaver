@@ -162,7 +162,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
 
   return (
     <div className="mx-auto w-full max-w-5xl p-8">
-      <h2 className="mb-8 bg-gradient-to-r from-blue-400 to-cyan-500 bg-clip-text text-3xl font-bold text-transparent">
+      <h2 className="text-gradient-blue mb-8 text-3xl font-bold">
         Overview & Generate
       </h2>
 

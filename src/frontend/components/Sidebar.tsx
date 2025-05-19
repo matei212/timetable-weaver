@@ -137,7 +137,7 @@ const Sidebar: React.FC<SidebarProps> = ({ mode, onModeChange }) => {
       >
         <div className="border-b border-blue-500/20 p-6">
           <h1
-            className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-2xl font-bold tracking-wider text-transparent"
+            className="text-gradient-blue text-2xl font-bold tracking-wider"
             onClick={handleCancelTimetable}
           >
             Timetable Weaver
