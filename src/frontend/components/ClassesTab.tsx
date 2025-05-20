@@ -3,6 +3,7 @@ import { Class, Lesson, exportClassesToCSV } from "../../util/timetable";
 import GradientButton from "./common/GradientButton";
 import GradientContainer from "./common/GradientContainer";
 import TextInput from "./common/TextInput";
+import Note from "./common/Note";
 
 interface ClassesTabProps {
   classes: Class[];
@@ -204,12 +205,9 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
         </GradientContainer>
       )}
 
-      <div className="mt-6 rounded-lg border border-blue-500/10 bg-blue-300/30 p-4 text-sm text-blue-300 backdrop-blur-sm dark:bg-blue-900/10">
-        <p className="flex items-center">
-          <span className="mr-2">ℹ️</span>
-          Notă: Veți atribui lecții claselor în secțiunea Lecții.
-        </p>
-      </div>
+      <Note className="mt-6 p-4">
+        Notă: Veți atribui lecții claselor în secțiunea Lecții.
+      </Note>
     </div>
   );
 };

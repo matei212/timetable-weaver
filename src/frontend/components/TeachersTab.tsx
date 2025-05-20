@@ -13,6 +13,7 @@ import TeacherAvailabilityModal from "./TeacherAvailabilityModal";
 import GradientButton from "./common/GradientButton";
 import GradientContainer from "./common/GradientContainer";
 import TextInput from "./common/TextInput";
+import Note from "./common/Note";
 
 interface TeachersTabProps {
   teachers: Teacher[];
@@ -623,13 +624,10 @@ const TeachersTab: React.FC<TeachersTabProps> = ({
         onImportTeachers={handleImportTeachers}
       />
 
-      <div className="mt-6 rounded-lg border border-blue-500/10 bg-blue-300/30 p-4 text-sm text-blue-300 backdrop-blur-sm dark:bg-blue-900/10">
-        <p className="flex flex-wrap items-center">
-          <span className="mr-2">ℹ️</span>
-          Setați disponibilitatea fiecărui profesor apăsând pe "Setează
-          Disponibilitate". Implicit, toate intervalele orare sunt disponibile.
-        </p>
-      </div>
+      <Note className="mt-6 p-4">
+        Setați disponibilitatea fiecărui profesor apăsând pe "Setează
+        Disponibilitate". Implicit, toate intervalele orare sunt disponibile
+      </Note>
 
       {modalOpen && modalTeacherIndex !== null && (
         <TeacherAvailabilityModal
