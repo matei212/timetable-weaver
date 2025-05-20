@@ -4,6 +4,7 @@ import GradientButton from "./common/GradientButton";
 import GradientContainer from "./common/GradientContainer";
 import TextInput from "./common/TextInput";
 import Note from "./common/Note";
+import ColorButton from "./common/ColorButton";
 
 interface ClassesTabProps {
   classes: Class[];
@@ -162,12 +163,13 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
                           <span className="font-medium dark:text-slate-100">
                             {cls.name}
                           </span>
-                          <button
+                          <ColorButton
                             onClick={() => handleStartEdit(index)}
-                            className="rounded-lg bg-blue-200 px-2 py-1 text-sm text-blue-500 transition-all duration-300 hover:bg-blue-300/80 dark:bg-blue-500/20 dark:text-blue-300 dark:hover:bg-blue-500/30 dark:hover:text-blue-200"
+                            className="px-2 py-1 text-sm"
+                            variant="blue"
                           >
                             Editează
-                          </button>
+                          </ColorButton>
                         </div>
                       )}
                     </td>
@@ -178,12 +180,13 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
                       {cls.getTotalPeriodsPerWeek()} de ore
                     </td>
                     <td className="p-3 text-center">
-                      <button
+                      <ColorButton
                         onClick={() => handleRemoveClass(index)}
-                        className="rounded-lg bg-red-500/20 px-3 py-1.5 text-red-500 transition-all duration-300 hover:bg-red-500/30 dark:text-red-300 dark:hover:text-red-200"
+                        variant="red"
+                        className="px-3 py-1.5"
                       >
                         Șterge
-                      </button>
+                      </ColorButton>
                     </td>
                   </tr>
                 ))}

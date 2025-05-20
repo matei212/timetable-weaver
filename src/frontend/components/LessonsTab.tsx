@@ -10,6 +10,7 @@ import {
 import GradientButton from "./common/GradientButton";
 import GradientContainer from "./common/GradientContainer";
 import TextInput from "./common/TextInput";
+import ColorButton from "./common/ColorButton";
 
 interface LessonsTabProps {
   classes: Class[];
@@ -297,22 +298,22 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                         </span>
                         <div className="mt-1 md:hidden">
                           <div className="mt-2 flex gap-2">
-                            <button
+                            <ColorButton
                               onClick={() =>
                                 handleStartEditLesson(classIndex, lessonIndex)
                               }
-                              className="rounded-lg bg-blue-200 px-2 py-1 text-blue-500 transition-all duration-300 hover:bg-blue-300/80 dark:bg-blue-500/20 dark:text-blue-300 dark:hover:bg-blue-500/30 dark:hover:text-blue-200"
+                              className="px-2 py-1"
                             >
                               Editează
-                            </button>
-                            <button
+                            </ColorButton>
+                            <ColorButton
                               onClick={() =>
                                 handleRemoveLesson(classIndex, lessonIndex)
                               }
-                              className="rounded-lg bg-red-500/20 px-3 py-1.5 text-red-500 transition-all duration-300 hover:bg-red-500/30 dark:text-red-300 dark:hover:text-red-200"
+                              className="px-3 py-1.5"
                             >
                               Șterge
-                            </button>
+                            </ColorButton>
                           </div>
                         </div>
                       </div>
@@ -403,22 +404,24 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                       </div>
                     ) : (
                       <div className="flex justify-center gap-2">
-                        <button
+                        <ColorButton
                           onClick={() =>
                             handleStartEditLesson(classIndex, lessonIndex)
                           }
-                          className="rounded-lg bg-blue-500/20 px-3 py-1 text-xs text-blue-300 transition-all duration-300 hover:bg-blue-500/30 hover:text-blue-200"
+                          variant="blue"
+                          className="px-3 py-1 text-xs"
                         >
                           Editează
-                        </button>
-                        <button
+                        </ColorButton>
+                        <ColorButton
+                          variant="red"
                           onClick={() =>
                             handleRemoveLesson(classIndex, lessonIndex)
                           }
-                          className="rounded-lg bg-red-500/20 px-3 py-1 text-xs text-red-300 transition-all duration-300 hover:bg-red-500/30 hover:text-red-200"
+                          className="px-3 py-1.5 text-xs"
                         >
                           Șterge
-                        </button>
+                        </ColorButton>
                       </div>
                     )}
                   </td>
@@ -541,15 +544,15 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                     <span>Importă</span>
                   </label>
 
-                  <button
+                  <ColorButton
                     onClick={() =>
                       handleExportClassLessonsToCSV(classes[selectedClassIndex])
                     }
-                    className="flex items-center rounded-lg bg-teal-500/20 px-3 py-1.5 text-teal-300 transition-all duration-300 hover:bg-teal-500/30 hover:text-teal-200"
+                    className="flex items-center px-3 py-1.5"
                   >
                     <span className="mr-2">📥</span>
                     <span>Exportă</span>
-                  </button>
+                  </ColorButton>
                 </div>
               </div>
 

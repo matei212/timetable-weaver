@@ -14,6 +14,7 @@ import GradientButton from "./common/GradientButton";
 import GradientContainer from "./common/GradientContainer";
 import TextInput from "./common/TextInput";
 import Note from "./common/Note";
+import ColorButton from "./common/ColorButton";
 
 interface TeachersTabProps {
   teachers: Teacher[];
@@ -352,22 +353,24 @@ const TeacherListItem: React.FC<{
                   </button>
                 )}
               </div>
-              <button
+              <ColorButton
                 onClick={handleStartEdit}
-                className="rounded-lg bg-blue-200 px-2 py-1 text-sm text-blue-500 transition-all duration-300 hover:bg-blue-300/80 dark:bg-blue-500/20 dark:text-blue-300 dark:hover:bg-blue-500/30 dark:hover:text-blue-200"
+                variant="blue"
+                className="px-2 py-1 text-sm"
               >
                 Editează
-              </button>
+              </ColorButton>
             </div>
           )}
         </td>
         <td className="hidden p-3 sm:table-cell">
-          <button
+          <ColorButton
             onClick={onEditAvailability}
-            className="rounded-lg bg-indigo-600/20 px-3 py-1.5 text-indigo-500 transition-all duration-300 hover:bg-indigo-600/30 dark:bg-indigo-500/20 dark:text-indigo-300 dark:hover:bg-indigo-500/30 dark:hover:text-indigo-200"
+            variant="indigo"
+            className="px-3 py-1.5"
           >
             Setează Disponibilitate
-          </button>
+          </ColorButton>
         </td>
         <td className="p-3 text-right sm:text-center">
           <div className="flex flex-col justify-end gap-2 sm:flex-row sm:justify-center">
@@ -377,12 +380,14 @@ const TeacherListItem: React.FC<{
             >
               Disponibilitate
             </button>
-            <button
+
+            <ColorButton
               onClick={onRemove}
-              className="rounded-lg bg-red-500/20 px-3 py-1.5 text-red-500 transition-all duration-300 hover:bg-red-500/30 dark:text-red-300 dark:hover:bg-red-500/30 dark:hover:text-red-200"
+              variant="red"
+              className="px-3 py-1.5"
             >
               Șterge
-            </button>
+            </ColorButton>
           </div>
         </td>
       </tr>
