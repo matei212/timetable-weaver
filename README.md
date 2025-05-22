@@ -15,24 +15,29 @@ Poate fi accesat aici: https://timetable-weaver.vercel.app/
 ## Cum să utilizați aplicația
 
 1. **Instalare și pornire**:
+
    ```
    git clone [repository-url]
    npm install
    npm run dev
    ```
+
    Aplicația va fi disponibilă la adresa http://localhost:3000.
 
 2. **Configurarea datelor**:
+
    - Accesați secțiunea "Profesori" pentru a adăuga și configura disponibilitatea profesorilor
    - Accesați secțiunea "Clase" pentru a defini clasele și a adăuga elevii
    - În secțiunea "Lecții" configurați materiile și alocați profesorii pentru fiecare clasă
 
 3. **Generarea orarului**:
+
    - Accesați secțiunea "Prezentare generală" și utilizați butonul "Generează orar"
    - Algoritmul va procesa toate constrângerile și va genera un orar optim
    - Puteți vizualiza orarul și îl puteți ajusta după necesitate
 
 4. **Exportarea rezultatelor**:
+
    - După ce sunteți mulțumiți de orar, acesta poate fi exportat în format PDF
    - Orarul poate fi distribuit profesorilor și elevilor
 
@@ -66,4 +71,4 @@ Constrângeri ușoare:
 
 Ambii autori sunt elevi la Colegiul Național I. L. Caragiale din București, sub îndrumarea profesorului coordonator Florea Andrei.
 
-_Nota: Inteligența artificială a fost folosită pentru a găsi metode de a optimiza codul sursă al algrotimului de generare al orarelor_
+_Nota: Inteligența artificială a fost folosită pentru a găsi metode de a optimiza codul sursă al algrotimului de generare al orarelor (functile Timetable.compactSchedule(), Timetable.swapWithCompatibleLesson() si Timetable.calculateSoftConstraintsFitness() au fost scrise cu ajutorul inteligentei artificiale)_
