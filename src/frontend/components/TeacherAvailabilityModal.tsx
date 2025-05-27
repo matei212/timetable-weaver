@@ -40,9 +40,9 @@ const TeacherAvailabilityModal: React.FC<TeacherAvailabilityModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div className="bg-zinc-900 rounded-xl shadow-2xl shadow-blue-500/20 p-6 min-w-[650px] max-w-4xl border border-zinc-700/50 animate-fadeIn">
-        <h2 className="text-xl font-bold mb-5 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
-          Editează Disponibilitatea Profesorului: <span className="text-blue-300">{teacher.name}</span>
+      <div className="bg-slate-500 rounded-xl shadow-2xl shadow-blue-500/20 p-6 min-w-[650px] max-w-4xl border border-zinc-700/50 animate-fadeIn">
+        <h2 className="text-xl font-bold mb-5 text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-purple-1000">
+          Editează Disponibilitatea Profesorului: <span className="text-blue-700">{teacher.name}</span>
         </h2>
         <div className="overflow-x-auto rounded-lg shadow-inner shadow-blue-500/10 bg-zinc-800/50 p-2">
           <table className="border-collapse w-full">
@@ -65,8 +65,8 @@ const TeacherAvailabilityModal: React.FC<TeacherAvailabilityModalProps> = ({
                         key={d}
                         className={`p-3 border-r border-b border-zinc-700/30 text-center cursor-pointer select-none transition-all duration-300 ${
                           available 
-                            ? "bg-gradient-to-r from-emerald-500/80 to-green-600/80 hover:from-emerald-600/90 hover:to-green-700/90" 
-                            : "bg-gradient-to-r from-red-500/80 to-rose-600/80 hover:from-red-600/90 hover:to-rose-700/90"
+                            ? "bg-gradient-to-r from-emerald-500/80 to-green-600/80 hover:from-emerald-600/90 hover:to-green-700/90 text-white  " 
+                            : "bg-gradient-to-r from-red-500/80 to-rose-600/80 hover:from-red-600/90 hover:to-rose-700/90 text-white  "
                         }`}
                         onClick={() => handleCellClick(d, p)}
                         title={available ? "Disponibil" : "Indisponibil"}

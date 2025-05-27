@@ -201,7 +201,7 @@ const TeacherForm: React.FC<{
 
   return (
     <GradientContainer className="mb-8 p-8">
-      <h3 className="mb-6 flex items-center text-xl font-semibold text-blue-300">
+      <h3 className="mb-6 flex items-center text-xl font-semibold text-blue-500">
         <span className="mr-3 text-2xl">👨‍🏫</span> Adaugă Profesor Nou
       </h3>
       <form onSubmit={handleSubmit} className="flex gap-3">
@@ -344,7 +344,7 @@ const TeacherListItem: React.FC<{
                 {hasSubjects && (
                   <button
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="text-s mt-1 flex items-center text-blue-400 hover:text-blue-300"
+                    className="text-s mt-1 flex items-center text-blue-400 hover:text-blue-500"
                   >
                     <span className="mr-1">
                       {isExpanded ? "Ascunde" : "Arată"} clasele la care preda
@@ -429,7 +429,7 @@ const TeacherListItem: React.FC<{
                             e.target.value,
                           )
                         }
-                        className="w-16 rounded-lg border border-blue-500/30 bg-slate-200 dark:bg-slate-800/50 p-1 text-center text-blue-800 dark:text-blue-300 focus:ring-2 focus:ring-blue-500/50"
+                        className="w-16 rounded-lg border border-blue-500/30 bg-slate-200 dark:bg-slate-800/50 p-1 text-center text-blue-800 dark:text-blue-500 focus:ring-2 focus:ring-blue-500/50"
                       />
                     </div>
                   </div>
@@ -490,7 +490,7 @@ const TeacherList: React.FC<{
   return (
     <GradientContainer className="p-8">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="flex items-center text-xl font-semibold text-blue-300">
+        <h3 className="flex items-center text-xl font-semibold text-blue-500">
           <span className="mr-3 text-2xl">👩‍🏫</span> Listă Profesori
         </h3>
 

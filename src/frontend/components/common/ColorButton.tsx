@@ -10,7 +10,7 @@ const ColorButton = ({ variant, onClick, className, children }: Props) => {
   const backgroundClasses = useMemo(() => {
     switch (variant) {
       case "blue":
-        return "bg-blue-200 text-blue-500 hover:bg-blue-300/80 dark:bg-blue-500/20 dark:text-blue-300 dark:hover:bg-blue-500/30 dark:hover:text-blue-200";
+        return "bg-blue-200 text-blue-500 hover:bg-blue-300/80 dark:bg-blue-500/20 dark:text-blue-500 dark:hover:bg-blue-500/30 dark:hover:text-blue-200";
       case "indigo":
         return "bg-indigo-600/20 text-indigo-500 hover:bg-indigo-600/30 dark:bg-indigo-500/20 dark:text-indigo-300 dark:hover:bg-indigo-500/30 dark:hover:text-indigo-200";
       case "red":

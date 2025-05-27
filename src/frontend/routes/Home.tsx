@@ -29,7 +29,7 @@ const Home: React.FC<HomeProps> = ({
       <h1 className="mb-6 text-3xl font-bold dark:text-white">
         Bine ați venit la Timetable Weaver
       </h1>
-      <p className="mb-8 text-gray-400">
+      <p className="mb-8 text-gray-700">
         Creați orare optime pentru școala sau instituția dumneavoastră cu
         sistemul nostru inteligent de programare.
       </p>

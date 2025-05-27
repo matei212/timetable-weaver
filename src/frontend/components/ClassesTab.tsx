@@ -76,7 +76,7 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
       </h2>
 
       <GradientContainer className="mb-8 p-8">
-        <h3 className="mb-6 flex items-center text-xl font-semibold text-blue-300">
+        <h3 className="mb-6 flex items-center text-xl font-semibold text-blue-500">
           <span className="mr-3 text-2xl">🏛️</span> Adaugă Clasă Nouă
         </h3>
         <div className="flex gap-3">
@@ -99,7 +99,7 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
       {classes.length > 0 ? (
         <GradientContainer className="p-8">
           <div className="mb-6 flex items-center justify-between">
-            <h3 className="flex items-center text-xl font-semibold text-blue-300">
+            <h3 className="flex items-center text-xl font-semibold text-blue-500">
               <span className="mr-3 text-2xl">📋</span> Listă Clase
             </h3>
             <GradientButton

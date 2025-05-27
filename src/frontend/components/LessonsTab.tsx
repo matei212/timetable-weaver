@@ -248,7 +248,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
 
     return (
       <div className="mt-8">
-        <h4 className="mb-4 flex items-center text-lg font-semibold text-blue-300">
+        <h4 className="mb-4 flex items-center text-lg font-semibold text-blue-500">
           <span className="mr-2">📚</span> Lecții pentru {currentClass.name}
         </h4>
         <div className="overflow-x-auto rounded-lg">
@@ -341,7 +341,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                       </select>
                     ) : (
                       <div className="flex flex-col">
-                        <span className="text-cyan-300">
+                        <span className="text-gray-700 text-bold">
                           {lesson.teacher.name}
                         </span>
                       </div>
@@ -379,7 +379,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                               parseInt(e.target.value, 10) || 1,
                             )
                           }
-                          className="w-16 rounded-lg border border-blue-500/30 bg-slate-100 p-1 text-center focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-800/50 dark:text-blue-300"
+                          className="w-16 rounded-lg border border-blue-500/30 bg-slate-100 p-1 text-center focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-800/50 dark:text-blue-500"
                         />
                       </div>
                     )}
@@ -456,7 +456,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
       ) : (
         <>
           <GradientContainer className="mb-8 p-8">
-            <h3 className="mb-6 flex items-center text-xl font-semibold text-blue-300">
+            <h3 className="mb-6 flex items-center text-xl font-semibold text-blue-500">
               <span className="mr-3 text-2xl">🏛️</span> Selectați Clasa
             </h3>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
@@ -470,8 +470,8 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                       : "border-slate-600/30 bg-slate-100 text-slate-400 hover:border-slate-500/50 dark:bg-slate-700/30 dark:text-slate-300 dark:hover:bg-slate-700/50"
                   } transform transition-all duration-300 hover:-translate-y-1`}
                 >
-                  <div className="font-medium">{cls.name}</div>
-                  <div className="mt-1 text-sm opacity-80">
+                  <div className="font-medium text-gray-700">{cls.name}</div>
+                  <div className="mt-1 text-sm">
                     {cls.lessons.length} lecții, {cls.getTotalPeriodsPerWeek()}{" "}
                     de ore
                   </div>
@@ -515,7 +515,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
           {selectedClassIndex !== null && (
             <GradientContainer className="mb-8 p-8">
               <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <h3 className="flex items-center text-xl font-semibold text-blue-300">
+                <h3 className="flex items-center text-xl font-semibold text-blue-500">
                   <span className="mr-3 text-2xl">📚</span> Adaugă Lecție la{" "}
                   {classes[selectedClassIndex].name}
                 </h3>
@@ -538,7 +538,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                   />
                   <label
                     htmlFor={`import-class-${selectedClassIndex}`}
-                    className="flex cursor-pointer items-center rounded-lg bg-indigo-500/20 px-3 py-1.5 text-indigo-300 transition-all duration-300 hover:bg-indigo-500/30 hover:text-indigo-200"
+                    className="flex cursor-pointer items-center rounded-lg bg-indigo-500/20 px-3 py-1.5 text-indigo-500 transition-all duration-300 hover:bg-indigo-500/30 hover:text-indigo-200"
                   >
                     <span className="mr-2">📤</span>
                     <span>Importă</span>
@@ -558,7 +558,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
 
               {/* Add Teacher Periods Summary Section */}
               <GradientContainer variant="light" className="mb-6 p-4">
-                <h4 className="text-md mb-3 flex items-center font-semibold text-blue-300">
+                <h4 className="text-md mb-3 flex items-center font-semibold text-blue-500">
                   <span className="mr-2">👩‍🏫</span> Rezumat de ore Profesori
                 </h4>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
@@ -576,8 +576,8 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                         key={teacher.name}
                         className={`rounded-lg p-3 ${
                           teacherPeriods > 0
-                            ? "border border-blue-500/30 bg-blue-600/10 dark:bg-blue-900/20"
-                            : "border border-slate-600/30 bg-slate-300 dark:bg-slate-800/30"
+                            ? "border border-blue-500/30 bg-blue-600/25 dark:bg-blue-900/20"
+                            : "border border-slate-600/30 bg-slate-300/25 dark:bg-slate-800/30"
                         } transition-all duration-300`}
                       >
                         <div className="flex items-center justify-between">
@@ -585,8 +585,8 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                           <span
                             className={`rounded-full px-2 py-1 text-xs ${
                               teacherPeriods > 0
-                                ? "bg-blue-500/30 text-gray-50 dark:text-blue-200"
-                                : "bg-slate-700/50 dark:text-slate-400"
+                                ? "bg-blue-500/80 text-gray-50 dark:text-blue-200"
+                                : "bg-slate-700/20 dark:text-slate-400"
                             }`}
                           >
                             {teacherPeriods} de ore
@@ -600,7 +600,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
 
               <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
-                  <label className="mb-2 block text-sm text-blue-300">
+                  <label className="mb-2 block text-sm text-blue-500">
                     Numele Materiei
                   </label>
                   <TextInput
@@ -612,7 +612,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm text-blue-300">
+                  <label className="mb-2 block text-sm text-blue-500">
                     Profesor
                   </label>
                   <select
@@ -637,7 +637,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
               </div>
 
               <div className="mb-6">
-                <label className="mb-2 block text-sm text-blue-300">
+                <label className="mb-2 block text-sm text-blue-500">
                   ore pe Săptămână
                 </label>
                 <div className="flex items-center gap-4">
@@ -651,7 +651,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                     }
                     className="h-2 flex-1 cursor-pointer appearance-none rounded-lg bg-slate-200 accent-blue-500 dark:bg-slate-600/50"
                   />
-                  <div className="flex h-10 w-12 items-center justify-center rounded-lg border border-blue-500/30 bg-slate-200 dark:bg-blue-900/20 dark:text-blue-300">
+                  <div className="flex h-10 w-12 items-center justify-center rounded-lg border border-blue-500/30 bg-slate-200 dark:bg-blue-900/20 dark:text-blue-500">
                     {periodsPerWeek}
                   </div>
                 </div>

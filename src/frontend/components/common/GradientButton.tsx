@@ -17,7 +17,7 @@ const GradientButton = ({ variant, onClick, className, children }: Props) => {
         return "from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 hover:shadow-red-500/30";
       case "green":
       default:
-        return "from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 hover:shadow-emerald-500/20";
+        return "from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 hover:shadow-emerald-500/20";
     }
   }, [variant]);
 

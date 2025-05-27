@@ -326,7 +326,7 @@ const ClassTimetable: React.FC<{
                               </span>
                             )}
                           </div>
-                          <div className={`text-sm ${isConflict ? 'text-red-300/80' : 'text-blue-300/80'}`}>
+                          <div className={`text-sm ${isConflict ? 'text-red-300/80' : 'text-blue-500/80'}`}>
                             {lesson.teacher.name}
                           </div>
                         </div>

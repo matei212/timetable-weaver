@@ -167,22 +167,22 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
       </h2>
 
       <GradientContainer className="mb-8 p-8">
-        <h3 className="mb-6 flex items-center text-xl font-semibold text-blue-300">
+        <h3 className="mb-6 flex items-center text-xl font-semibold text-blue-500">
           <span className="mr-3 text-2xl">📊</span> Configurație Curentă
         </h3>
 
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
           <div className="rounded-lg border border-blue-500/30 bg-blue-300/20 p-5 shadow-lg backdrop-blur-sm transition-transform hover:scale-105 dark:bg-blue-900/10">
-            <h4 className="mb-2 flex items-center font-medium text-blue-300">
+            <h4 className="mb-2 flex items-center font-medium text-blue-500">
               <span className="mr-2 text-xl">👨‍🏫</span> Profesori
             </h4>
-            <p className="text-3xl font-bold text-blue-200 dark:text-blue-100">
+            <p className="text-3xl font-bold text-blue-500 dark:text-blue-100">
               {teachers.length}
             </p>
           </div>
 
           <div className="rounded-lg border border-cyan-500/30 bg-cyan-400/10 p-5 shadow-lg backdrop-blur-sm transition-transform hover:scale-105 dark:bg-cyan-900/10">
-            <h4 className="mb-2 flex items-center font-medium text-cyan-300">
+            <h4 className="mb-2 flex items-center font-medium text-cyan-400">
               <span className="mr-2 text-xl">🏛️</span> Clase
             </h4>
             <p className="text-3xl font-bold text-cyan-400 dark:text-blue-100">
@@ -191,7 +191,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           </div>
 
           <div className="rounded-lg border border-indigo-500/30 bg-indigo-400/20 p-5 shadow-lg backdrop-blur-sm transition-transform hover:scale-105">
-            <h4 className="mb-2 flex items-center font-medium text-indigo-300">
+            <h4 className="mb-2 flex items-center font-medium text-indigo-400">
               <span className="mr-2 text-xl">📚</span> Număr Total Lecții
             </h4>
             <p className="text-3xl font-bold text-indigo-400 dark:text-blue-100">
@@ -242,7 +242,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
       </GradientContainer>
 
       <GradientContainer className="mb-8 p-8">
-        <h3 className="mb-6 flex items-center text-xl font-semibold text-blue-300">
+        <h3 className="mb-6 flex items-center text-xl font-semibold text-blue-400">
           <span className="mr-3 text-2xl">💾</span> Management Date
         </h3>
 
@@ -251,7 +251,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             <h4 className="mb-3 font-medium text-purple-400 dark:text-purple-300">
               Importa Date
             </h4>
-            <p className="mb-4 text-sm text-purple-300 dark:text-purple-200/70">
+            <p className="mb-4 text-sm text-purple-400 dark:text-purple-200/70">
               Importă profesori, clase și lecții dintr-un fișier CSV. Acest
               lucru va înlocui datele curente.
             </p>
