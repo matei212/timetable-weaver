@@ -396,26 +396,26 @@ const TeacherListItem: React.FC<{
         Object.entries(subjects).map(([subjectName, classDetails]) => (
           <tr
             key={`${teacher.name}-${subjectName}`}
-            className="bg-slate-800/30"
+            className="bg-gray-100 dark:bg-slate-800/30"
           >
             <td
               colSpan={3}
               className="border-b border-slate-700/30 py-2 pr-3 pl-8"
             >
-              <div className="font-medium text-slate-300">
+              <div className="font-medium text-slate-900 dark:text-slate-300">
                 Materie: <span className="text-cyan-300">{subjectName}</span>
               </div>
               <div className="mt-2 space-y-2">
                 {classDetails.map(detail => (
                   <div
                     key={`${teacher.name}-${subjectName}-${detail.className}`}
-                    className="flex flex-col gap-2 rounded-lg bg-slate-700/20 p-2 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-2 rounded-lg bg-gray-50 dark:bg-slate-700/20 p-2 sm:flex-row sm:items-center sm:justify-between"
                   >
-                    <span className="text-slate-400">
+                    <span className="text-slate-700 dark:text-slate-400">
                       Clasa: {detail.className}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-slate-400">
+                      <span className="text-sm text-slate-500 dare:text-slate-400">
                         Numar de ore
                       </span>
                       <input
@@ -429,7 +429,7 @@ const TeacherListItem: React.FC<{
                             e.target.value,
                           )
                         }
-                        className="w-16 rounded-lg border border-blue-500/30 bg-slate-800/50 p-1 text-center text-blue-300 focus:ring-2 focus:ring-blue-500/50"
+                        className="w-16 rounded-lg border border-blue-500/30 bg-slate-200 dark:bg-slate-800/50 p-1 text-center text-blue-800 dark:text-blue-300 focus:ring-2 focus:ring-blue-500/50"
                       />
                     </div>
                   </div>
