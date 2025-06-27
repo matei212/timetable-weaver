@@ -64,6 +64,15 @@ Constrângeri ușoare:
 - Distribuție uniformă a lecțiilor de-a lungul săptămânii
 - Fără ore libere la începutul zilei
 
+Resurse externe:
+- Vite
+- React
+- React Router
+- Tailwindcss
+- Prettier
+- ESlint
+
+
 ## Autori și contribuții
 
 - Costan Matei Ștefan - a lucrat la algorimtul de generare al orarelor și a ajutat la inbunatațirea interfața aplicației
@@ -71,4 +80,4 @@ Constrângeri ușoare:
 
 Ambii autori sunt elevi la Colegiul Național I. L. Caragiale din București, sub îndrumarea profesorului coordonator Florea Andrei.
 
-_Nota: Inteligența artificială a fost folosită pentru a găsi metode de a optimiza codul sursă al algrotimului de generare al orarelor (functile Timetable.compactSchedule(), Timetable.swapWithCompatibleLesson() si Timetable.calculateSoftConstraintsFitness() au fost scrise cu ajutorul inteligentei artificiale)_
+_Nota: Inteligența artificială(Claude 3.7 sonnet) a fost folosită pentru a găsi metode de a optimiza codul sursă al algrotimului de generare al orarelor (functile Timetable.compactSchedule(), Timetable.swapWithCompatibleLesson() si Timetable.calculateSoftConstraintsFitness() au fost scrise cu ajutorul inteligentei artificiale)_
