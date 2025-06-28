@@ -211,12 +211,13 @@ const TeacherForm: React.FC<{
           placeholder="Numele profesorului"
           className="flex-1 p-3"
         />
-        <button
+        <GradientButton
+          variant="blue"
           type="submit"
-          className="transform rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 font-medium text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:from-blue-700 hover:to-indigo-700 hover:shadow-blue-500/30"
+          className="px-6 py-3 font-medium"
         >
           Adaugă Profesor
-        </button>
+        </GradientButton>
       </form>
     </GradientContainer>
   );
@@ -409,13 +410,13 @@ const TeacherListItem: React.FC<{
                 {classDetails.map(detail => (
                   <div
                     key={`${teacher.name}-${subjectName}-${detail.className}`}
-                    className="flex flex-col gap-2 rounded-lg bg-gray-50 dark:bg-slate-700/20 p-2 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-2 rounded-lg bg-gray-50 p-2 sm:flex-row sm:items-center sm:justify-between dark:bg-slate-700/20"
                   >
                     <span className="text-slate-700 dark:text-slate-400">
                       Clasa: {detail.className}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-slate-500 dare:text-slate-400">
+                      <span className="dare:text-slate-400 text-sm text-slate-500">
                         Numar de ore
                       </span>
                       <input
@@ -429,7 +430,7 @@ const TeacherListItem: React.FC<{
                             e.target.value,
                           )
                         }
-                        className="w-16 rounded-lg border border-blue-500/30 bg-slate-200 dark:bg-slate-800/50 p-1 text-center text-blue-800 dark:text-blue-500 focus:ring-2 focus:ring-blue-500/50"
+                        className="w-16 rounded-lg border border-blue-500/30 bg-slate-200 p-1 text-center text-blue-800 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-800/50 dark:text-blue-500"
                       />
                     </div>
                   </div>

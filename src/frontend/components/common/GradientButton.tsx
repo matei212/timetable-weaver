@@ -1,12 +1,19 @@
-import { PropsWithChildren, useMemo } from "react";
+import { ButtonHTMLAttributes, PropsWithChildren, useMemo } from "react";
 
 type Props = {
   variant?: "blue" | "cyan" | "red" | "green";
+  type?: ButtonHTMLAttributes<HTMLButtonElement>["type"];
   onClick?: () => void;
   className?: string;
 } & PropsWithChildren;
 
-const GradientButton = ({ variant, onClick, className, children }: Props) => {
+const GradientButton = ({
+  variant,
+  type,
+  onClick,
+  className,
+  children,
+}: Props) => {
   const gradientClasses = useMemo(() => {
     switch (variant) {
       case "blue":
@@ -23,6 +30,7 @@ const GradientButton = ({ variant, onClick, className, children }: Props) => {
 
   return (
     <button
+      type={type}
       onClick={onClick}
       className={`transform rounded-lg bg-gradient-to-r text-white backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg ${gradientClasses} ${className}`}
     >
