@@ -341,7 +341,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                       </select>
                     ) : (
                       <div className="flex flex-col">
-                        <span className="text-gray-700 text-bold">
+                        <span className="text-bold text-gray-700">
                           {lesson.teacher.name}
                         </span>
                       </div>
