@@ -284,7 +284,7 @@ export class Timetable {
   private initializeNoGaps(): void {
     // HARD RESET: First build a map of which teachers are available when
     const teacherAvailability = new Map<string, boolean[][]>();
-    
+
     // Initialize availability map for all teachers
     for (const cls of this.classes) {
       for (const lesson of cls.lessons) {
@@ -303,12 +303,12 @@ export class Timetable {
         }
       }
     }
-    
+
     // Now iterate through each class to assign lessons
     for (const cls of this.classes) {
       const schedule = this.schedule[cls.name];
       let lessonQueue: Lesson[] = [];
-      
+
       // Collect all lessons that need to be scheduled
       for (const lesson of cls.lessons) {
         for (let i = 0; i < lesson.periodsPerWeek; i++) {
@@ -321,46 +321,48 @@ export class Timetable {
         // Count the actual number of available slots for each teacher
         const aTeacher = a.teacher;
         const bTeacher = b.teacher;
-        
+
         let aAvailableSlots = 0;
         let bAvailableSlots = 0;
-        
+
         for (let day = 0; day < DAYS; day++) {
           for (let period = 0; period < PERIODS_PER_DAY; period++) {
             if (aTeacher.isAvailable(day, period)) aAvailableSlots++;
             if (bTeacher.isAvailable(day, period)) bAvailableSlots++;
           }
         }
-        
+
         return aAvailableSlots - bAvailableSlots; // Most constrained first
       });
 
       let unscheduledLessons: Lesson[] = [];
 
       // First pass: place lessons in available slots
-      for (let i = 0; i < lessonQueue.length;) {
+      for (let i = 0; i < lessonQueue.length; ) {
         const lesson = lessonQueue[i];
         const teacher = lesson.teacher;
         let placed = false;
-        
+
         // Try all possible slots
         for (let day = 0; day < DAYS && !placed; day++) {
           for (let period = 0; period < PERIODS_PER_DAY && !placed; period++) {
             // Skip unavailable slots - CRITICAL CHECK
             if (!teacher.isAvailable(day, period)) continue;
-            
+
             // Check if the teacher is already scheduled elsewhere at this time
             let teacherBusy = false;
             for (const otherClass of this.classes) {
               if (otherClass.name === cls.name) continue;
-              
+
               const otherClassSchedule = this.schedule[otherClass.name];
-              if (otherClassSchedule[day][period]?.teacher.name === teacher.name) {
+              if (
+                otherClassSchedule[day][period]?.teacher.name === teacher.name
+              ) {
                 teacherBusy = true;
                 break;
               }
             }
-            
+
             // If slot is free and teacher isn't busy elsewhere
             if (!teacherBusy && schedule[day][period] === null) {
               schedule[day][period] = lesson;
@@ -369,7 +371,7 @@ export class Timetable {
             }
           }
         }
-        
+
         if (placed) {
           lessonQueue.splice(i, 1); // Remove the placed lesson
         } else {
@@ -377,13 +379,13 @@ export class Timetable {
           i++;
         }
       }
-      
+
       // Track any lessons we couldn't schedule
       if (lessonQueue.length > 0) {
         unscheduledLessons = [...lessonQueue];
         console.warn(
           `Class ${cls.name}: Could not schedule some lessons due to constraints:`,
-          unscheduledLessons.map(l => `${l.name} (${l.teacher.name})`)
+          unscheduledLessons.map(l => `${l.name} (${l.teacher.name})`),
         );
       }
     }
@@ -407,37 +409,44 @@ export class Timetable {
             lessons.push(schedule[day][period]);
           }
         }
-        
+
         // Clear this day's schedule
         for (let period = 0; period < PERIODS_PER_DAY; period++) {
           schedule[day][period] = null;
         }
-        
+
         // Reinsert lessons as compactly as possible
         if (lessons.length > 0) {
           let currentPeriod = 0;
-          
+
           for (const lesson of lessons) {
             if (!lesson) continue;
-            
+
             // Find next available period where the teacher is available
             let slotFound = false;
-            
-            for (let period = currentPeriod; period < PERIODS_PER_DAY; period++) {
+
+            for (
+              let period = currentPeriod;
+              period < PERIODS_PER_DAY;
+              period++
+            ) {
               // CRITICAL: Never place in periods where teacher is unavailable
               if (!lesson.teacher.isAvailable(day, period)) continue;
-              
+
               // Check if teacher is busy elsewhere
               let teacherBusy = false;
               for (const otherClass of this.classes) {
                 if (otherClass.name === cls.name) continue;
-                
-                if (this.schedule[otherClass.name][day][period]?.teacher.name === lesson.teacher.name) {
+
+                if (
+                  this.schedule[otherClass.name][day][period]?.teacher.name ===
+                  lesson.teacher.name
+                ) {
                   teacherBusy = true;
                   break;
                 }
               }
-              
+
               if (!teacherBusy) {
                 schedule[day][period] = lesson;
                 currentPeriod = period + 1;
@@ -445,10 +454,12 @@ export class Timetable {
                 break;
               }
             }
-            
+
             // If no slot found on this day, log a warning
             if (!slotFound) {
-              console.warn(`Cannot compact: No available slot for ${lesson.name} (${lesson.teacher.name}) on day ${day}`);
+              console.warn(
+                `Cannot compact: No available slot for ${lesson.name} (${lesson.teacher.name}) on day ${day}`,
+              );
             }
           }
         }
@@ -531,21 +542,23 @@ export class Timetable {
     for (let day = 0; day < DAYS; day++) {
       for (let period = 0; period < PERIODS_PER_DAY; period++) {
         const teacherUsage = new Map<string, string[]>();
-        
+
         // Check all classes and collect teacher usage
         for (const cls of this.classes) {
           const lesson = this.schedule[cls.name][day][period];
           if (!lesson) continue;
-          
+
           const teacher = lesson.teacher;
           const teacherName = teacher.name;
-          
+
           // First check: Is teacher available at this time?
           if (!teacher.isAvailable(day, period)) {
-            console.error(`AVAILABILITY CONFLICT: ${teacherName} is scheduled but unavailable on day ${day+1}, period ${period+1} for class ${cls.name}`);
+            console.error(
+              `AVAILABILITY CONFLICT: ${teacherName} is scheduled but unavailable on day ${day + 1}, period ${period + 1} for class ${cls.name}`,
+            );
             conflicts += 2000; // Reduced penalty for availability violation
           }
-          
+
           // Track teacher usage for this time slot
           if (!teacherUsage.has(teacherName)) {
             teacherUsage.set(teacherName, [cls.name]);
@@ -553,11 +566,13 @@ export class Timetable {
             teacherUsage.get(teacherName)!.push(cls.name);
           }
         }
-        
+
         // Check for double bookings
         for (const [teacherName, classes] of teacherUsage.entries()) {
           if (classes.length > 1) {
-            console.error(`DOUBLE BOOKING: ${teacherName} is scheduled for ${classes.length} classes at the same time on day ${day+1}, period ${period+1}: ${classes.join(', ')}`);
+            console.error(
+              `DOUBLE BOOKING: ${teacherName} is scheduled for ${classes.length} classes at the same time on day ${day + 1}, period ${period + 1}: ${classes.join(", ")}`,
+            );
             conflicts += 10000 * (classes.length - 1); // Extreme penalty for double booking
           }
         }
@@ -739,8 +754,10 @@ export class Timetable {
     const lesson = timetable.schedule[className][day][period];
 
     if (!lesson) return false; // Safety check
-    
-    console.warn(`Resolving ${type} conflict for ${lesson.name} (${lesson.teacher.name}) in class ${className}, day ${day}, period ${period}`);
+
+    console.warn(
+      `Resolving ${type} conflict for ${lesson.name} (${lesson.teacher.name}) in class ${className}, day ${day}, period ${period}`,
+    );
 
     // For availability conflicts, we must move the lesson since the teacher is not available at this time
     if (type === "availability") {
@@ -753,30 +770,34 @@ export class Timetable {
       if (this.swapWithCompatibleLesson(timetable, className, day, period)) {
         return true;
       }
-      
+
       // Step 3: Try to find an alternate teacher for this subject
       if (this.findAlternateTeacher(timetable, className, day, period)) {
         return true;
       }
-      
+
       // Step 4: Rebuild the class schedule as a last resort before removing
       if (this.rebuildClassSchedule(timetable, className)) {
         // Check if the specific conflict was resolved
         const lessonAfterRebuild = timetable.schedule[className][day][period];
-        if (!lessonAfterRebuild || 
-            lessonAfterRebuild.teacher.name !== conflict.teacherName ||
-            lessonAfterRebuild.teacher.isAvailable(day, period)) {
+        if (
+          !lessonAfterRebuild ||
+          lessonAfterRebuild.teacher.name !== conflict.teacherName ||
+          lessonAfterRebuild.teacher.isAvailable(day, period)
+        ) {
           return true;
         }
       }
-      
+
       // Step 5: Remove the lesson if we can't resolve the conflict
       // It's better to have an unscheduled lesson than to violate teacher availability
-      console.error(`Could not resolve availability conflict. Removing lesson ${lesson.name} from class ${className}`);
+      console.error(
+        `Could not resolve availability conflict. Removing lesson ${lesson.name} from class ${className}`,
+      );
       timetable.schedule[className][day][period] = null;
       return true;
     }
-    
+
     // For double booking conflicts, we can try more options
     // Step 1: Try to find another valid time slot for this lesson
     if (this.moveLessonToValidSlot(timetable, className, day, period)) {
@@ -795,13 +816,15 @@ export class Timetable {
 
     // Step 4: If all else fails, try rebuilding the schedule for this class
     const rebuildSuccessful = this.rebuildClassSchedule(timetable, className);
-    
+
     // If rebuilding failed, remove the lesson as a last resort
     if (!rebuildSuccessful) {
-      console.error(`Could not resolve double booking conflict. Removing lesson ${lesson.name} from class ${className}`);
+      console.error(
+        `Could not resolve double booking conflict. Removing lesson ${lesson.name} from class ${className}`,
+      );
       timetable.schedule[className][day][period] = null;
     }
-    
+
     return true;
   }
 
@@ -821,42 +844,48 @@ export class Timetable {
   ): boolean {
     const lesson = timetable.schedule[className][day][period];
     if (!lesson) return false;
-    
+
     const currentTeacher = lesson.teacher;
     const lessonName = lesson.name;
-    
+
     // Find all teachers who teach this subject
     const potentialTeachers: Teacher[] = [];
-    
+
     // Check all classes and lessons to find teachers who teach this subject
     for (const cls of this.classes) {
       for (const clsLesson of cls.lessons) {
-        if (clsLesson.name === lessonName && 
-            clsLesson.teacher.name !== currentTeacher.name &&
-            !potentialTeachers.some(t => t.name === clsLesson.teacher.name)) {
+        if (
+          clsLesson.name === lessonName &&
+          clsLesson.teacher.name !== currentTeacher.name &&
+          !potentialTeachers.some(t => t.name === clsLesson.teacher.name)
+        ) {
           potentialTeachers.push(clsLesson.teacher);
         }
       }
     }
-    
+
     // Find a teacher who is available and not busy at this time
     for (const teacher of potentialTeachers) {
-      if (teacher.isAvailable(day, period) && 
-          !this.isTeacherBusy(teacher, day, period, className)) {
+      if (
+        teacher.isAvailable(day, period) &&
+        !this.isTeacherBusy(teacher, day, period, className)
+      ) {
         // Create a new lesson with this teacher
         const newLesson = new Lesson(
           lesson.name,
           teacher,
-          lesson.periodsPerWeek
+          lesson.periodsPerWeek,
         );
-        
+
         // Update the timetable
         timetable.schedule[className][day][period] = newLesson;
-        console.log(`Substituted teacher ${currentTeacher.name} with ${teacher.name} for ${lessonName} in class ${className}`);
+        console.log(
+          `Substituted teacher ${currentTeacher.name} with ${teacher.name} for ${lessonName} in class ${className}`,
+        );
         return true;
       }
     }
-    
+
     return false;
   }
 
@@ -1368,13 +1397,15 @@ export class Timetable {
       try {
         // Generate HTML for the PDF
         const html = this.generateHtml();
-        
+
         // Create a new window with the HTML content
-        const printWindow = window.open('', '_blank');
+        const printWindow = window.open("", "_blank");
         if (!printWindow) {
-          throw new Error("Could not open print window. Please check your popup blocker settings.");
+          throw new Error(
+            "Could not open print window. Please check your popup blocker settings.",
+          );
         }
-        
+
         printWindow.document.write(`
           <!DOCTYPE html>
           <html>
@@ -1556,7 +1587,7 @@ export class Timetable {
             </body>
           </html>
         `);
-        
+
         printWindow.document.close();
         resolve(filename);
       } catch (error) {
@@ -1572,8 +1603,11 @@ export class Timetable {
    */
   generateTeacherTimetablesHtml(): string {
     const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-    const teacherSchedules = new Map<string, Map<number, Map<number, { class: string; lessonName: string }>>>();
-    
+    const teacherSchedules = new Map<
+      string,
+      Map<number, Map<number, { class: string; lessonName: string }>>
+    >();
+
     // Collect all lessons for each teacher
     for (const cls of this.classes) {
       const className = cls.name;
@@ -1582,31 +1616,31 @@ export class Timetable {
           const lesson = this.schedule[className][day][period];
           if (lesson) {
             const teacherName = lesson.teacher.name;
-            
+
             // Initialize teacher schedule
             if (!teacherSchedules.has(teacherName)) {
               teacherSchedules.set(teacherName, new Map());
             }
-            
+
             const teacherSchedule = teacherSchedules.get(teacherName)!;
-            
+
             // Initialize day
             if (!teacherSchedule.has(day)) {
               teacherSchedule.set(day, new Map());
             }
-            
+
             const daySchedule = teacherSchedule.get(day)!;
-            
+
             // Save the lesson for this period
             daySchedule.set(period, {
               class: className,
-              lessonName: lesson.name
+              lessonName: lesson.name,
             });
           }
         }
       }
     }
-    
+
     // Generate HTML for each teacher
     let html = `
       <html>
@@ -1696,36 +1730,37 @@ export class Timetable {
       <body>
         <h1>Teacher Timetables</h1>
     `;
-    
+
     // Sort teachers alphabetically
     const sortedTeachers = Array.from(teacherSchedules.keys()).sort();
-    
+
     for (const teacherName of sortedTeachers) {
       const teacherSchedule = teacherSchedules.get(teacherName)!;
-      
+
       // Find the teacher object to check availability
-      const teacher = this.classes.flatMap(cls => cls.lessons.map(l => l.teacher))
+      const teacher = this.classes
+        .flatMap(cls => cls.lessons.map(l => l.teacher))
         .find(t => t.name === teacherName);
-      
+
       if (!teacher) continue;
-      
+
       html += `<div class="teacher-section"><h2>Teacher: ${teacherName}</h2>`;
       html += "<table><tr><th></th>";
-      
+
       // Display days as column headers
       for (let day = 0; day < DAYS; day++) {
         html += `<th>${dayNames[day]}</th>`;
       }
       html += "</tr>";
-      
+
       // Display periods as row headers
       for (let period = 0; period < PERIODS_PER_DAY; period++) {
         html += `<tr><th>Period ${period + 1}</th>`;
-        
+
         for (let day = 0; day < DAYS; day++) {
           const daySchedule = teacherSchedule.get(day);
           const lesson = daySchedule?.get(period);
-          
+
           if (lesson) {
             html += `<td><div class="subject-name">${lesson.lessonName}</div><div class="class-name">Class ${lesson.class}</div></td>`;
           } else if (teacher && !teacher.isAvailable(day, period)) {
@@ -1735,35 +1770,39 @@ export class Timetable {
             html += '<td class="free">Liber</td>';
           }
         }
-        
+
         html += "</tr>";
       }
-      
+
       html += "</table></div>";
     }
-    
+
     html += "</body></html>";
-    
+
     return html;
   }
-  
+
   /**
    * Export teacher timetables to a PDF file
    * @param filename - Output filename
    * @returns Promise resolving to the filename
    */
-  exportTeacherTimetablesToPDF(filename = "teacher-timetables.pdf"): Promise<string> {
+  exportTeacherTimetablesToPDF(
+    filename = "teacher-timetables.pdf",
+  ): Promise<string> {
     return new Promise((resolve, reject) => {
       try {
         // Generate HTML for the PDF
         const html = this.generateTeacherTimetablesHtml();
-        
+
         // Create a new window with the HTML content
-        const printWindow = window.open('', '_blank');
+        const printWindow = window.open("", "_blank");
         if (!printWindow) {
-          throw new Error("Could not open print window. Please check your popup blocker settings.");
+          throw new Error(
+            "Could not open print window. Please check your popup blocker settings.",
+          );
         }
-        
+
         printWindow.document.write(`
           <!DOCTYPE html>
           <html>
@@ -1939,7 +1978,7 @@ export class Timetable {
             </body>
           </html>
         `);
-        
+
         printWindow.document.close();
         resolve(filename);
       } catch (error) {
@@ -2173,12 +2212,12 @@ export class Timetable {
             lessons.push(schedule[day][period]);
           }
         }
-        
+
         // Clear this day's schedule
         for (let period = 0; period < PERIODS_PER_DAY; period++) {
           schedule[day][period] = null;
         }
-        
+
         // Reinsert lessons as compactly as possible
         if (lessons.length > 0) {
           for (let i = 0; i < lessons.length; i++) {
@@ -2213,7 +2252,7 @@ export class Scheduler {
     this.maxIterations = maxIterations;
     this.maxStagnantIterations = maxStagnantIterations;
   }
-  
+
   /**
    * Calculate hard constraint violations for a timetable
    * @param timetable - The timetable to evaluate
@@ -2224,40 +2263,44 @@ export class Scheduler {
     // Count availability violations separately with higher weight
     let availabilityViolations = 0;
     let doubleBookingViolations = 0;
-    
+
     // Check every time slot for teacher availability and double-booking
     for (let day = 0; day < DAYS; day++) {
       for (let period = 0; period < PERIODS_PER_DAY; period++) {
         const teacherMap = new Map<string, number>();
-        
+
         // Check all classes at this time slot
         for (const cls of timetable.classes) {
           const lesson = timetable.schedule[cls.name][day][period];
           if (lesson) {
             const teacher = lesson.teacher;
-            
+
             // Check teacher availability
             if (!teacher.isAvailable(day, period)) {
               availabilityViolations++;
             }
-            
+
             // Track teacher usage for double-booking check
-            teacherMap.set(teacher.name, (teacherMap.get(teacher.name) || 0) + 1);
+            teacherMap.set(
+              teacher.name,
+              (teacherMap.get(teacher.name) || 0) + 1,
+            );
           }
         }
-        
+
         // Count double bookings
         for (const [_, count] of teacherMap.entries()) {
           if (count > 1) {
-            doubleBookingViolations += (count - 1);
+            doubleBookingViolations += count - 1;
           }
         }
       }
     }
-    
+
     // Heavily weight double booking violations over availability violations
-    const conflicts = (availabilityViolations * 5000) + (doubleBookingViolations * 20000);
-    
+    const conflicts =
+      availabilityViolations * 5000 + doubleBookingViolations * 20000;
+
     // Empty spaces are also a hard constraint but less severe
     const emptySpaces = timetable.countEmptySpacePenalty();
 
@@ -2373,15 +2416,17 @@ export class Scheduler {
     // Final validation and cleanup
     const finalConflicts = best.countTeacherConflicts();
     if (finalConflicts > 0) {
-      console.error(`WARNING: Final solution still has ${finalConflicts} conflicts. Attempting one final repair...`);
+      console.error(
+        `WARNING: Final solution still has ${finalConflicts} conflicts. Attempting one final repair...`,
+      );
       this.emergencyCleanupTeacherViolations(best);
     }
-    
+
     // Final check
     const actualConflicts = best.countTeacherConflicts();
     const fitness = this.calculateFitness(best);
     console.log(
-      `Final solution has ${actualConflicts} conflicts, fitness: ${fitness}`
+      `Final solution has ${actualConflicts} conflicts, fitness: ${fitness}`,
     );
 
     return best;
@@ -2396,27 +2441,29 @@ export class Scheduler {
       for (let period = 0; period < PERIODS_PER_DAY; period++) {
         // First scan: detect and resolve double bookings (priority issue)
         const teacherAssignments = new Map<string, string[]>();
-        
+
         // Collect all teacher assignments for this time slot
         for (const cls of timetable.classes) {
           const lesson = timetable.schedule[cls.name][day][period];
           if (!lesson) continue;
-          
+
           const teacher = lesson.teacher;
           const teacherName = teacher.name;
-          
+
           if (!teacherAssignments.has(teacherName)) {
             teacherAssignments.set(teacherName, [cls.name]);
           } else {
             teacherAssignments.get(teacherName)!.push(cls.name);
           }
         }
-        
+
         // Resolve double bookings first
         for (const [teacherName, classes] of teacherAssignments.entries()) {
           if (classes.length > 1) {
-            console.error(`EMERGENCY FIX: Teacher ${teacherName} is double-booked on day ${day+1}, period ${period+1}`);
-            
+            console.error(
+              `EMERGENCY FIX: Teacher ${teacherName} is double-booked on day ${day + 1}, period ${period + 1}`,
+            );
+
             // Keep only the first class, remove others
             for (let i = 1; i < classes.length; i++) {
               const className = classes[i];
@@ -2425,17 +2472,19 @@ export class Scheduler {
             }
           }
         }
-        
+
         // Second scan: remove any lessons where teacher is unavailable
         for (const cls of timetable.classes) {
           const lesson = timetable.schedule[cls.name][day][period];
           if (!lesson) continue;
-          
+
           const teacher = lesson.teacher;
-          
+
           // CRITICAL CHECK: Remove if teacher is unavailable
           if (!teacher.isAvailable(day, period)) {
-            console.error(`EMERGENCY FIX: Removing lesson ${lesson.name} with unavailable teacher ${teacher.name} from class ${cls.name} on day ${day+1}, period ${period+1}`);
+            console.error(
+              `EMERGENCY FIX: Removing lesson ${lesson.name} with unavailable teacher ${teacher.name} from class ${cls.name} on day ${day + 1}, period ${period + 1}`,
+            );
             timetable.schedule[cls.name][day][period] = null;
           }
         }
@@ -2488,7 +2537,7 @@ export class Scheduler {
 
     return offspring;
   }
-  
+
   /**
    * Optimize soft constraints using simulated annealing
    * @param timetable - The timetable to optimize
@@ -2556,7 +2605,7 @@ export class Scheduler {
 
     return best;
   }
-  
+
   /**
    * Create a neighbor solution for soft constraint optimization
    * @param timetable - The current timetable
@@ -2602,7 +2651,7 @@ export class Scheduler {
 
     return neighbor;
   }
-  
+
   /**
    * Calculate fitness for soft constraints only
    * @param timetable - The timetable to evaluate
@@ -2673,7 +2722,7 @@ export class Scheduler {
       freeHourPenalty
     );
   }
-  
+
   /**
    * Calculate idle time penalty for teachers
    * @param timetable - The timetable to evaluate
@@ -2731,7 +2780,7 @@ export class Scheduler {
 
     return totalPenalty;
   }
-  
+
   /**
    * Calculate idle time penalty for groups
    * @param timetable - The timetable to evaluate
@@ -2777,7 +2826,7 @@ export class Scheduler {
 
     return totalPenalty;
   }
-  
+
   /**
    * Check if there is at least one free hour in the week where no teaching occurs
    * @param timetable - The timetable to evaluate
@@ -2805,7 +2854,7 @@ export class Scheduler {
 
     return false; // No free hour found
   }
-  
+
   /**
    * Calculate fitness of a timetable
    * @param timetable - Timetable to evaluate
@@ -2828,40 +2877,43 @@ export class Scheduler {
  * @param filename - Output filename
  * @returns Promise resolving to the filename
  */
-export function exportTeachersToCSV(teachers: Teacher[], filename = "teachers.csv"): Promise<string> {
-  return new Promise((resolve) => {
+export function exportTeachersToCSV(
+  teachers: Teacher[],
+  filename = "teachers.csv",
+): Promise<string> {
+  return new Promise(resolve => {
     // Create CSV header
     let csvContent = "Name";
-    
+
     // Add day columns for availability buffer
     for (let day = 0; day < DAYS; day++) {
       csvContent += `,Day${day + 1}`;
     }
     csvContent += "\r\n";
-    
+
     // Add data for each teacher
     for (const teacher of teachers) {
       csvContent += `${teacher.name}`;
-      
+
       // Add availability buffer data for each day
       for (let day = 0; day < DAYS; day++) {
         csvContent += `,${teacher.availability.buffer[day]}`;
       }
       csvContent += "\r\n";
     }
-    
+
     // Create and download the file
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
-    
+
     const downloadLink = document.createElement("a");
     downloadLink.href = url;
     downloadLink.download = filename;
     downloadLink.style.display = "none";
-    
+
     document.body.appendChild(downloadLink);
     downloadLink.click();
-    
+
     setTimeout(() => {
       document.body.removeChild(downloadLink);
       URL.revokeObjectURL(url);
@@ -2876,36 +2928,39 @@ export function exportTeachersToCSV(teachers: Teacher[], filename = "teachers.cs
  * @param filename - Output filename
  * @returns Promise resolving to the filename
  */
-export function exportClassesToCSV(classes: Class[], filename = "classes.csv"): Promise<string> {
-  return new Promise((resolve) => {
+export function exportClassesToCSV(
+  classes: Class[],
+  filename = "classes.csv",
+): Promise<string> {
+  return new Promise(resolve => {
     // Create CSV header and detailed data in one section for better import compatibility
     let csvContent = "Subject,Teacher,PeriodsPerWeek,Class\r\n";
-    
+
     // Add all class data in a consistent format
     for (const cls of classes) {
       // If the class has no lessons, add a placeholder row to preserve the class
       if (cls.lessons.length === 0) {
         csvContent += `Class Information,N/A,0,${cls.name}\r\n`;
       }
-      
+
       // Add actual lessons
       for (const lesson of cls.lessons) {
         csvContent += `${lesson.name},${lesson.teacher.name},${lesson.periodsPerWeek},${cls.name}\r\n`;
       }
     }
-    
+
     // Create and download the file
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
-    
+
     const downloadLink = document.createElement("a");
     downloadLink.href = url;
     downloadLink.download = filename;
     downloadLink.style.display = "none";
-    
+
     document.body.appendChild(downloadLink);
     downloadLink.click();
-    
+
     setTimeout(() => {
       document.body.removeChild(downloadLink);
       URL.revokeObjectURL(url);
@@ -2922,31 +2977,31 @@ export function exportClassesToCSV(classes: Class[], filename = "classes.csv"): 
  * @returns Promise resolving to the filename
  */
 export function exportLessonsToCSV(
-  lessons: Lesson[], 
-  className: string | null = null, 
-  filename = "lessons.csv"
+  lessons: Lesson[],
+  className: string | null = null,
+  filename = "lessons.csv",
 ): Promise<string> {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     // Create CSV header
     let csvContent = "Subject,Teacher,PeriodsPerWeek,Class\r\n";
-    
+
     // Add data for each lesson
     for (const lesson of lessons) {
       csvContent += `${lesson.name},${lesson.teacher.name},${lesson.periodsPerWeek},${className || ""}\r\n`;
     }
-    
+
     // Create and download the file
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
-    
+
     const downloadLink = document.createElement("a");
     downloadLink.href = url;
     downloadLink.download = className ? `${className}-lessons.csv` : filename;
     downloadLink.style.display = "none";
-    
+
     document.body.appendChild(downloadLink);
     downloadLink.click();
-    
+
     setTimeout(() => {
       document.body.removeChild(downloadLink);
       URL.revokeObjectURL(url);
@@ -2972,52 +3027,53 @@ export function exportClassLessonsToCSV(classObj: Class): Promise<string> {
 export function importTeachersFromCSV(file: File): Promise<Teacher[]> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    
-    reader.onload = (event) => {
+
+    reader.onload = event => {
       try {
         const csvText = event.target?.result as string;
         if (!csvText) {
           reject(new Error("Failed to read file"));
           return;
         }
-        
+
         const teachers: Teacher[] = [];
         // Parse CSV content
-        const lines = csvText.split('\n');
-        
+        const lines = csvText.split("\n");
+
         // Skip header line
         for (let i = 1; i < lines.length; i++) {
           const line = lines[i].trim();
           if (!line) continue;
-          
-          const parts = line.split(',');
-          if (parts.length >= 1 + DAYS) { // Name + day buffers
+
+          const parts = line.split(",");
+          if (parts.length >= 1 + DAYS) {
+            // Name + day buffers
             const name = parts[0];
-            
+
             // Create availability
             const availability = new Availability(DAYS, PERIODS_PER_DAY);
-            
+
             // Parse buffer values for each day
             for (let day = 0; day < DAYS; day++) {
               if (parts[day + 1] && !isNaN(parseInt(parts[day + 1]))) {
                 availability.buffer[day] = parseInt(parts[day + 1]);
               }
             }
-            
+
             teachers.push(new Teacher(name.trim(), availability));
           }
         }
-        
+
         resolve(teachers);
       } catch (error) {
         reject(error);
       }
     };
-    
+
     reader.onerror = () => {
       reject(new Error("Error reading file"));
     };
-    
+
     reader.readAsText(file);
   });
 }
@@ -3028,78 +3084,92 @@ export function importTeachersFromCSV(file: File): Promise<Teacher[]> {
  * @param teachers - List of existing teachers to reference
  * @returns Promise resolving to an array of Class objects
  */
-export function importClassesFromCSV(file: File, teachers: Teacher[]): Promise<Class[]> {
+export function importClassesFromCSV(
+  file: File,
+  teachers: Teacher[],
+): Promise<Class[]> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    
-    reader.onload = (event) => {
+
+    reader.onload = event => {
       try {
         const csvText = event.target?.result as string;
         if (!csvText) {
           reject(new Error("Failed to read file"));
           return;
         }
-        
+
         const classes: Map<string, Class> = new Map();
         // Parse CSV content
-        const lines = csvText.split('\n');
-        
+        const lines = csvText.split("\n");
+
         // Skip header line
         let parsingDetailedSection = false;
-        
+
         for (let i = 1; i < lines.length; i++) {
           const line = lines[i].trim();
           if (!line) continue;
-          
+
           // Check if we've reached the detailed section
           if (line.includes("--- Detailed Class Information ---")) {
             parsingDetailedSection = true;
             i++; // Skip the header line of the detailed section
             continue;
           }
-          
+
           if (!parsingDetailedSection) {
             // Parse summary section
-            const [className] = line.split(',');
+            const [className] = line.split(",");
             if (className) {
               classes.set(className.trim(), new Class(className.trim(), []));
             }
           } else {
             // Parse detailed class section
-            const parts = line.split(',');
+            const parts = line.split(",");
             if (parts.length >= 4) {
-              const [className, subjectName, teacherName, periodsPerWeekStr] = parts;
-              
+              const [className, subjectName, teacherName, periodsPerWeekStr] =
+                parts;
+
               // Find the teacher by name
               const teacher = teachers.find(t => t.name === teacherName.trim());
               if (teacher && className && subjectName) {
                 const periodsPerWeek = parseInt(periodsPerWeekStr) || 1;
-                const lesson = new Lesson(subjectName.trim(), teacher, periodsPerWeek);
-                
+                const lesson = new Lesson(
+                  subjectName.trim(),
+                  teacher,
+                  periodsPerWeek,
+                );
+
                 // Get or create the class
                 if (!classes.has(className.trim())) {
-                  classes.set(className.trim(), new Class(className.trim(), []));
+                  classes.set(
+                    className.trim(),
+                    new Class(className.trim(), []),
+                  );
                 }
-                
+
                 // Add the lesson to the class
                 const classObj = classes.get(className.trim())!;
                 const updatedLessons = [...classObj.lessons, lesson];
-                classes.set(className.trim(), new Class(className.trim(), updatedLessons));
+                classes.set(
+                  className.trim(),
+                  new Class(className.trim(), updatedLessons),
+                );
               }
             }
           }
         }
-        
+
         resolve(Array.from(classes.values()));
       } catch (error) {
         reject(error);
       }
     };
-    
+
     reader.onerror = () => {
       reject(new Error("Error reading file"));
     };
-    
+
     reader.readAsText(file);
   });
 }
@@ -3113,113 +3183,138 @@ export function importClassesFromCSV(file: File, teachers: Teacher[]): Promise<C
  * @returns Promise resolving to an updated array of Class objects
  */
 export function importLessonsFromCSV(
-  file: File, 
-  teachers: Teacher[], 
+  file: File,
+  teachers: Teacher[],
   classes: Class[],
-  targetClassName: string | null = null
+  targetClassName: string | null = null,
 ): Promise<Class[]> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    
-    reader.onload = (event) => {
+
+    reader.onload = event => {
       try {
         const csvText = event.target?.result as string;
         if (!csvText) {
           reject(new Error("Failed to read file"));
           return;
         }
-        
+
         // Create a map of classes for easy access
         const classMap = new Map<string, Class>();
         classes.forEach(cls => {
           classMap.set(cls.name, new Class(cls.name, [...cls.lessons]));
         });
-        
+
         // Parse CSV content
-        const lines = csvText.split('\n');
-        
+        const lines = csvText.split("\n");
+
         // Check for header
         if (lines.length === 0) {
           reject(new Error("CSV file is empty"));
           return;
         }
-        
+
         // Validate header and determine column indexes
         const header = lines[0].trim().toLowerCase();
-        const isStandardFormat = header.includes('subject') && 
-                                 header.includes('teacher') && 
-                                 header.includes('periodsperweek');
-        
+        const isStandardFormat =
+          header.includes("subject") &&
+          header.includes("teacher") &&
+          header.includes("periodsperweek");
+
         if (!isStandardFormat) {
-          reject(new Error("CSV file format is not recognized. Expected columns: Subject, Teacher, PeriodsPerWeek, Class"));
+          reject(
+            new Error(
+              "CSV file format is not recognized. Expected columns: Subject, Teacher, PeriodsPerWeek, Class",
+            ),
+          );
           return;
         }
-        
+
         // Skip header line
         for (let i = 1; i < lines.length; i++) {
           const line = lines[i].trim();
           if (!line) continue;
-          
-          const parts = line.split(',');
+
+          const parts = line.split(",");
           if (parts.length >= 3) {
-            const [subjectName, teacherName, periodsPerWeekStr, className] = parts;
-            
+            const [subjectName, teacherName, periodsPerWeekStr, className] =
+              parts;
+
             // Skip empty entries
             if (!subjectName.trim() || !teacherName.trim()) continue;
-            
+
             // Find the teacher by name
             const teacher = teachers.find(t => t.name === teacherName.trim());
             if (!teacher) {
-              console.warn(`Teacher "${teacherName}" not found, skipping lesson "${subjectName}"`);
+              console.warn(
+                `Teacher "${teacherName}" not found, skipping lesson "${subjectName}"`,
+              );
               continue;
             }
-            
+
             // Create the lesson
             const periodsPerWeek = parseInt(periodsPerWeekStr) || 1;
-            const lesson = new Lesson(subjectName.trim(), teacher, periodsPerWeek);
-            
+            const lesson = new Lesson(
+              subjectName.trim(),
+              teacher,
+              periodsPerWeek,
+            );
+
             // Determine which class to add the lesson to
             let classToUpdate = className?.trim() || "";
-            
+
             // If a target class is specified and this lesson doesn't match, skip it
-            if (targetClassName && classToUpdate && classToUpdate !== targetClassName) {
+            if (
+              targetClassName &&
+              classToUpdate &&
+              classToUpdate !== targetClassName
+            ) {
               continue;
             }
-            
+
             // If no class specified in CSV but we have a target class, use that
             if (!classToUpdate && targetClassName) {
               classToUpdate = targetClassName;
             }
-            
+
             // If we have a valid class, add the lesson to it
             if (classToUpdate && classMap.has(classToUpdate)) {
               const classObj = classMap.get(classToUpdate)!;
               const updatedLessons = [...classObj.lessons, lesson];
-              classMap.set(classToUpdate, new Class(classToUpdate, updatedLessons));
+              classMap.set(
+                classToUpdate,
+                new Class(classToUpdate, updatedLessons),
+              );
             } else if (classToUpdate) {
               // Check if we should create a new class
-              const createNewClass = confirm(`Class "${classToUpdate}" not found. Would you like to create it?`);
+              const createNewClass = confirm(
+                `Class "${classToUpdate}" not found. Would you like to create it?`,
+              );
               if (createNewClass) {
                 classMap.set(classToUpdate, new Class(classToUpdate, [lesson]));
               } else {
-                console.warn(`Skipping lesson "${subjectName}" as class "${classToUpdate}" was not created.`);
+                console.warn(
+                  `Skipping lesson "${subjectName}" as class "${classToUpdate}" was not created.`,
+                );
               }
             } else {
-              console.warn(`No class specified for lesson "${subjectName}", skipping`);
+              console.warn(
+                `No class specified for lesson "${subjectName}", skipping`,
+              );
             }
           }
         }
-        
+
         resolve(Array.from(classMap.values()));
       } catch (error) {
         reject(error);
       }
     };
-    
+
     reader.onerror = () => {
       reject(new Error("Error reading file"));
     };
-    
+
     reader.readAsText(file);
   });
 }
@@ -3234,62 +3329,62 @@ export function importLessonsFromCSV(
 export function exportAllDataToCSV(
   teachers: Teacher[],
   classes: Class[],
-  filename = "timetable-weaver-data.csv"
+  filename = "timetable-weaver-data.csv",
 ): Promise<string> {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     // Create CSV with sections for different data types
     let csvContent = "# TIMETABLE WEAVER DATA EXPORT\r\n\r\n";
-    
+
     // TEACHERS SECTION
     csvContent += "## TEACHERS\r\n";
     csvContent += "Name";
-    
+
     // Add day columns for availability buffer
     for (let day = 0; day < DAYS; day++) {
       csvContent += `,Day${day + 1}`;
     }
     csvContent += "\r\n";
-    
+
     // Add data for each teacher
     for (const teacher of teachers) {
       csvContent += `${teacher.name}`;
-      
+
       // Add availability buffer data for each day
       for (let day = 0; day < DAYS; day++) {
         csvContent += `,${teacher.availability.buffer[day]}`;
       }
       csvContent += "\r\n";
     }
-    
+
     // CLASSES AND LESSONS SECTION
     csvContent += "\r\n## CLASSES AND LESSONS\r\n";
     csvContent += "Subject,Teacher,PeriodsPerWeek,Class\r\n";
-    
+
     // Add all classes and their lessons
     for (const cls of classes) {
       // If the class has no lessons, add a placeholder row
       if (cls.lessons.length === 0) {
         csvContent += `[Empty Class],N/A,0,${cls.name}\r\n`;
       }
-      
+
       // Add lessons for each class
       for (const lesson of cls.lessons) {
         csvContent += `${lesson.name},${lesson.teacher.name},${lesson.periodsPerWeek},${cls.name}\r\n`;
       }
     }
-    
+
     // Create and download the file
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
-    
+
     const downloadLink = document.createElement("a");
     downloadLink.href = url;
     downloadLink.download = filename;
     downloadLink.style.display = "none";
-    
+
     document.body.appendChild(downloadLink);
     downloadLink.click();
-    
+
     setTimeout(() => {
       document.body.removeChild(downloadLink);
       URL.revokeObjectURL(url);
@@ -3305,30 +3400,34 @@ export function exportAllDataToCSV(
 export function generateExampleDataFile(): Promise<string> {
   const exampleTeachers = [
     new Teacher("John Smith", new Availability(DAYS, PERIODS_PER_DAY)),
-    new Teacher("Jane Doe", new Availability(DAYS, PERIODS_PER_DAY))
+    new Teacher("Jane Doe", new Availability(DAYS, PERIODS_PER_DAY)),
   ];
-  
+
   // Make all slots available for example teachers
   for (const teacher of exampleTeachers) {
     for (let day = 0; day < DAYS; day++) {
       teacher.availability.setDay(day, true);
     }
   }
-  
+
   // Make a few specific slots unavailable for demonstration
   exampleTeachers[0].availability.set(0, 2, false); // Monday, period 3
   exampleTeachers[1].availability.set(2, 1, false); // Wednesday, period 2
-  
+
   const math = new Lesson("Mathematics", exampleTeachers[0], 5);
   const english = new Lesson("English", exampleTeachers[1], 4);
   const science = new Lesson("Science", exampleTeachers[0], 3);
-  
+
   const exampleClasses = [
     new Class("10A", [math, english]),
-    new Class("11B", [math, science])
+    new Class("11B", [math, science]),
   ];
-  
-  return exportAllDataToCSV(exampleTeachers, exampleClasses, "timetable-weaver-example.csv");
+
+  return exportAllDataToCSV(
+    exampleTeachers,
+    exampleClasses,
+    "timetable-weaver-example.csv",
+  );
 }
 
 /**
@@ -3336,44 +3435,52 @@ export function generateExampleDataFile(): Promise<string> {
  * @param file - The CSV file to import
  * @returns Promise resolving to an object containing teachers and classes arrays
  */
-export function importAllDataFromCSV(file: File): Promise<{ teachers: Teacher[], classes: Class[] }> {
+export function importAllDataFromCSV(
+  file: File,
+): Promise<{ teachers: Teacher[]; classes: Class[] }> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    
-    reader.onload = (event) => {
+
+    reader.onload = event => {
       try {
         const csvText = event.target?.result as string;
         if (!csvText) {
           reject(new Error("Failed to read file"));
           return;
         }
-        
+
         console.log("CSV file loaded, content length:", csvText.length);
-        
+
         const teachers: Teacher[] = [];
         const classMap = new Map<string, Class>();
-        
+
         // Parse CSV content by sections
         const lines = csvText.split(/\r?\n/); // Handle both Windows and Unix line endings
         console.log(`Parsed ${lines.length} lines from CSV`);
-        
+
         let currentSection = "";
         let headerProcessed = false;
         let teachersFound = false;
         let classesFound = false;
-        
+
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i].trim();
           if (!line) continue;
-          
+
           // Check for section headers
-          if (line.startsWith("## TEACHERS") || line.toLowerCase().includes("teachers")) {
+          if (
+            line.startsWith("## TEACHERS") ||
+            line.toLowerCase().includes("teachers")
+          ) {
             currentSection = "TEACHERS";
             headerProcessed = false;
             teachersFound = true;
             console.log("Found TEACHERS section at line", i);
             continue;
-          } else if (line.startsWith("## CLASSES") || line.toLowerCase().includes("classes and lessons")) {
+          } else if (
+            line.startsWith("## CLASSES") ||
+            line.toLowerCase().includes("classes and lessons")
+          ) {
             currentSection = "CLASSES";
             headerProcessed = false;
             classesFound = true;
@@ -3383,7 +3490,7 @@ export function importAllDataFromCSV(file: File): Promise<{ teachers: Teacher[],
             // Skip other comment lines
             continue;
           }
-          
+
           // Process data based on current section
           if (currentSection === "TEACHERS") {
             if (!headerProcessed) {
@@ -3392,25 +3499,26 @@ export function importAllDataFromCSV(file: File): Promise<{ teachers: Teacher[],
               console.log("Processing teachers header:", line);
               continue;
             }
-            
-            const parts = line.split(',');
-            if (parts.length >= 1 + DAYS) { // Name + day buffers
+
+            const parts = line.split(",");
+            if (parts.length >= 1 + DAYS) {
+              // Name + day buffers
               const name = parts[0];
-              
+
               // Create availability
               const availability = new Availability(DAYS, PERIODS_PER_DAY);
-              
+
               // Parse buffer values for each day
               for (let day = 0; day < DAYS; day++) {
                 if (parts[day + 1] && !isNaN(parseInt(parts[day + 1]))) {
                   availability.buffer[day] = parseInt(parts[day + 1]);
                 }
               }
-              
+
               teachers.push(new Teacher(name.trim(), availability));
               console.log(`Added teacher: ${name.trim()} with availability`);
             } else {
-              console.warn(`Invalid teacher data at line ${i+1}: ${line}`);
+              console.warn(`Invalid teacher data at line ${i + 1}: ${line}`);
             }
           } else if (currentSection === "CLASSES") {
             if (!headerProcessed) {
@@ -3419,54 +3527,76 @@ export function importAllDataFromCSV(file: File): Promise<{ teachers: Teacher[],
               console.log("Processing classes header:", line);
               continue;
             }
-            
-            const parts = line.split(',');
+
+            const parts = line.split(",");
             if (parts.length >= 4) {
-              const [subjectName, teacherName, periodsPerWeekStr, className] = parts;
-              
+              const [subjectName, teacherName, periodsPerWeekStr, className] =
+                parts;
+
               // Handle empty class placeholder
               if (subjectName.trim() === "[Empty Class]") {
                 if (!classMap.has(className.trim())) {
-                  classMap.set(className.trim(), new Class(className.trim(), []));
+                  classMap.set(
+                    className.trim(),
+                    new Class(className.trim(), []),
+                  );
                   console.log(`Added empty class: ${className.trim()}`);
                 }
                 continue;
               }
-              
+
               // Find the teacher by name
               const teacher = teachers.find(t => t.name === teacherName.trim());
               if (!teacher) {
-                console.warn(`Teacher "${teacherName}" not found, skipping lesson "${subjectName}"`);
+                console.warn(
+                  `Teacher "${teacherName}" not found, skipping lesson "${subjectName}"`,
+                );
                 continue;
               }
-              
+
               // Create the lesson
               const periodsPerWeek = parseInt(periodsPerWeekStr) || 1;
-              const lesson = new Lesson(subjectName.trim(), teacher, periodsPerWeek);
-              
+              const lesson = new Lesson(
+                subjectName.trim(),
+                teacher,
+                periodsPerWeek,
+              );
+
               // Get or create the class
               if (!classMap.has(className.trim())) {
                 classMap.set(className.trim(), new Class(className.trim(), []));
               }
-              
+
               // Add the lesson to the class
               const classObj = classMap.get(className.trim())!;
               const updatedLessons = [...classObj.lessons, lesson];
-              classMap.set(className.trim(), new Class(className.trim(), updatedLessons));
-              console.log(`Added lesson "${subjectName.trim()}" to class ${className.trim()}`);
+              classMap.set(
+                className.trim(),
+                new Class(className.trim(), updatedLessons),
+              );
+              console.log(
+                `Added lesson "${subjectName.trim()}" to class ${className.trim()}`,
+              );
             } else {
-              console.warn(`Invalid class/lesson data at line ${i+1}: ${line}`);
+              console.warn(
+                `Invalid class/lesson data at line ${i + 1}: ${line}`,
+              );
             }
           }
         }
-        
+
         // Handle case where file format is completely different but might be valid
         if (!teachersFound && !classesFound) {
-          console.log("No section headers found, attempting to parse as simple CSV");
+          console.log(
+            "No section headers found, attempting to parse as simple CSV",
+          );
           try {
             // Try parsing as a simple flat CSV with all data
             const simpleParse = parseSimpleCsvFormat(csvText);
-            if (simpleParse.teachers.length > 0 || simpleParse.classes.length > 0) {
+            if (
+              simpleParse.teachers.length > 0 ||
+              simpleParse.classes.length > 0
+            ) {
               console.log("Successfully parsed as simple CSV format");
               resolve(simpleParse);
               return;
@@ -3476,28 +3606,34 @@ export function importAllDataFromCSV(file: File): Promise<{ teachers: Teacher[],
             // Continue with original parsing result
           }
         }
-        
+
         if (teachers.length === 0 && classMap.size === 0) {
-          reject(new Error("No valid data found in the file. Please use the example file as a template."));
+          reject(
+            new Error(
+              "No valid data found in the file. Please use the example file as a template.",
+            ),
+          );
           return;
         }
-        
-        console.log(`Import completed: ${teachers.length} teachers, ${classMap.size} classes`);
+
+        console.log(
+          `Import completed: ${teachers.length} teachers, ${classMap.size} classes`,
+        );
         resolve({
           teachers: teachers,
-          classes: Array.from(classMap.values())
+          classes: Array.from(classMap.values()),
         });
       } catch (error) {
         console.error("Error parsing CSV file:", error);
         reject(error);
       }
     };
-    
-    reader.onerror = (error) => {
+
+    reader.onerror = error => {
       console.error("FileReader error:", error);
       reject(new Error("Error reading file"));
     };
-    
+
     reader.readAsText(file);
   });
 }
@@ -3507,56 +3643,62 @@ export function importAllDataFromCSV(file: File): Promise<{ teachers: Teacher[],
  * @param csvText - The CSV text content
  * @returns Object containing teachers and classes arrays
  */
-function parseSimpleCsvFormat(csvText: string): { teachers: Teacher[], classes: Class[] } {
+function parseSimpleCsvFormat(csvText: string): {
+  teachers: Teacher[];
+  classes: Class[];
+} {
   const teachers: Teacher[] = [];
   const classMap = new Map<string, Class>();
-  
+
   // Try to infer the format based on the header
   const lines = csvText.split(/\r?\n/);
   if (lines.length < 2) {
     throw new Error("Not enough data in file");
   }
-  
+
   const header = lines[0].toLowerCase();
-  
+
   // Check if this looks like a teacher-focused file
   if (header.includes("name") && header.includes("day")) {
     // Process as teachers data
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
       if (!line) continue;
-      
-      const parts = line.split(',');
+
+      const parts = line.split(",");
       if (parts.length >= 2) {
         const name = parts[0].trim();
         const availability = new Availability(DAYS, PERIODS_PER_DAY);
-        
+
         // Try to parse availability data if present
         for (let day = 0; day < Math.min(DAYS, parts.length - 1); day++) {
           if (parts[day + 1] && !isNaN(parseInt(parts[day + 1]))) {
             availability.buffer[day] = parseInt(parts[day + 1]);
           }
         }
-        
+
         teachers.push(new Teacher(name, availability));
       }
     }
-  } 
+  }
   // Check if this looks like a class/lesson-focused file
-  else if (header.includes("subject") && header.includes("teacher") && 
-           (header.includes("periods") || header.includes("class"))) {
+  else if (
+    header.includes("subject") &&
+    header.includes("teacher") &&
+    (header.includes("periods") || header.includes("class"))
+  ) {
     // Process as classes/lessons data
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
       if (!line) continue;
-      
-      const parts = line.split(',');
+
+      const parts = line.split(",");
       if (parts.length >= 3) {
         let subjectName = parts[0].trim();
         let teacherName = parts[1].trim();
         let periodsPerWeek = 1;
         let className = "";
-        
+
         // Try to parse periods and class name
         if (parts.length >= 4) {
           periodsPerWeek = parseInt(parts[2]) || 1;
@@ -3565,7 +3707,7 @@ function parseSimpleCsvFormat(csvText: string): { teachers: Teacher[], classes: 
           // Fallback if class name not specified
           className = "Default Class";
         }
-        
+
         // Create placeholder teacher if needed
         let teacher = teachers.find(t => t.name === teacherName);
         if (!teacher) {
@@ -3577,24 +3719,24 @@ function parseSimpleCsvFormat(csvText: string): { teachers: Teacher[], classes: 
           teacher = new Teacher(teacherName, availability);
           teachers.push(teacher);
         }
-        
+
         // Create the lesson
         const lesson = new Lesson(subjectName, teacher, periodsPerWeek);
-        
+
         // Add to class
         if (!classMap.has(className)) {
           classMap.set(className, new Class(className, []));
         }
-        
+
         const classObj = classMap.get(className)!;
         const updatedLessons = [...classObj.lessons, lesson];
         classMap.set(className, new Class(className, updatedLessons));
       }
     }
   }
-  
+
   return {
     teachers: teachers,
-    classes: Array.from(classMap.values())
+    classes: Array.from(classMap.values()),
   };
 }
