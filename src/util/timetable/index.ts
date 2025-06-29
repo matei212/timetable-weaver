@@ -2422,6 +2422,9 @@ export class Scheduler {
       this.emergencyCleanupTeacherViolations(best);
     }
 
+    // Annealing
+    best = this.optimizeSoftConstraints(best);
+
     // Final check
     const actualConflicts = best.countTeacherConflicts();
     const fitness = this.calculateFitness(best);
@@ -2713,13 +2716,37 @@ export class Scheduler {
     // Check if there's at least one free hour in the week where no teaching occurs
     const freeHourPenalty = this.hasFreeHourInWeek(timetable) ? 0 : 100;
 
+    // Too many classes of the same type in a day
+    let sameClassesPenality = 0;
+    for (const cls of timetable.classes) {
+      for (let day = 0; day < DAYS; day++) {
+        const classesObj = {} as { [key: string]: { count: number } };
+        for (let period = 0; period < PERIODS_PER_DAY; period++) {
+          const lesson = timetable.schedule[cls.name][day][period];
+          if (!lesson) {
+            continue;
+          }
+
+          if (lesson.name in classesObj) {
+            classesObj[lesson.name].count++;
+            if (classesObj[lesson.name].count > 2) {
+              sameClassesPenality += 1;
+            }
+          } else {
+            classesObj[lesson.name] = { count: 1 };
+          }
+        }
+      }
+    }
+
     return (
       unscheduled +
       freeFirstPeriods +
       distributionPenalty +
       teacherIdlePenalty +
       groupIdlePenalty +
-      freeHourPenalty
+      freeHourPenalty +
+      sameClassesPenality
     );
   }
 
