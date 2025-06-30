@@ -18,7 +18,7 @@ const GradientContainer = ({ variant, className, children }: Props) => {
 
   return (
     <div
-      className={`rounded-xl border shadow-xl backdrop-blur-sm ${gradientClasses} ${className}`}
+      className={`rounded-xl border shadow-xl backdrop-blur-sm dark:text-slate-200 ${gradientClasses} ${className}`}
     >
       {children}
     </div>
