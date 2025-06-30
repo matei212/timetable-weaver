@@ -371,7 +371,7 @@ const Setting = ({
         min={min}
         max={max}
         step={step}
-        className="rounded-lg border border-blue-500/30 bg-slate-200 p-1 text-center text-blue-800 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-800/50 dark:text-blue-500"
+        className="w-33 rounded-lg border border-blue-500/30 bg-slate-200 p-1 text-center text-blue-800 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-800/50 dark:text-blue-500"
       />
     </div>
   );
@@ -394,6 +394,15 @@ const AdvancedSettings = () => {
         <GradientContainer className="px-3 py-4 sm:min-w-lg md:min-w-3xl lg:min-w-4xl">
           <form method="dialog" className="space-y-4">
             <h2 className="text-4xl font-bold">Setări Avansate</h2>
+            <Setting
+              title="Initial Pool Size"
+              description="Câte generări să facă algoritmul la început"
+              min={1}
+              max={100}
+              step={1}
+              valuePath="initialPoolSize"
+            />
+
             <Section title="ES (1 + 1)">
               <Setting
                 title="Max Iterations"

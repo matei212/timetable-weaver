@@ -2233,6 +2233,7 @@ export class Timetable {
  * Config type for scheduler
  */
 export type SchedulerConfig = {
+  initialPoolSize: number;
   maxESIterations: number;
   sigma: number;
   sigmaDecay: number;
@@ -2245,6 +2246,7 @@ export type SchedulerConfig = {
 };
 
 export const DEFAULT_SCHEDULER_CONFIG: Readonly<SchedulerConfig> = {
+  initialPoolSize: 10,
   maxESIterations: 10000,
   sigma: 2.0,
   sigmaDecay: 0.98,
@@ -2342,7 +2344,7 @@ export class Scheduler {
     console.log("Phase 1: Solving hard constraints with (1+1) ES");
 
     // Create multiple initial timetables and pick the best one to start with
-    const initialPoolSize = 10; // Increased from 5 to 10 for better initial selection
+    const initialPoolSize = this.config.initialPoolSize;
     const initialTimetables: Timetable[] = [];
     for (let i = 0; i < initialPoolSize; i++) {
       const timetable = new Timetable(this.classes);
