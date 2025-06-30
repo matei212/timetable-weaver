@@ -1,5 +1,6 @@
 import { Class, Teacher, Timetable } from "../../util/timetable";
 import OverviewTab from "../components/OverviewTab";
+import AdvancedSettingsProvider from "../providers/AdvancedSettings";
 
 interface OverviewRouteProps {
   classes: Class[];
@@ -17,13 +18,15 @@ const Overview: React.FC<OverviewRouteProps> = ({
   onClassesChange,
 }) => {
   return (
-    <OverviewTab
-      classes={classes}
-      teachers={teachers}
-      onTimetableGenerated={onTimetableGenerated}
-      onTeachersChange={onTeachersChange}
-      onClassesChange={onClassesChange}
-    />
+    <AdvancedSettingsProvider>
+      <OverviewTab
+        classes={classes}
+        teachers={teachers}
+        onTimetableGenerated={onTimetableGenerated}
+        onTeachersChange={onTeachersChange}
+        onClassesChange={onClassesChange}
+      />
+    </AdvancedSettingsProvider>
   );
 };
 
