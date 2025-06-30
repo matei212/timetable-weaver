@@ -17,6 +17,7 @@ import {
   importAllDataFromCSV,
   generateExampleDataFile,
   SchedulerConfig,
+  DEFAULT_SCHEDULER_CONFIG,
 } from "../../util/timetable";
 import GradientButton from "./common/GradientButton";
 import GradientContainer from "./common/GradientContainer";
@@ -348,6 +349,11 @@ const Setting = ({
     AdvancedSettingsContext,
   );
   const value = useMemo(() => settings[valuePath], [settings, valuePath]);
+  const isDefaultSetting = useMemo(
+    () => value === DEFAULT_SCHEDULER_CONFIG[valuePath],
+    [value, valuePath],
+  );
+
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
       const newValue = Number(e.target.value);
@@ -355,6 +361,11 @@ const Setting = ({
     },
     [updateSettings, valuePath],
   );
+
+  const handleReset = useCallback(() => {
+    const defaultVal = DEFAULT_SCHEDULER_CONFIG[valuePath];
+    updateSettings({ [valuePath]: defaultVal });
+  }, [updateSettings, valuePath]);
 
   return (
     <div className="flex items-start justify-between gap-8">
@@ -364,15 +375,35 @@ const Setting = ({
           <p className="tex-xs dark:text-slate-400">{description}</p>
         )}
       </div>
-      <input
-        type="number"
-        value={value}
-        onChange={handleChange}
-        min={min}
-        max={max}
-        step={step}
-        className="w-33 rounded-lg border border-blue-500/30 bg-slate-200 p-1 text-center text-blue-800 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-800/50 dark:text-blue-500"
-      />
+      <div className="flex gap-4">
+        {!isDefaultSetting && (
+          <button
+            onClick={handleReset}
+            className="text-gray-700 transition-colors hover:text-gray-600"
+          >
+            <svg
+              stroke="currentColor"
+              fill="currentColor"
+              stroke-width="0"
+              viewBox="0 0 24 24"
+              width="32px"
+              height="32px"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M22 12C22 17.5228 17.5229 22 12 22C6.4772 22 2 17.5228 2 12C2 6.47715 6.4772 2 12 2V4C7.5817 4 4 7.58172 4 12C4 16.4183 7.5817 20 12 20C16.4183 20 20 16.4183 20 12C20 9.25022 18.6127 6.82447 16.4998 5.38451L16.5 8H14.5V2L20.5 2V4L18.0008 3.99989C20.4293 5.82434 22 8.72873 22 12Z"></path>
+            </svg>
+          </button>
+        )}
+        <input
+          type="number"
+          value={value}
+          onChange={handleChange}
+          min={min}
+          max={max}
+          step={step}
+          className="w-33 rounded-lg border border-blue-500/30 bg-slate-200 p-1 text-center text-blue-800 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-800/50 dark:text-blue-500"
+        />
+      </div>
     </div>
   );
 };
