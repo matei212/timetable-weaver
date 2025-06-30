@@ -2230,27 +2230,50 @@ export class Timetable {
 }
 
 /**
+ * Config type for scheduler
+ */
+export type SchedulerConfig = {
+  maxESIterations: number;
+  sigma: number;
+  sigmaDecay: number;
+  minSigma: number;
+  maxStagnantIterations: number;
+  maxAnnealingIterations: number;
+  temperature: number;
+  coolingRate: number;
+  minTemperature: number;
+};
+
+export const DEFAULT_SCHEDULER_CONFIG: Readonly<SchedulerConfig> = {
+  maxESIterations: 10000,
+  sigma: 2.0,
+  sigmaDecay: 0.98,
+  minSigma: 0.1,
+  maxStagnantIterations: 500,
+  maxAnnealingIterations: 2500,
+  temperature: 0.5,
+  coolingRate: 0.99,
+  minTemperature: 0.00001,
+};
+
+/**
  * Class for scheduling timetables
  */
 export class Scheduler {
   classes: Class[];
-  maxIterations: number;
-  maxStagnantIterations: number;
+  config: SchedulerConfig;
 
   /**
    * Create a scheduler
    * @param classes - Classes to schedule
-   * @param maxIterations - Maximum iterations
-   * @param maxStagnantIterations - Maximum iterations without improvement
+   * @param config - Config for the generation algorithm
    */
   constructor(
     classes: Class[] = [],
-    maxIterations = 1000,
-    maxStagnantIterations = 100,
+    config: SchedulerConfig = DEFAULT_SCHEDULER_CONFIG,
   ) {
     this.classes = classes;
-    this.maxIterations = maxIterations;
-    this.maxStagnantIterations = maxStagnantIterations;
+    this.config = config;
   }
 
   /**
@@ -2313,6 +2336,7 @@ export class Scheduler {
    */
   generateTimetable(): Timetable {
     console.log("Starting timetable generation process...");
+    console.log("Config for generation", this.config);
 
     // PHASE 1: Initialize and solve hard constraints using (1+1) ES
     console.log("Phase 1: Solving hard constraints with (1+1) ES");
@@ -2334,10 +2358,14 @@ export class Scheduler {
     });
 
     // Parameters for (1+1) ES
-    let sigma = 2.0; // Mutation strength
-    const sigmaDecay = 0.98; // Slower decay for more exploration
-    const minSigma = 0.1; // Minimum value for sigma
-    const maxStagnantIterations = 500; // Increased from 200 for more patience
+    const {
+      maxESIterations,
+      sigma: startingSigma,
+      sigmaDecay,
+      minSigma,
+      maxStagnantIterations,
+    } = this.config;
+    let sigma = startingSigma; // Mutation strength
     let stagnantIterations = 0;
 
     // For monitoring progress
@@ -2346,7 +2374,6 @@ export class Scheduler {
     let bestViolations = currentViolations;
 
     // Schwefel's (1+1)-ES algorithm for hard constraints
-    const maxESIterations = Math.max(5000, this.maxIterations); // Ensure at least 5000 iterations
     for (
       let i = 0;
       (i < maxESIterations || maxESIterations === 0) && bestViolations > 0;
@@ -2554,9 +2581,12 @@ export class Scheduler {
     let bestFitness = currentFitness;
 
     // Annealing parameters
-    let temperature = 0.5; // Starting temperature
-    const coolingRate = 0.99; // Slower cooling for better exploration
-    const minTemperature = 0.00001;
+    const {
+      temperature: startingTemperature,
+      coolingRate,
+      minTemperature,
+    } = this.config;
+    let temperature = startingTemperature; // Starting temperature
 
     // Annealing process
     const maxAnnealingIterations = 2500;
