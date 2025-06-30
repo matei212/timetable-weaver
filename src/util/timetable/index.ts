@@ -2,10 +2,6 @@
  * @fileoverview Timetable generation utility for school scheduling
  */
 
-// Remove Node.js dependencies
-// import * as pdf from "html-pdf";
-// import * as fs from "fs";
-
 /**
  * Pads a string to the right with spaces
  * @param str - The string to pad
@@ -60,7 +56,7 @@ export class Availability {
    * @param val - Whether the slot is available
    */
   set(day: number, period: number, val: boolean): void {
-    let mask = 1 << period;
+    const mask = 1 << period;
     if (val) {
       this.buffer[day] |= mask;
     } else {
@@ -88,7 +84,7 @@ export class Availability {
    * @returns Whether the slot is available
    */
   get(day: number, period: number): boolean {
-    let mask = 1 << period;
+    const mask = 1 << period;
     return (this.buffer[day] & mask) != 0;
   }
 
@@ -134,7 +130,7 @@ export class Availability {
    * @param period - Period index
    */
   toggle(day: number, period: number): void {
-    let mask = 1 << period;
+    const mask = 1 << period;
     this.buffer[day] ^= mask;
   }
 
@@ -240,11 +236,6 @@ export type TimetableSchedule = {
   [className: string]: (Lesson | null)[][];
 };
 
-// Define interface for PDF creation return value
-interface PdfResult {
-  filename: string;
-}
-
 /**
  * Class representing a timetable
  */
@@ -307,7 +298,7 @@ export class Timetable {
     // Now iterate through each class to assign lessons
     for (const cls of this.classes) {
       const schedule = this.schedule[cls.name];
-      let lessonQueue: Lesson[] = [];
+      const lessonQueue: Lesson[] = [];
 
       // Collect all lessons that need to be scheduled
       for (const lesson of cls.lessons) {
@@ -2314,7 +2305,7 @@ export class Scheduler {
         }
 
         // Count double bookings
-        for (const [_, count] of teacherMap.entries()) {
+        for (const [, count] of teacherMap.entries()) {
           if (count > 1) {
             doubleBookingViolations += count - 1;
           }
@@ -2726,7 +2717,7 @@ export class Scheduler {
       }
 
       // Calculate distribution penalty for each subject
-      for (const [_, dayCounts] of subjectCounts.entries()) {
+      for (const [, dayCounts] of subjectCounts.entries()) {
         // Find min and max counts
         const nonZeroCounts = dayCounts.filter(count => count > 0);
         if (nonZeroCounts.length > 1) {
@@ -2819,8 +2810,8 @@ export class Scheduler {
     }
 
     // Calculate idle time for each teacher
-    for (const [_, teacherDays] of teacherSchedule.entries()) {
-      for (const [_, periods] of teacherDays.entries()) {
+    for (const [, teacherDays] of teacherSchedule.entries()) {
+      for (const [, periods] of teacherDays.entries()) {
         if (periods.length <= 1) continue;
 
         // Sort periods
@@ -3753,8 +3744,8 @@ function parseSimpleCsvFormat(csvText: string): {
 
       const parts = line.split(",");
       if (parts.length >= 3) {
-        let subjectName = parts[0].trim();
-        let teacherName = parts[1].trim();
+        const subjectName = parts[0].trim();
+        const teacherName = parts[1].trim();
         let periodsPerWeek = 1;
         let className = "";
 
