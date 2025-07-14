@@ -119,91 +119,103 @@ const MetricsPanel: React.FC<{
 }> = ({ metrics }) => {
   return (
     <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
-      <div
-        className={`rounded-lg border backdrop-blur-sm p-5 shadow-lg transition-all duration-300 hover:shadow-xl transform hover:scale-105 ${
-          metrics.conflicts > 0
-            ? "border-red-500/30 bg-red-900/20"
-            : "border-emerald-500/30 bg-emerald-900/20"
-        }`}
-      >
-        <h4 className="mb-2 font-medium tracking-wide">Conflicte Profesori</h4>
-        <p
-          className={`text-2xl font-bold ${
+      <div className={`rounded-xl border p-4 shadow-sm bg-white dark:bg-gray-950 ${
+        metrics.conflicts > 0
+          ? "border-red-200 bg-red-50/30 dark:border-red-800 dark:bg-red-950/30"
+          : "border-emerald-200 bg-emerald-50/30 dark:border-emerald-800 dark:bg-emerald-950/30"
+      }`}>
+        <div className="flex flex-row items-center justify-between pb-2">
+          <span className={`text-sm font-medium ${
             metrics.conflicts > 0
-              ? "text-red-500 dark:text-red-400"
-              : "text-emerald-500 dark:text-emerald-400"
-          }`}
-        >
-          {metrics.conflicts}
-        </p>
+              ? "text-red-700 dark:text-red-300"
+              : "text-emerald-700 dark:text-emerald-300"
+          }`}>Conflicte Profesori</span>
+          <span>
+            <svg width="20" height="20" fill="none" stroke={metrics.conflicts > 0 ? "#dc2626" : "#16a34a"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>
+        </div>
+        <div className={`text-2xl font-bold ${
+          metrics.conflicts > 0
+            ? "text-red-800 dark:text-red-200"
+            : "text-emerald-800 dark:text-emerald-200"
+        }`}>{metrics.conflicts}</div>
         {metrics.conflicts === 0 && (
-          <span className="mt-1 text-xs text-emerald-500/70">✓ Totul în regulă</span>
+          <p className="text-xs text-emerald-600 dark:text-emerald-400">✓ Totul în regulă</p>
         )}
       </div>
 
-      <div
-        className={`rounded-lg border backdrop-blur-sm p-5 shadow-lg transition-all duration-300 hover:shadow-xl transform hover:scale-105 ${
-          metrics.unscheduled > 0
-            ? " border-orange-500/30 bg-orange-900/20"
-            : "border-emerald-400/30 bg-emerald-900/10 dark:border-emerald-500/30 dark:bg-emerald-900/20"
-        }`}
-      >
-        <h4 className="mb-2 font-medium tracking-wide">Ore Neprogramate</h4>
-        <p
-          className={`text-2xl font-bold ${
+      <div className={`rounded-xl border p-4 shadow-sm bg-white dark:bg-gray-950 ${
+        metrics.unscheduled > 0
+          ? "border-orange-200 bg-orange-50/30 dark:border-orange-800 dark:bg-orange-950/30"
+          : "border-emerald-200 bg-emerald-50/30 dark:border-emerald-800 dark:bg-emerald-950/30"
+      }`}>
+        <div className="flex flex-row items-center justify-between pb-2">
+          <span className={`text-sm font-medium ${
             metrics.unscheduled > 0
-              ? "text-orange-500 dark:text-orange-400"
-              : "text-emerald-500 dark:text-emerald-400"
-          }`}
-        >
-          {metrics.unscheduled}
-        </p>
+              ? "text-orange-700 dark:text-orange-300"
+              : "text-emerald-700 dark:text-emerald-300"
+          }`}>Ore Neprogramate</span>
+          <span>
+            <svg width="20" height="20" fill="none" stroke={metrics.unscheduled > 0 ? "#ea580c" : "#16a34a"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
+          </span>
+        </div>
+        <div className={`text-2xl font-bold ${
+          metrics.unscheduled > 0
+            ? "text-orange-800 dark:text-orange-200"
+            : "text-emerald-800 dark:text-emerald-200"
+        }`}>{metrics.unscheduled}</div>
         {metrics.unscheduled === 0 && (
-          <span className="mt-1 text-xs text-emerald-500/70">✓ Toate programate</span>
+          <p className="text-xs text-emerald-600 dark:text-emerald-400">✓ Toate programate</p>
         )}
       </div>
 
-      <div
-        className={`rounded-lg border backdrop-blur-sm p-5 shadow-lg transition-all duration-300 hover:shadow-xl transform hover:scale-105 ${
-          metrics.emptySpaces > 0
-            ? "border-red-400/30 bg-red-900/10 dark:border-red-500/30 dark:bg-red-900/20"
-            : "border-emerald-400/30 bg-emerald-900/10 dark:border-emerald-500/30 dark:bg-emerald-900/20"
-        }`}
-      >
-        <h4 className="mb-2 font-medium tracking-wide">Penalizări Spațiu Gol</h4>
-        <p
-          className={`text-2xl font-bold ${
+      <div className={`rounded-xl border p-4 shadow-sm bg-white dark:bg-gray-950 ${
+        metrics.emptySpaces > 0
+          ? "border-red-200 bg-red-50/30 dark:border-red-800 dark:bg-red-950/30"
+          : "border-emerald-200 bg-emerald-50/30 dark:border-emerald-800 dark:bg-emerald-950/30"
+      }`}>
+        <div className="flex flex-row items-center justify-between pb-2">
+          <span className={`text-sm font-medium ${
             metrics.emptySpaces > 0
-              ? "text-red-500 dark:text-red-400"
-              : "text-emerald-500 dark:text-emerald-400"
-          }`}
-        >
-          {metrics.emptySpaces}
-        </p>
+              ? "text-red-700 dark:text-red-300"
+              : "text-emerald-700 dark:text-emerald-300"
+          }`}>Penalizări Spațiu Gol</span>
+          <span>
+            <svg width="20" height="20" fill="none" stroke={metrics.emptySpaces > 0 ? "#dc2626" : "#16a34a"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+          </span>
+        </div>
+        <div className={`text-2xl font-bold ${
+          metrics.emptySpaces > 0
+            ? "text-red-800 dark:text-red-200"
+            : "text-emerald-800 dark:text-emerald-200"
+        }`}>{metrics.emptySpaces}</div>
         {metrics.emptySpaces === 0 && (
-          <span className="mt-1 text-xs text-emerald-500/70">✓ Fără goluri</span>
+          <p className="text-xs text-emerald-600 dark:text-emerald-400">✓ Fără goluri</p>
         )}
       </div>
 
-      <div
-        className={`rounded-lg border backdrop-blur-sm p-5 shadow-lg transition-all duration-300 hover:shadow-xl transform hover:scale-105 ${
-          metrics.total > 0
-            ? "border-yellow-400/30 bg-yellow-900/10 dark:border-yellow-500/30 dark:bg-yellow-900/20"
-            : "border-emerald-400/30 bg-emerald-900/10 dark:border-emerald-500/30 dark:bg-emerald-900/20"
-        }`}
-      >
-        <h4 className="mb-2 font-medium tracking-wide">Scor de Calitate</h4>
-        <p
-          className={`text-2xl font-bold ${
+      <div className={`rounded-xl border p-4 shadow-sm bg-white dark:bg-gray-950 ${
+        metrics.total > 0
+          ? "border-yellow-200 bg-yellow-50/30 dark:border-yellow-800 dark:bg-yellow-950/30"
+          : "border-emerald-200 bg-emerald-50/30 dark:border-emerald-800 dark:bg-emerald-950/30"
+      }`}>
+        <div className="flex flex-row items-center justify-between pb-2">
+          <span className={`text-sm font-medium ${
             metrics.total > 0
-              ? "text-yellow-500 dark:text-yellow-400"
-              : "text-emerald-500 dark:text-emerald-400"
-          }`}
-        >
-          {metrics.total}
-        </p>
+              ? "text-yellow-700 dark:text-yellow-300"
+              : "text-emerald-700 dark:text-emerald-300"
+          }`}>Scor de Calitate</span>
+          <span>
+            <svg width="20" height="20" fill="none" stroke={metrics.total > 0 ? "#ca8a04" : "#16a34a"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </span>
+        </div>
+        <div className={`text-2xl font-bold ${
+          metrics.total > 0
+            ? "text-yellow-800 dark:text-yellow-200"
+            : "text-emerald-800 dark:text-emerald-200"
+        }`}>{metrics.total}</div>
         {metrics.total === 0 && (
-          <span className="mt-1 text-xs text-emerald-500/70">✓ Perfect!</span>
+          <p className="text-xs text-emerald-600 dark:text-emerald-400">✓ Perfect!</p>
         )}
       </div>
     </div>
@@ -223,8 +235,8 @@ const ConflictDetails: React.FC<{
 
   if (!hasConflicts) {
     return (
-      <div className="mb-6 rounded-lg border border-green-400/30 bg-green-900/10 p-4 dark:border-green-500/30 dark:bg-green-900/20">
-        <p className="flex items-center font-medium text-green-400">
+      <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50/30 p-4 dark:border-emerald-800 dark:bg-emerald-950/30">
+        <p className="flex items-center font-medium text-emerald-700 dark:text-emerald-300">
           <span className="mr-2">✓</span> Nu există conflicte între profesori! Orarul este optimal.
         </p>
       </div>
@@ -232,15 +244,15 @@ const ConflictDetails: React.FC<{
   }
 
   return (
-    <div className="mb-6 rounded-lg border border-red-400/30 bg-red-900/10 p-4 dark:border-red-500/30 dark:bg-red-900/20">
-      <h3 className="mb-2 font-medium text-red-400">
+    <div className="mb-6 rounded-xl border border-red-200 bg-red-50/30 p-4 dark:border-red-800 dark:bg-red-950/30">
+      <h3 className="mb-2 font-medium text-red-700 dark:text-red-300">
         Au fost detectate {conflictDetails.conflicts} conflicte
       </h3>
       <div className="mt-3 space-y-1">
         {teacherConflicts.map(([teacher, count], index) => (
           <div key={index} className="flex justify-between">
-            <span>{teacher}</span>
-            <span className="font-medium text-red-400">{count} conflicte</span>
+            <span className="text-gray-700 dark:text-gray-300">{teacher}</span>
+            <span className="font-medium text-red-700 dark:text-red-300">{count} conflicte</span>
           </div>
         ))}
       </div>
@@ -272,21 +284,21 @@ const ClassTimetable: React.FC<{
 
   return (
     <div className="mb-8 overflow-x-auto">
-      <h3 className="mb-4 text-lg font-semibold flex items-center">
+      <h3 className="mb-4 text-lg font-semibold flex items-center text-gray-900 dark:text-white">
         <span className="mr-2 text-blue-500">📋</span>
         Class {className}
       </h3>
-      <div className="rounded-lg border border-blue-400/20 bg-blue-900/5 backdrop-blur-sm overflow-hidden shadow-lg">
+      <div className="rounded-xl border border-gray-200 bg-white dark:bg-gray-950 dark:border-gray-800 overflow-hidden shadow-sm">
         <table className="w-full min-w-full border-collapse">
           <thead>
-            <tr className="bg-gradient-to-r from-blue-900/30 to-indigo-900/30 text-blue-100">
-              <th className="border-b border-r border-blue-400/20 p-3 text-left">
-                <span className="font-medium tracking-wide">Time</span>
+            <tr className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+              <th className="border-r border-gray-200 dark:border-gray-800 p-3 text-left">
+                <span className="font-medium tracking-wide text-gray-700 dark:text-gray-300">Time</span>
               </th>
               {dayNames.map((day, index) => (
                 <th 
                   key={index} 
-                  className="border-b border-r border-blue-400/20 p-3 text-left font-medium tracking-wide"
+                  className="border-r border-gray-200 dark:border-gray-800 p-3 text-left font-medium tracking-wide text-gray-700 dark:text-gray-300"
                 >
                   {day}
                 </th>
@@ -295,8 +307,8 @@ const ClassTimetable: React.FC<{
           </thead>
           <tbody>
             {periodNames.map((period, periodIndex) => (
-              <tr key={periodIndex} className="border-b border-blue-400/20 hover:bg-blue-900/10">
-                <td className="border-r border-blue-400/20 p-3 bg-blue-900/20 font-medium text-blue-200 tracking-wide">
+              <tr key={periodIndex} className="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900">
+                <td className="border-r border-gray-200 dark:border-gray-800 p-3 bg-gray-50 dark:bg-gray-900 font-medium text-gray-700 dark:text-gray-300 tracking-wide">
                   {period}
                 </td>
                 {Array.from({ length: DAYS }, (_, dayIndex) => {
@@ -304,12 +316,11 @@ const ClassTimetable: React.FC<{
                   const isConflict = hasCellConflict(className, dayIndex, periodIndex);
                   const isAvailabilityConflict = hasTeacherAvailabilityConflict(className, dayIndex, periodIndex);
                   
-                  // Determine cell styling based on conflicts
-                  let cellStyle = "border-r border-blue-400/20 p-3 transition-all duration-300";
+                  let cellStyle = "border-r border-gray-200 dark:border-gray-800 p-3 transition-all duration-300";
                   if (isConflict) {
-                    cellStyle += " bg-red-900/20 text-red-100";
+                    cellStyle += " bg-red-50 dark:bg-red-950/30";
                   } else if (lesson) {
-                    cellStyle += " bg-blue-900/10 text-blue-100";
+                    cellStyle += " bg-blue-50 dark:bg-blue-950/30";
                   } else {
                     cellStyle += " text-gray-400 dark:text-gray-500";
                   }
@@ -317,16 +328,16 @@ const ClassTimetable: React.FC<{
                   return (
                     <td key={dayIndex} className={cellStyle}>
                       {lesson ? (
-                        <div className={`rounded-md p-1.5 ${isConflict ? 'border border-red-500/50' : 'border border-blue-500/30'}`}>
-                          <div className="font-medium mb-1">
+                        <div className={`rounded-lg p-2 ${isConflict ? 'border border-red-200 dark:border-red-800' : 'border border-blue-200 dark:border-blue-800'}`}>
+                          <div className="font-medium mb-1 text-gray-900 dark:text-gray-100">
                             {lesson.name}
                             {isAvailabilityConflict && (
-                              <span className="ml-2 text-xs text-yellow-300 bg-yellow-500/20 px-2 py-0.5 rounded-full">
+                              <span className="ml-2 text-xs text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/30 px-2 py-0.5 rounded-full">
                                 ⚠️ Unavailable
                               </span>
                             )}
                           </div>
-                          <div className={`text-sm ${isConflict ? 'text-red-300/80' : 'text-blue-500/80'}`}>
+                          <div className={`text-sm ${isConflict ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'}`}>
                             {lesson.teacher.name}
                           </div>
                         </div>
@@ -385,25 +396,27 @@ const TimetableActions: React.FC<{
     }
   };
 
+  const buttonStyle = "rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-300 hover:shadow-sm transform hover:-translate-y-0.5";
+
   return (
     <div className="mb-6 flex flex-wrap gap-3">
       <button
         onClick={onClose}
-        className="rounded-lg bg-gradient-to-r from-slate-500 to-slate-600 px-4 py-2 font-medium text-white shadow-lg transition-all duration-300 hover:from-slate-600 hover:to-slate-700 hover:shadow-slate-500/20 transform hover:-translate-y-0.5"
+        className={`${buttonStyle} bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-800`}
       >
         Închide Orarul
       </button>
       
       <button
         onClick={handleExportToPDF}
-        className="rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2 font-medium text-white shadow-lg transition-all duration-300 hover:from-blue-700 hover:to-indigo-700 hover:shadow-blue-500/20 transform hover:-translate-y-0.5"
+        className={`${buttonStyle} bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700`}
       >
         Exportă Orar Clase (PDF)
       </button>
       
       <button
         onClick={handleExportTeacherTimetablesToPDF}
-        className="rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2 font-medium text-white shadow-lg transition-all duration-300 hover:from-purple-700 hover:to-indigo-700 hover:shadow-purple-500/20 transform hover:-translate-y-0.5"
+        className={`${buttonStyle} bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700`}
       >
         Exportă Orar Profesori (PDF)
       </button>
@@ -431,17 +444,28 @@ const TimetableDisplay: React.FC<TimetableDisplayProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/70 backdrop-blur-sm">
-      <div className="m-4 max-h-[90vh] w-full max-w-6xl overflow-y-auto rounded-xl bg-white p-6 shadow-2xl dark:bg-slate-900 dark:text-white">
-        <h2 className="mb-6 text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
-          Orarul Generat
-        </h2>
+      <div className="m-4 max-h-[90vh] w-full max-w-6xl overflow-y-auto rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-950 dark:text-white">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Orarul Generat
+          </h2>
+          <button
+            onClick={onClose}
+            className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+          >
+            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
 
         <MetricsPanel metrics={metrics} />
         <ConflictDetails conflictDetails={conflictDetails} />
         <TimetableActions onClose={onClose} timetable={timetable} />
 
         <div className="mb-6">
-          <h3 className="mb-3 text-lg font-semibold">Selectați Clasa</h3>
+          <h3 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">Selectați Clasa</h3>
           <div className="flex flex-wrap gap-2">
             {timetable.classes.map(cls => (
               <button
@@ -449,8 +473,8 @@ const TimetableDisplay: React.FC<TimetableDisplayProps> = ({
                 onClick={() => setSelectedClass(cls.name)}
                 className={`rounded-lg px-4 py-2 transition-all duration-300 ${
                   selectedClass === cls.name
-                    ? "bg-blue-600 text-white shadow-lg"
-                    : "bg-slate-200 text-slate-700 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
                 }`}
               >
                 {cls.name}

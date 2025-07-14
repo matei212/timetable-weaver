@@ -10,14 +10,15 @@ const ColorButton = ({ variant, onClick, className, children }: Props) => {
   const backgroundClasses = useMemo(() => {
     switch (variant) {
       case "blue":
-        return "bg-blue-200 text-blue-500 hover:bg-blue-300/80 dark:bg-blue-500/20 dark:text-blue-500 dark:hover:bg-blue-500/30 dark:hover:text-blue-200";
+        return "bg-gray-300 text-black-500 font-semibold hover:bg-blue-300/80 dark:bg-blue-500/20 dark:text-blue-500 dark:hover:bg-blue-500/30 dark:hover:text-blue-200";
       case "indigo":
         return "bg-indigo-600/20 text-indigo-500 hover:bg-indigo-600/30 dark:bg-indigo-500/20 dark:text-indigo-300 dark:hover:bg-indigo-500/30 dark:hover:text-indigo-200";
       case "red":
-        return "bg-red-500/20 text-red-500 hover:bg-red-500/30 dark:text-red-300 dark:hover:bg-red-500/30 dark:hover:text-red-200";
+        return "bg-red-500 text-white hover:bg-red-500/80 dark:text-red-300 dark:hover:bg-red-500/30 dark:hover:text-red-200";
       case "gray":
-        return "bg-zinc-400 text-zinc-100 hover:bg-zinc-500 dark:bg-zinc-600 dark:hover:bg-zinc-700 ";
+        return " bg-gray-600 text-white hover:bg-zinc-500 dark:bg-zinc-600 dark:hover:bg-zinc-700 inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium";
       case "green":
+        return " bg-gray-600 text-white hover:bg-zinc-500 dark:bg-zinc-600 dark:hover:bg-zinc-700 inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium";
       default:
         return "bg-teal-500/20 text-teal-500 hover:bg-teal-500/30 hover:text-teal-300";
     }

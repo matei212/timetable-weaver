@@ -1,36 +1,17 @@
-import {
-  useState,
-  useRef,
-  useCallback,
-  PropsWithChildren,
-  useContext,
-  useMemo,
-  ChangeEvent,
-} from "react";
-import {
-  Timetable,
-  Teacher,
-  Class,
-  Scheduler,
-  Lesson,
-  exportAllDataToCSV,
-  importAllDataFromCSV,
-  generateExampleDataFile,
-  SchedulerConfig,
-  DEFAULT_SCHEDULER_CONFIG,
-} from "../../util/timetable";
-import GradientButton from "./common/GradientButton";
-import GradientContainer from "./common/GradientContainer";
-import Modal from "./common/Modal";
+import React, { useMemo, useRef, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import ColorButton from "./common/ColorButton";
+import GradientButton from "./common/GradientButton";
+import { exportAllDataToCSV, importAllDataFromCSV, generateExampleDataFile, Scheduler } from "../../util/timetable";
 import { AdvancedSettingsContext } from "../providers/AdvancedSettings";
+import Modal from "./common/Modal";
 
 interface OverviewTabProps {
-  classes: Class[];
-  teachers: Teacher[];
-  onTimetableGenerated: (timetable: Timetable | null) => void;
-  onTeachersChange: (teachers: Teacher[]) => void;
-  onClassesChange: (classes: Class[]) => void;
+  classes: any[];
+  teachers: any[];
+  onTimetableGenerated: (timetable: any | null) => void;
+  onTeachersChange: (teachers: any[]) => void;
+  onClassesChange: (classes: any[]) => void;
 }
 
 const OverviewTab: React.FC<OverviewTabProps> = ({
@@ -40,126 +21,65 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
   onTeachersChange,
   onClassesChange,
 }) => {
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { advancedSettings } = useContext(AdvancedSettingsContext);
-
-  const canGenerate =
-    classes.length > 0 &&
-    teachers.length > 0 &&
-    classes.some(cls => cls.lessons.length > 0);
+  const stats = useMemo(
+    () => ({
+      teachers: teachers.length,
+      classes: classes.length,
+      lessons: classes.reduce((sum, cls) => sum + cls.lessons.length, 0),
+      timetables: 0,
+    }),
+    [teachers, classes]
+  );
+  const { advancedSettings, updateSettings } = useContext(AdvancedSettingsContext);
+  const [showAdvancedSettings, setShowAdvancedSettings] = React.useState(false);
+  const [settingsDraft, setSettingsDraft] = React.useState(advancedSettings);
 
   const handleGenerateTimetable = () => {
-    setIsGenerating(true);
-    setError(null);
-
+    if (!classes.length || !teachers.length) {
+      alert("You must have at least one class and one teacher to generate a timetable.");
+      return;
+    }
     try {
-      // Check if we have enough data to generate a timetable
-      if (!canGenerate) {
-        throw new Error("Not enough data to generate a timetable");
-      }
-
-      // Check if there are any classes with no lessons
-      const emptyClasses = classes.filter(cls => cls.lessons.length === 0);
-      if (emptyClasses.length > 0) {
-        throw new Error(
-          `These classes have no lessons: ${emptyClasses.map(c => c.name).join(", ")}`,
-        );
-      }
-
-      // Make sure all teacher availability is considered
-      const totalTeachers = teachers.length;
-      const totalClasses = classes.length;
-      const totalLessons = classes.reduce(
-        (sum, cls) => sum + cls.lessons.length,
-        0,
-      );
-      console.log(
-        `Generating timetable with ${totalClasses} classes, ${totalTeachers} teachers, and ${totalLessons} total lessons`,
-      );
-
-      // Create deep clones of each class to ensure no cached data is used
-      const classesForScheduler = classes.map(cls => {
-        // Make sure each lesson references the latest teacher data
-        const updatedLessons = cls.lessons.map(lesson => {
-          // Find the latest teacher data
-          const latestTeacher = teachers.find(
-            t => t.name === lesson.teacher.name,
-          );
-          if (!latestTeacher) {
-            console.warn(
-              `Teacher ${lesson.teacher.name} not found in latest teacher data. Using cached data.`,
-            );
-            return lesson;
-          }
-
-          // Create a new lesson with updated teacher data
-          return new Lesson(lesson.name, latestTeacher, lesson.periodsPerWeek);
-        });
-
-        // Return a new class with updated lessons
-        return new Class(cls.name, updatedLessons);
-      });
-
-      // Create a new scheduler with the updated classes
-      const scheduler = new Scheduler(classesForScheduler, advancedSettings);
+      const scheduler = new Scheduler(classes, advancedSettings);
       const timetable = scheduler.generateTimetable();
-
       onTimetableGenerated(timetable);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "An unknown error occurred",
-      );
-      onTimetableGenerated(null);
-    } finally {
-      setIsGenerating(false);
+    } catch (e) {
+      alert("Failed to generate timetable. Check your data and try again.");
+      console.error(e);
     }
   };
 
-  const handleImportAllData = async (file: File) => {
+  const handleImportAllData = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
     try {
-      setIsGenerating(true);
-      setError(null);
-      console.log(
-        `Attempting to import file: ${file.name}, size: ${file.size} bytes`,
-      );
-
       const importedData = await importAllDataFromCSV(file);
-
-      // Show stats in console
-      console.log(
-        `Import successful: ${importedData.teachers.length} teachers, ${importedData.classes.length} classes`,
-      );
-
-      // Confirm before replacing data
       if (
         importedData.teachers.length === 0 &&
         importedData.classes.length === 0
       ) {
         alert(
-          "The file contained no valid data. Please use the example file as a template.",
+          "The file contained no valid data. Please use the example file as a template."
         );
         return;
       }
-
       const replaceMessage = `Found ${importedData.teachers.length} teachers and ${importedData.classes.length} classes. This will replace all your existing data. Continue?`;
-
       if (window.confirm(replaceMessage)) {
         onTeachersChange(importedData.teachers);
         onClassesChange(importedData.classes);
         alert("All data imported successfully!");
       }
     } catch (error) {
-      console.error("Error importing data:", error);
-      setError(
-        `Import error: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
       alert(
-        "Error importing data. Please check the file format and try again. Check browser console for details.",
+        "Error importing data. Please check the file format and try again. Check browser console for details."
       );
     } finally {
-      setIsGenerating(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
@@ -168,353 +88,267 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
     exportAllDataToCSV(teachers, classes, "timetable-weaver-data.csv");
   };
 
+  const handleAdvancedSettings = () => {
+    setSettingsDraft(advancedSettings);
+    setShowAdvancedSettings(true);
+  };
+
+  const handleSettingsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type } = e.target;
+    setSettingsDraft(prev => ({
+      ...prev,
+      [name]: type === "number" ? Number(value) : value,
+    }));
+  };
+
+  const handleSaveSettings = () => {
+    updateSettings(settingsDraft);
+    setShowAdvancedSettings(false);
+  };
+
+  const handleCancelSettings = () => {
+    setShowAdvancedSettings(false);
+  };
+
   const handleGenerateExampleFile = () => {
     generateExampleDataFile();
   };
 
+  // Theme toggle (simple, minimal)
+  const [darkMode, setDarkMode] = React.useState(false);
+  const toggleTheme = () => setDarkMode((d) => !d);
+
+  // Card and button styles
+  const card =
+    "rounded-xl border bg-white dark:bg-gray-950 p-6 shadow-sm flex flex-col gap-2";
+  const statCard =
+    "rounded-xl border p-4 flex flex-col gap-1 shadow-sm bg-white dark:bg-gray-950";
+  const button =
+    "w-full flex items-center justify-start gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors bg-gray-100 hover:bg-gray-200 dark:bg-gray-900 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-800";
+  const primaryButton =
+    "w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200";
+
   return (
-    <div className="mx-auto w-full max-w-5xl p-8">
-      <h2 className="text-gradient-blue mb-8 text-3xl font-bold">
-        Overview & Generate
-      </h2>
-
-      <GradientContainer className="mb-8 p-8">
-        <div className="mb-6 flex items-center justify-between">
-          <h3 className="flex items-center text-xl font-semibold text-blue-500">
-            <span className="mr-3 text-2xl">📊</span> Configurație Curentă
-          </h3>
-          <AdvancedSettings />
+    <>
+      <header className="flex h-16 shrink-0 items-center gap-2 mb-2">
+        <div className="flex items-center gap-2 px-4">
+          <span className="text-xl">📋</span>
+          <span className="font-semibold text-lg">Dashboard</span>
         </div>
-
-        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
-          <div className="rounded-lg border border-blue-500/30 bg-blue-300/20 p-5 shadow-lg backdrop-blur-sm transition-transform hover:scale-105 dark:bg-blue-900/10">
-            <h4 className="mb-2 flex items-center font-medium text-blue-500">
-              <span className="mr-2 text-xl">👨‍🏫</span> Profesori
-            </h4>
-            <p className="text-3xl font-bold text-blue-500 dark:text-blue-100">
-              {teachers.length}
-            </p>
-          </div>
-
-          <div className="rounded-lg border border-cyan-500/30 bg-cyan-400/10 p-5 shadow-lg backdrop-blur-sm transition-transform hover:scale-105 dark:bg-cyan-900/10">
-            <h4 className="mb-2 flex items-center font-medium text-cyan-400">
-              <span className="mr-2 text-xl">🏛️</span> Clase
-            </h4>
-            <p className="text-3xl font-bold text-cyan-400 dark:text-blue-100">
-              {classes.length}
-            </p>
-          </div>
-
-          <div className="rounded-lg border border-indigo-500/30 bg-indigo-400/20 p-5 shadow-lg backdrop-blur-sm transition-transform hover:scale-105">
-            <h4 className="mb-2 flex items-center font-medium text-indigo-400">
-              <span className="mr-2 text-xl">📚</span> Număr Total Lecții
-            </h4>
-            <p className="text-3xl font-bold text-indigo-400 dark:text-blue-100">
-              {classes.reduce((sum, cls) => sum + cls.lessons.length, 0)}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-10 text-center">
+        <div className="ml-auto px-4">
           <button
-            onClick={handleGenerateTimetable}
-            disabled={!canGenerate || isGenerating}
-            className={`relative transform overflow-hidden rounded-xl px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 ${
-              !canGenerate || isGenerating
-                ? "cursor-not-allowed bg-gray-600"
-                : "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 hover:shadow-blue-500/30"
-            }`}
+            onClick={toggleTheme}
+            className="flex items-center gap-2 px-3 py-1 rounded-lg border border-gray-200 dark:border-gray-700 text-sm bg-white dark:bg-gray-900"
           >
-            {isGenerating ? (
-              <span className="flex items-center justify-center">
-                <span className="mr-2 animate-spin text-xl">◌</span>
-                Generare in curs...
-              </span>
-            ) : (
-              <span className="flex items-center justify-center">
-                <span className="mr-2">⚙️</span>
-                Generare Orar
-              </span>
-            )}
+            <span>{darkMode ? "☀️" : "🌙"}</span>
+            <span className="capitalize">{darkMode ? "Light" : "Dark"} Mode</span>
           </button>
-
-          {!canGenerate && !isGenerating && (
-            <p className="mt-4 inline-block rounded-lg bg-red-600/20 p-3 text-sm text-red-400 dark:bg-red-900/20">
-              Ai nevoie de cel putin o clasa cu lecții și un profesor pentru a
-              genera un orar.
-            </p>
-          )}
-
-          {error && (
-            <div className="mt-4 rounded-lg border border-red-500/30 bg-red-900/20 p-4 text-red-300 backdrop-blur-sm">
-              <div className="flex items-center">
-                <span className="mr-2 text-xl">⚠️</span>
-                <span>{error}</span>
-              </div>
-            </div>
-          )}
         </div>
-      </GradientContainer>
-
-      <GradientContainer className="mb-8 p-8">
-        <h3 className="mb-6 flex items-center text-xl font-semibold text-blue-400">
-          <span className="mr-3 text-2xl">💾</span> Management Date
-        </h3>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="rounded-lg border border-purple-500/30 bg-purple-100/10 p-5 backdrop-blur-sm dark:bg-purple-900/10">
-            <h4 className="mb-3 font-medium text-purple-400 dark:text-purple-300">
-              Importa Date
-            </h4>
-            <p className="mb-4 text-sm text-purple-400 dark:text-purple-200/70">
-              Importă profesori, clase și lecții dintr-un fișier CSV. Acest
-              lucru va înlocui datele curente.
+      </header>
+      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+          <div className="aspect-video rounded-xl bg-gray-50 dark:bg-gray-900 p-6 border flex flex-col justify-between">
+            <h2 className="text-2xl font-bold mb-4">Welcome to Timetable Weaver</h2>
+            <p className="text-gray-500 dark:text-gray-400 mb-4">
+              Manage your school's timetables efficiently with our automated scheduling system.
             </p>
-            <div className="flex flex-col space-y-3">
+            <div className="flex gap-2">
+              <button onClick={handleGenerateTimetable} className={primaryButton}>
+                <span className="mr-2">🗓️</span>
+                Generate Timetable
+              </button>
+            </div>
+          </div>
+          <div className="grid gap-4">
+            <div className="border-blue-200 bg-blue-50/30 dark:border-blue-800 dark:bg-blue-950/30 rounded-xl p-4 flex flex-col gap-1 shadow-sm">
+              <div className="flex flex-row items-center justify-between pb-2">
+                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Teachers</span>
+                <span>
+                  <svg width="24" height="24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </span>
+              </div>
+              <div className="text-2xl font-bold text-blue-800 dark:text-blue-200">{stats.teachers}</div>
+              <p className="text-xs text-blue-600 dark:text-blue-400">Active teaching staff</p>
+            </div>
+            <div className="border-cyan-200 bg-cyan-50/30 dark:border-cyan-800 dark:bg-cyan-950/30 rounded-xl p-4 flex flex-col gap-1 shadow-sm">
+              <div className="flex flex-row items-center justify-between pb-2">
+                <span className="text-sm font-medium text-cyan-700 dark:text-cyan-300">Classes</span>
+                <span>
+                  <svg width="24" height="24" fill="none" stroke="#06b6d4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M22 10.5V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v3.5"/><path d="M6 20v-6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6"/><rect width="20" height="8" x="2" y="10.5" rx="2"/></svg>
+                </span>
+              </div>
+              <div className="text-2xl font-bold text-cyan-800 dark:text-cyan-200">{stats.classes}</div>
+              <p className="text-xs text-cyan-600 dark:text-cyan-400">Total class groups</p>
+            </div>
+          </div>
+          <div className="grid gap-4">
+            <div className="border-indigo-200 bg-indigo-50/30 dark:border-indigo-800 dark:bg-indigo-950/30 rounded-xl p-4 flex flex-col gap-1 shadow-sm">
+              <div className="flex flex-row items-center justify-between pb-2">
+                <span className="text-sm font-medium text-indigo-700 dark:text-indigo-300">Lessons</span>
+                <span>
+                  <svg width="24" height="24" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M2 19.5A2.5 2.5 0 0 1 4.5 17H20"/><path d="M2 6.5A2.5 2.5 0 0 1 4.5 4H20"/><path d="M20 22V2"/><path d="M4.5 22V2"/></svg>
+                </span>
+              </div>
+              <div className="text-2xl font-bold text-indigo-800 dark:text-indigo-200">{stats.lessons}</div>
+              <p className="text-xs text-indigo-600 dark:text-indigo-400">Scheduled lessons</p>
+            </div>
+            <div className="border-green-200 bg-green-50/30 dark:border-green-800 dark:bg-green-950/30 rounded-xl p-4 flex flex-col gap-1 shadow-sm">
+              <div className="flex flex-row items-center justify-between pb-2">
+                <span className="text-sm font-medium text-green-700 dark:text-green-300">Timetables</span>
+                <span>
+                  <svg width="24" height="24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
+                </span>
+              </div>
+              <div className="text-2xl font-bold text-green-800 dark:text-green-200">{stats.timetables}</div>
+              <p className="text-xs text-green-600 dark:text-green-400">Generated timetables</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className={card}>
+            <h3 className="text-lg font-bold mb-1">Quick Actions</h3>
+            <div className="text-sm text-gray-400 mb-4">Common tasks and operations</div>
+            <div className="flex flex-col gap-2">
+
+              
+              <GradientButton
+                variant="gray"
+                onClick={() => navigate("/teachers") }
+                className="flex px-4 py-2 text-sm font-medium text-black"
+              >
+                <span className="mr-2">
+                  <svg width="20" height="20" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </span>
+                <span className="font-medium text-black">Manage Teachers</span>
+              </GradientButton>
+
+
+              <GradientButton
+                variant="gray"
+                onClick={() => navigate("/classes") }
+                className="flex px-4 py-2 text-sm font-medium text-black"
+              >
+                <span className="mr-2">
+                  <svg width="20" height="20" fill="none" stroke="#06b6d4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M22 10.5V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v3.5"/><path d="M6 20v-6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6"/><rect width="20" height="8" x="2" y="10.5" rx="2"/></svg>
+                </span>
+                <span className="font-medium text-black">Manage Classes</span>
+              </GradientButton>
+
+             
+              <GradientButton
+                variant="gray"
+                onClick={() => navigate("/lessons") }
+                className="flex px-4 py-2 text-sm font-medium text-black"
+              >
+                <span className="mr-2">
+                  <svg width="20" height="20" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M2 19.5A2.5 2.5 0 0 1 4.5 17H20"/><path d="M2 6.5A2.5 2.5 0 0 1 4.5 4H20"/><path d="M20 22V2"/><path d="M4.5 22V2"/></svg>
+                </span>
+                <span className="font-medium text-black">Manage Lessons</span>
+              </GradientButton>
+
+
+            </div>
+          </div>
+
+          <div className={card}>
+            <h3 className="text-lg font-bold mb-1">Data Management</h3>
+            <div className="text-sm text-gray-400 mb-4">Import and export your data</div>
+            <div className="flex flex-col gap-2">
               <input
                 type="file"
                 ref={fileInputRef}
                 accept=".csv"
-                onChange={e => {
-                  if (e.target.files && e.target.files[0]) {
-                    handleImportAllData(e.target.files[0]);
-                  }
-                }}
+                onChange={handleFileChange}
                 className="hidden"
                 id="import-file"
               />
-              <label
-                htmlFor="import-file"
-                className="inline-flex transform cursor-pointer items-center justify-center rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:from-purple-700 hover:to-indigo-700 hover:shadow-purple-500/20"
-              >
-                <span className="mr-2">📤</span> Importă Toate Datele
-              </label>
-              <button
-                onClick={handleGenerateExampleFile}
-                className="inline-flex items-center justify-center rounded-lg border border-purple-500/30 bg-purple-600/10 px-4 py-2.5 text-sm font-medium text-purple-400 transition-all duration-300 hover:bg-purple-600/20 dark:bg-purple-900/20 dark:text-purple-300 dark:hover:bg-purple-900/40"
-              >
-                <span className="mr-2">📝</span> Generare Fișier Exemplu
-              </button>
-            </div>
-          </div>
 
-          <div className="rounded-lg border border-teal-500/30 bg-teal-300/10 p-5 backdrop-blur-sm dark:bg-teal-900/10">
-            <h4 className="mb-3 font-medium text-teal-400">Exportă Date</h4>
-            <p className="mb-4 text-sm text-teal-300 dark:text-teal-200/70">
-              Exportă toate datele dumneavoastră (profesori, clase, lecții) în
-              fișierul CSV care poate fi importat mai târziu.
-            </p>
-            <GradientButton
-              onClick={handleExportAllData}
-              variant="green"
-              className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium"
-            >
-              <span className="mr-2">📥</span> Exportă Toate Datele
-            </GradientButton>
+
+              <GradientButton
+                variant="gray"
+                onClick={handleImportAllData}
+                className="flex px-4 py-2 text-sm font-medium text-black"
+              >
+                <span className="mr-2">
+                  <svg width="20" height="20" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </span>
+                <span className="font-medium text-black">Import Data</span>
+              </GradientButton>
+
+              <GradientButton
+                variant="gray"
+                onClick={handleExportAllData}
+                className="flex px-4 py-2 text-sm font-medium text-black"
+              >
+                <span className="mr-2">
+                  <svg width="20" height="20" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </span>
+                <span className="font-medium text-black">Export Data</span>
+              </GradientButton>
+
+
+
+              <GradientButton
+                variant="gray"
+                onClick={handleAdvancedSettings}
+                className="flex px-4 py-2 text-sm font-medium text-black"
+              >
+                <span className="mr-2">
+                  <svg width="20" height="20" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 8 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4 8.6a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09A1.65 1.65 0 0 0 12 3.1V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09A1.65 1.65 0 0 0 21 12.1V12a2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                </span>
+                <span className="font-medium text-black">Advanced Settings</span>
+              </GradientButton>
+
+              
+              <GradientButton
+                variant="gray"
+                onClick={handleGenerateExampleFile}
+                className="flex px-4 py-2 text-sm font-medium text-black"
+              >
+                <span className="mr-2">
+                  <svg width="20" height="20" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+                </span>
+                <span className="font-medium text-black">Generate Example Data File</span>
+              </GradientButton>
+
+
+
+
+
+
+
+            </div>
           </div>
         </div>
-      </GradientContainer>
-    </div>
-  );
-};
-export default OverviewTab;
-
-type SectionProps = { title: string } & PropsWithChildren;
-const Section = ({ title, children }: SectionProps) => {
-  return (
-    <div>
-      <h3 className="text-lg font-bold">{title}</h3>
-      {children}
-    </div>
-  );
-};
-
-type SettingProp = {
-  title: string;
-  description?: string;
-  valuePath: keyof SchedulerConfig;
-  min?: number;
-  max?: number;
-  step?: number;
-};
-const Setting = ({
-  title,
-  description,
-  valuePath,
-  min,
-  max,
-  step,
-}: SettingProp) => {
-  const { advancedSettings: settings, updateSettings } = useContext(
-    AdvancedSettingsContext,
-  );
-  const value = useMemo(() => settings[valuePath], [settings, valuePath]);
-  const isDefaultSetting = useMemo(
-    () => value === DEFAULT_SCHEDULER_CONFIG[valuePath],
-    [value, valuePath],
-  );
-
-  const handleChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const newValue = Number(e.target.value);
-      updateSettings({ [valuePath]: newValue });
-    },
-    [updateSettings, valuePath],
-  );
-
-  const handleReset = useCallback(() => {
-    const defaultVal = DEFAULT_SCHEDULER_CONFIG[valuePath];
-    updateSettings({ [valuePath]: defaultVal });
-  }, [updateSettings, valuePath]);
-
-  return (
-    <div className="flex items-start justify-between gap-8">
-      <div className="w-full">
-        <h4>{title}</h4>
-        {description && (
-          <p className="tex-xs dark:text-slate-400">{description}</p>
-        )}
       </div>
-      <div className="flex gap-4">
-        {!isDefaultSetting && (
-          <button
-            onClick={handleReset}
-            className="text-gray-700 transition-colors hover:text-gray-600"
-          >
-            <svg
-              stroke="currentColor"
-              fill="currentColor"
-              stroke-width="0"
-              viewBox="0 0 24 24"
-              width="32px"
-              height="32px"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M22 12C22 17.5228 17.5229 22 12 22C6.4772 22 2 17.5228 2 12C2 6.47715 6.4772 2 12 2V4C7.5817 4 4 7.58172 4 12C4 16.4183 7.5817 20 12 20C16.4183 20 20 16.4183 20 12C20 9.25022 18.6127 6.82447 16.4998 5.38451L16.5 8H14.5V2L20.5 2V4L18.0008 3.99989C20.4293 5.82434 22 8.72873 22 12Z"></path>
-            </svg>
-          </button>
-        )}
-        <input
-          type="number"
-          value={value}
-          onChange={handleChange}
-          min={min}
-          max={max}
-          step={step}
-          className="w-33 rounded-lg border border-blue-500/30 bg-slate-200 p-1 text-center text-blue-800 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-800/50 dark:text-blue-500"
-        />
-      </div>
-    </div>
-  );
-};
-
-const AdvancedSettings = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const handleOpenModal = useCallback(() => setIsOpen(true), []);
-
-  return (
-    <>
-      <ColorButton
-        variant="gray"
-        onClick={handleOpenModal}
-        className="px-4 py-2"
-      >
-        Setări Avansate
-      </ColorButton>
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        <GradientContainer className="px-3 py-4 sm:min-w-lg md:min-w-3xl lg:min-w-4xl">
-          <form method="dialog" className="space-y-4">
-            <h2 className="text-4xl font-bold">Setări Avansate</h2>
-            <Setting
-              title="Initial Pool Size"
-              description="Câte generări să facă algoritmul la început"
-              min={1}
-              max={100}
-              step={1}
-              valuePath="initialPoolSize"
-            />
-
-            <Section title="ES (1 + 1)">
-              <Setting
-                title="Max Iterations"
-                description="Numar maxim de iterații ale algoritmului"
-                min={100}
-                max={10000}
-                step={50}
-                valuePath="maxESIterations"
-              />
-              <Setting
-                title="Sigma"
-                description="Rata de schimbare inițială"
-                min={0.1}
-                max={5.0}
-                step={0.1}
-                valuePath="sigma"
-              />
-              <Setting
-                title="Sigma Decay"
-                description="Rata de scădere a lui sigma"
-                min={0.1}
-                max={0.99}
-                step={0.01}
-                valuePath="sigmaDecay"
-              />
-              <Setting
-                title="Min Sigma"
-                description="Valoarea minimă pe care o poate avea sigma"
-                min={0.1}
-                max={5.0}
-                step={0.1}
-                valuePath="minSigma"
-              />
-              <Setting
-                title="Max Stagnant Iterations"
-                description="Numărul de iterați stagnante după care algoritmul devine mai agresiv"
-                min={100}
-                max={1000}
-                step={50}
-                valuePath="maxStagnantIterations"
-              />
-            </Section>
-
-            <Section title="Annealing">
-              <Setting
-                title="Temperature"
-                description="Temperatura cu care algoritmul începe"
-                min={0.1}
-                max={1.0}
-                step={0.01}
-                valuePath="temperature"
-              />
-              <Setting
-                title="Cooling Rate"
-                description="Rata de răcrire care moidifică temperatura"
-                min={0.1}
-                max={0.99}
-                step={0.01}
-                valuePath="coolingRate"
-              />
-              <Setting
-                title="Min Temperature"
-                description="Rata de răcrire care moidifică temperatura"
-                min={0.00001}
-                max={0.99999}
-                step={0.00001}
-                valuePath="minTemperature"
-              />
-            </Section>
-
-            <div className="flex justify-end gap-4 text-lg">
-              <ColorButton variant="gray" className="px-2 py-1">
-                Anulează
-              </ColorButton>
-              <ColorButton variant="green" className="px-2 py-1">
-                Salvează
-              </ColorButton>
+      {showAdvancedSettings && (
+        <Modal isOpen={showAdvancedSettings} onClose={handleCancelSettings}>
+          <div className="w-full max-w-md p-6 bg-white dark:bg-gray-950 rounded-xl shadow-xl border border-gray-200 dark:border-gray-800">
+            <h2 className="text-lg font-bold mb-4">Advanced Settings</h2>
+            <form className="flex flex-col gap-3">
+              {Object.entries(settingsDraft).map(([key, value]) => (
+                <label key={key} className="flex flex-col gap-1 text-sm">
+                  <span className="font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
+                  <input
+                    type="number"
+                    name={key}
+                    value={value}
+                    onChange={handleSettingsChange}
+                    className="rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                  />
+                </label>
+              ))}
+            </form>
+            <div className="flex gap-2 mt-6 justify-end">
+              <ColorButton variant="gray" onClick={handleCancelSettings}>Cancel</ColorButton>
+              <GradientButton variant="blue" onClick={handleSaveSettings}>Save</GradientButton>
             </div>
-          </form>
-        </GradientContainer>
-      </Modal>
+          </div>
+        </Modal>
+      )}
     </>
   );
 };
+
+export default OverviewTab;

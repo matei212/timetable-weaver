@@ -201,7 +201,7 @@ const TeacherForm: React.FC<{
 
   return (
     <GradientContainer className="mb-8 p-8">
-      <h3 className="mb-6 flex items-center text-xl font-semibold text-blue-500">
+      <h3 className="mb-6 flex items-center text-xl font-semibold text-lg">
         <span className="mr-3 text-2xl">👨‍🏫</span> Adaugă Profesor Nou
       </h3>
       <form onSubmit={handleSubmit} className="flex gap-3">
@@ -377,7 +377,7 @@ const TeacherListItem: React.FC<{
           <div className="flex flex-col justify-end gap-2 sm:flex-row sm:justify-center">
             <button
               onClick={onEditAvailability}
-              className="rounded-lg bg-indigo-500/20 px-3 py-1.5 text-indigo-300 transition-all duration-300 hover:bg-indigo-500/30 hover:text-indigo-200 sm:hidden"
+              className="rounded-lg bg-indigo-500/ px-3 py-1.5 text-indigo-300 transition-all duration-300 hover:bg-indigo-500/30 hover:text-indigo-200 sm:hidden"
             >
               Disponibilitate
             </button>
@@ -491,7 +491,7 @@ const TeacherList: React.FC<{
   return (
     <GradientContainer className="p-8">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="flex items-center text-xl font-semibold text-blue-500">
+        <h3 className="flex items-center text-xl font-semibold font-semibold text-lg">
           <span className="mr-3 text-2xl">👩‍🏫</span> Listă Profesori
         </h3>
 
@@ -508,13 +508,14 @@ const TeacherList: React.FC<{
             className="hidden"
             id="import-teachers-file"
           />
-          <label
-            htmlFor="import-teachers-file"
-            className="flex transform cursor-pointer items-center rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2 text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/20"
+          <GradientButton
+            variant="blue"
+            onClick={handleExportToCSV}
+            className="flex items-center justify-center px-4 py-2"
           >
-            <span className="mr-2">📤</span>
-            <span className="font-medium">Importă CSV</span>
-          </label>
+            <span className="mr-2">📥</span>
+            <span className="font-medium">Exportă CSV</span>
+          </GradientButton>
 
           <GradientButton
             variant="green"
@@ -613,10 +614,12 @@ const TeachersTab: React.FC<TeachersTabProps> = ({
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl p-8">
-      <h2 className="text-gradient-blue mb-4 text-2xl font-bold md:mb-8 md:text-3xl">
-        Gestionare Profesori
-      </h2>
+    <div className="mx-auto w-full max-w-5xl p-8 flex flex-col gap-2">
+      
+      <div className="flex items-center gap-2 px-4 mb-4">
+          <span className="text-xl">📋</span>
+          <span className="font-semibold text-lg">Gestionare Profesori</span>
+        </div>
 
       <TeacherForm onAddTeacher={addTeacher} />
 

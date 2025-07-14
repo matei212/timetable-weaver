@@ -1,7 +1,7 @@
 import { ButtonHTMLAttributes, PropsWithChildren, useMemo } from "react";
 
 type Props = {
-  variant?: "blue" | "cyan" | "red" | "green";
+  variant?: "blue" | "cyan" | "red" | "green" | "gray";
   type?: ButtonHTMLAttributes<HTMLButtonElement>["type"];
   onClick?: () => void;
   className?: string;
@@ -16,6 +16,8 @@ const GradientButton = ({
 }: Props) => {
   const gradientClasses = useMemo(() => {
     switch (variant) {
+      case "gray":
+        return " bg-gray-100 text-black hover:bg-gray-200 dark:bg-zinc-600 dark:hover:bg-zinc-700 inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium";
       case "blue":
         return "from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 hover:shadow-blue-900/30";
       case "cyan":
