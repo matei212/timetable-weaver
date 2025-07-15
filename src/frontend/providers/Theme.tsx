@@ -29,23 +29,34 @@ const ThemeProvider = ({ children }: PropsWithChildren) => {
   const theme = useMemo(() => THEMES[themeIdx], [themeIdx]);
 
   useEffect(() => {
-    switch (theme) {
-      case "light":
-        document.documentElement.classList.remove("dark");
-        break;
-      case "dark":
-        document.documentElement.classList.add("dark");
-        break;
-      case "auto":
-      default: {
-        const prefersDark = window.matchMedia(
-          "(prefers-color-scheme: dark)",
-        ).matches;
-        if (prefersDark) document.documentElement.classList.add("dark");
-        else document.documentElement.classList.remove("dark");
-        break;
+    const darkClass = "dark";
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+    const applyTheme = () => {
+      const prefersDark = mediaQuery.matches;
+      if (prefersDark) {
+        document.documentElement.classList.add(darkClass);
+      } else {
+        document.documentElement.classList.remove(darkClass);
+      }
+    };
+
+    if (theme === "auto") {
+      applyTheme();
+      mediaQuery.addEventListener("change", applyTheme); // Listen for changes
+    } else {
+      mediaQuery.removeEventListener("change", applyTheme); // Clean up in case it was listening before
+      if (theme === "dark") {
+        document.documentElement.classList.add(darkClass);
+      } else {
+        document.documentElement.classList.remove(darkClass);
       }
     }
+
+    // Cleanup
+    return () => {
+      mediaQuery.removeEventListener("change", applyTheme);
+    };
   }, [theme]);
 
   return (
