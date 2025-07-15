@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @utility text-gradient-blue {
   @apply bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent;
 }

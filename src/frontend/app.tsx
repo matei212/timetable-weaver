@@ -22,6 +22,7 @@ import {
   Overview,
   NotFound,
 } from "./routes";
+import ThemeProvider from "./providers/Theme";
 
 // Type definition for the saved app state
 interface AppState {
@@ -430,85 +431,87 @@ const RoutesConfig: React.FC<{
   setClasses,
 }) => {
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          <Home
-            storageAvailable={storageAvailable}
-            hasData={teachers.length > 0 || classes.length > 0}
-            onClearData={onClearData}
-            onForceSave={onForceSave}
-            onCreateTimetable={onCreateTimetable}
-          />
-        }
-      />
-      <Route path="/about" element={<About />} />
+    <ThemeProvider>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <Home
+              storageAvailable={storageAvailable}
+              hasData={teachers.length > 0 || classes.length > 0}
+              onClearData={onClearData}
+              onForceSave={onForceSave}
+              onCreateTimetable={onCreateTimetable}
+            />
+          }
+        />
+        <Route path="/about" element={<About />} />
 
-      {/* Timetable creation routes */}
-      <Route
-        path="/teachers"
-        element={
-          <RouteGuard
-            requiredCondition={sidebarMode === "timetable"}
-            redirectPath="/"
-          >
-            <Teachers
-              teachers={teachers}
-              classes={classes}
-              onTeachersChange={setTeachers}
-              onClassesChange={setClasses}
-            />
-          </RouteGuard>
-        }
-      />
-      <Route
-        path="/classes"
-        element={
-          <RouteGuard
-            requiredCondition={sidebarMode === "timetable"}
-            redirectPath="/"
-          >
-            <Classes classes={classes} onClassesChange={setClasses} />
-          </RouteGuard>
-        }
-      />
-      <Route
-        path="/lessons"
-        element={
-          <RouteGuard
-            requiredCondition={sidebarMode === "timetable"}
-            redirectPath="/"
-          >
-            <Lessons
-              classes={classes}
-              teachers={teachers}
-              onClassesChange={setClasses}
-            />
-          </RouteGuard>
-        }
-      />
-      <Route
-        path="/overview"
-        element={
-          <RouteGuard
-            requiredCondition={sidebarMode === "timetable"}
-            redirectPath="/"
-          >
-            <Overview
-              classes={classes}
-              teachers={teachers}
-              onTimetableGenerated={onTimetableGenerated}
-              onTeachersChange={setTeachers}
-              onClassesChange={setClasses}
-            />
-          </RouteGuard>
-        }
-      />
+        {/* Timetable creation routes */}
+        <Route
+          path="/teachers"
+          element={
+            <RouteGuard
+              requiredCondition={sidebarMode === "timetable"}
+              redirectPath="/"
+            >
+              <Teachers
+                teachers={teachers}
+                classes={classes}
+                onTeachersChange={setTeachers}
+                onClassesChange={setClasses}
+              />
+            </RouteGuard>
+          }
+        />
+        <Route
+          path="/classes"
+          element={
+            <RouteGuard
+              requiredCondition={sidebarMode === "timetable"}
+              redirectPath="/"
+            >
+              <Classes classes={classes} onClassesChange={setClasses} />
+            </RouteGuard>
+          }
+        />
+        <Route
+          path="/lessons"
+          element={
+            <RouteGuard
+              requiredCondition={sidebarMode === "timetable"}
+              redirectPath="/"
+            >
+              <Lessons
+                classes={classes}
+                teachers={teachers}
+                onClassesChange={setClasses}
+              />
+            </RouteGuard>
+          }
+        />
+        <Route
+          path="/overview"
+          element={
+            <RouteGuard
+              requiredCondition={sidebarMode === "timetable"}
+              redirectPath="/"
+            >
+              <Overview
+                classes={classes}
+                teachers={teachers}
+                onTimetableGenerated={onTimetableGenerated}
+                onTeachersChange={setTeachers}
+                onClassesChange={setClasses}
+              />
+            </RouteGuard>
+          }
+        />
 
-      {/* 404 route */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        {/* 404 route */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </ThemeProvider>
   );
 };
 
