@@ -12,7 +12,7 @@ const GradientContainer = ({ variant, className, children }: Props) => {
         return "border-slate-600/50 bg-slate-100 p-4 dark:bg-slate-700/30";
       case "normal":
       default:
-        return "border-blue-500/20 bg-white to-slate-300 dark:bg-gradient-to-b dark:from-slate-800 dark:to-slate-900";
+        return "border bg-white to-slate-300 dark:bg-gradient-to-b dark:from-slate-800 dark:to-slate-900";
     }
   }, [variant]);
 

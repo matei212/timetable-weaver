@@ -1,7 +1,7 @@
 import { PropsWithChildren, useMemo } from "react";
 
 type Props = {
-  variant?: "blue" | "indigo" | "red" | "green" | "gray";
+  variant?: "blue" | "indigo" | "red" | "green" | "gray" | "remove";
   onClick?: () => void;
   className?: string;
 } & PropsWithChildren;
@@ -19,7 +19,10 @@ const ColorButton = ({ variant, onClick, className, children }: Props) => {
         return " bg-gray-600 text-white hover:bg-zinc-500 dark:bg-zinc-600 dark:hover:bg-zinc-700 inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium";
       case "green":
         return " bg-gray-600 text-white hover:bg-zinc-500 dark:bg-zinc-600 dark:hover:bg-zinc-700 inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium";
-      default:
+      case "remove":
+        return "px-6 py-2 font-medium bg-indigo-500 text-white w-fit transition-all shadow-[3px_3px_0px_black] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px]";
+
+        default:
         return "bg-teal-500/20 text-teal-500 hover:bg-teal-500/30 hover:text-teal-300";
     }
   }, [variant]);

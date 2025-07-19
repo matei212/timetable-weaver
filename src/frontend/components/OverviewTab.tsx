@@ -2,22 +2,26 @@ import React, { useMemo, useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import ColorButton from "./common/ColorButton";
 import GradientButton from "./common/GradientButton";
+import ThemeButton from "./common/ThemeButton";
 import {
   exportAllDataToCSV,
   importAllDataFromCSV,
   generateExampleDataFile,
   Scheduler,
+  Teacher,
+  Class,
+  Timetable,
 } from "../../util/timetable";
 import { AdvancedSettingsContext } from "../providers/AdvancedSettings";
 import Modal from "./common/Modal";
-import { ThemeContext } from "../providers/Theme";
+
 
 interface OverviewTabProps {
-  classes: any[];
-  teachers: any[];
-  onTimetableGenerated: (timetable: any | null) => void;
-  onTeachersChange: (teachers: any[]) => void;
-  onClassesChange: (classes: any[]) => void;
+  classes: Class[];
+  teachers: Teacher[];
+  onTimetableGenerated: (timetable: Timetable | null) => void;
+  onTeachersChange: (teachers: Teacher[]) => void;
+  onClassesChange: (classes: Class[]) => void;
 }
 
 const OverviewTab: React.FC<OverviewTabProps> = ({
@@ -85,7 +89,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         onClassesChange(importedData.classes);
         alert("All data imported successfully!");
       }
-    } catch (error) {
+    } catch {
       alert(
         "Error importing data. Please check the file format and try again. Check browser console for details.",
       );
@@ -124,36 +128,44 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
     generateExampleDataFile();
   };
 
-  // Theme toggle (simple, minimal)
-  const [darkMode, setDarkMode] = React.useState(false);
-  const toggleTheme = () => setDarkMode(d => !d);
-
-  // Card and button styles
   const card =
-    "rounded-xl border bg-white dark:bg-gray-950 p-6 shadow-sm flex flex-col gap-2";
-  const statCard =
-    "rounded-xl border p-4 flex flex-col gap-1 shadow-sm bg-white dark:bg-gray-950";
-  const button =
-    "w-full flex items-center justify-start gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors bg-gray-100 hover:bg-gray-200 dark:bg-gray-900 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-800";
+    "rounded-xl border bg-white  p-6 shadow-sm flex flex-col gap-2";
   const primaryButton =
-    "w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200";
+    "w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors bg-black text-white  hover:bg-gray-800 ";
 
   return (
     <>
       <header className="mb-2 flex h-16 shrink-0 items-center gap-2">
         <div className="flex items-center gap-2 px-4">
-          <span className="text-xl">📋</span>
+          <svg
+            className="h-6 w-6 text-gray-800 "
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-3 5h3m-6 0h.01M12 16h3m-6 0h.01M10 3v4h4V3h-4Z"
+            />
+          </svg>
+
           <span className="text-lg font-semibold">Dashboard</span>
         </div>
         <ThemeButton />
       </header>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-          <div className="flex aspect-video flex-col justify-between rounded-xl border bg-gray-50 p-6 dark:bg-gray-900">
+          <div className="flex aspect-video flex-col justify-between rounded-xl border bg-gray-50 p-6">
             <h2 className="mb-4 text-2xl font-bold">
               Welcome to Timetable Weaver
             </h2>
-            <p className="mb-4 text-gray-500 dark:text-gray-400">
+            <p className="mb-4 text-gray-500">
               Manage your school's timetables efficiently with our automated
               scheduling system.
             </p>
@@ -162,19 +174,34 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 onClick={handleGenerateTimetable}
                 className={primaryButton}
               >
-                <span className="mr-2">🗓️</span>
+                <svg
+                  className="h-6 w-6 text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 10h16m-8-3V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Zm3-7h.01v.01H8V13Zm4 0h.01v.01H12V13Zm4 0h.01v.01H16V13Zm-8 4h.01v.01H8V17Zm4 0h.01v.01H12V17Zm4 0h.01v.01H16V17Z"
+                  />
+                </svg>
                 Generate Timetable
               </button>
             </div>
           </div>
-          <div className="grid gap-4">
-            <div className="flex flex-col gap-1 rounded-xl border-blue-200 bg-blue-50/30 p-4 shadow-sm dark:border-blue-800 dark:bg-blue-950/30">
+          <div className="grid gap-4 ">
+            <div className="flex flex-col gap-1 rounded-xl border-blue-200 bg-blue-50/30 p-4 shadow-sm">
               <div className="flex flex-row items-center justify-between pb-2">
-                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                <span className="text-sm font-medium text-blue-700 stats">
                   Teachers
                 </span>
                 <span>
                   <svg
+                  className=""
                     width="24"
                     height="24"
                     fill="none"
@@ -191,77 +218,74 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   </svg>
                 </span>
               </div>
-              <div className="text-2xl font-bold text-blue-800 dark:text-blue-200">
+              <div className="text-2xl font-bold text-blue-800 stats">
                 {stats.teachers}
               </div>
-              <p className="text-xs text-blue-600 dark:text-blue-400">
-                Active teaching staff
-              </p>
+              <p className="text-xs text-blue-600 noninv">Active teaching staff</p>
             </div>
-            <div className="flex flex-col gap-1 rounded-xl border-cyan-200 bg-cyan-50/30 p-4 shadow-sm dark:border-cyan-800 dark:bg-cyan-950/30">
+            <div className="flex flex-col gap-1 rounded-xl border-cyan-200 bg-cyan-50/30 p-4 shadow-sm">
               <div className="flex flex-row items-center justify-between pb-2">
-                <span className="text-sm font-medium text-cyan-700 dark:text-cyan-300">
+                <span className="text-sm font-medium text-cyan-700 stats">
                   Classes
                 </span>
-                <span>
-                  <svg
-                    width="24"
-                    height="24"
-                    fill="none"
+                <svg
+                  className="h-6 w-6 text-gray-800"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
                     stroke="#06b6d4"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M22 10.5V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v3.5" />
-                    <path d="M6 20v-6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6" />
-                    <rect width="20" height="8" x="2" y="10.5" rx="2" />
-                  </svg>
-                </span>
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 20v-9l-4 1.125V20h4Zm0 0h8m-8 0V6.66667M16 20v-9l4 1.125V20h-4Zm0 0V6.66667M18 8l-6-4-6 4m5 1h2m-2 3h2"
+                  />
+                </svg>
               </div>
-              <div className="text-2xl font-bold text-cyan-800 dark:text-cyan-200">
+              <div className="text-2xl font-bold text-cyan-800 stats">
                 {stats.classes}
               </div>
-              <p className="text-xs text-cyan-600 dark:text-cyan-400">
-                Total class groups
-              </p>
+              <p className="text-xs text-cyan-600">Total class groups</p>
             </div>
           </div>
           <div className="grid gap-4">
-            <div className="flex flex-col gap-1 rounded-xl border-indigo-200 bg-indigo-50/30 p-4 shadow-sm dark:border-indigo-800 dark:bg-indigo-950/30">
+            <div className="flex flex-col gap-1 rounded-xl border-indigo-200 bg-indigo-50/30 p-4 shadow-sm ">
               <div className="flex flex-row items-center justify-between pb-2">
-                <span className="text-sm font-medium text-indigo-700 dark:text-indigo-300">
+                <span className="text-sm font-medium text-indigo-700 stats">
                   Lessons
                 </span>
                 <span>
                   <svg
+                    className="h-6 w-6 text-gray-800"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
                     width="24"
                     height="24"
                     fill="none"
-                    stroke="#6366f1"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
                     viewBox="0 0 24 24"
                   >
-                    <path d="M2 19.5A2.5 2.5 0 0 1 4.5 17H20" />
-                    <path d="M2 6.5A2.5 2.5 0 0 1 4.5 4H20" />
-                    <path d="M20 22V2" />
-                    <path d="M4.5 22V2" />
+                    <path
+                      stroke="#6366f1"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="m17 21-5-4-5 4V3.889a.92.92 0 0 1 .244-.629.808.808 0 0 1 .59-.26h8.333a.81.81 0 0 1 .589.26.92.92 0 0 1 .244.63V21Z"
+                    />
                   </svg>
                 </span>
               </div>
-              <div className="text-2xl font-bold text-indigo-800 dark:text-indigo-200">
+              <div className="text-2xl font-bold text-indigo-800 stats">
                 {stats.lessons}
               </div>
-              <p className="text-xs text-indigo-600 dark:text-indigo-400">
-                Scheduled lessons
-              </p>
+              <p className="text-xs text-indigo-600">Scheduled lessons</p>
             </div>
-            <div className="flex flex-col gap-1 rounded-xl border-green-200 bg-green-50/30 p-4 shadow-sm dark:border-green-800 dark:bg-green-950/30">
+            <div className="flex flex-col gap-1 rounded-xl border-green-200 bg-green-50/30 p-4 shadow-sm ">
               <div className="flex flex-row items-center justify-between pb-2">
-                <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                <span className="text-sm font-medium text-green-700 stats">
                   Timetables
                 </span>
                 <span>
@@ -282,19 +306,17 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   </svg>
                 </span>
               </div>
-              <div className="text-2xl font-bold text-green-800 dark:text-green-200">
+              <div className="text-2xl font-bold text-green-800 stats">
                 {stats.timetables}
               </div>
-              <p className="text-xs text-green-600 dark:text-green-400">
-                Generated timetables
-              </p>
+              <p className="text-xs text-green-600">Generated timetables</p>
             </div>
           </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className={card}>
-            <h3 className="mb-1 text-lg font-bold">Quick Actions</h3>
+            <h3 className="mb-1 text-lg font-bold text-black">Quick Actions</h3>
             <div className="mb-4 text-sm text-gray-400">
               Common tasks and operations
             </div>
@@ -329,22 +351,24 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 onClick={() => navigate("/classes")}
                 className="flex px-4 py-2 text-sm font-medium text-black"
               >
-                <span className="mr-2">
-                  <svg
-                    width="20"
-                    height="20"
-                    fill="none"
+                <svg
+                  className="h-6 w-6 text-gray-800"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
                     stroke="#06b6d4"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M22 10.5V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v3.5" />
-                    <path d="M6 20v-6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6" />
-                    <rect width="20" height="8" x="2" y="10.5" rx="2" />
-                  </svg>
-                </span>
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 20v-9l-4 1.125V20h4Zm0 0h8m-8 0V6.66667M16 20v-9l4 1.125V20h-4Zm0 0V6.66667M18 8l-6-4-6 4m5 1h2m-2 3h2"
+                  />
+                </svg>
+
                 <span className="font-medium text-black">Manage Classes</span>
               </GradientButton>
 
@@ -353,21 +377,23 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 onClick={() => navigate("/lessons")}
                 className="flex px-4 py-2 text-sm font-medium text-black"
               >
-                <span className="mr-2">
+                <span>
                   <svg
-                    width="20"
-                    height="20"
+                    className="h-6 w-6 text-gray-800"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
                     fill="none"
-                    stroke="#6366f1"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
                     viewBox="0 0 24 24"
                   >
-                    <path d="M2 19.5A2.5 2.5 0 0 1 4.5 17H20" />
-                    <path d="M2 6.5A2.5 2.5 0 0 1 4.5 4H20" />
-                    <path d="M20 22V2" />
-                    <path d="M4.5 22V2" />
+                    <path
+                      stroke="#6366f1"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="m17 21-5-4-5 4V3.889a.92.92 0 0 1 .244-.629.808.808 0 0 1 .59-.26h8.333a.81.81 0 0 1 .589.26.92.92 0 0 1 .244.63V21Z"
+                    />
                   </svg>
                 </span>
                 <span className="font-medium text-black">Manage Lessons</span>
@@ -493,7 +519,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
       </div>
       {showAdvancedSettings && (
         <Modal isOpen={showAdvancedSettings} onClose={handleCancelSettings}>
-          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-800 dark:bg-gray-950">
+          <div className="} w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
+            {" "}
             <h2 className="mb-4 text-lg font-bold">Advanced Settings</h2>
             <form className="flex flex-col gap-3">
               {Object.entries(settingsDraft).map(([key, value]) => (
@@ -506,7 +533,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                     name={key}
                     value={value}
                     onChange={handleSettingsChange}
-                    className="rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900"
+                    className="rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 focus:ring-2 focus:ring-blue-500 "
                   />
                 </label>
               ))}
@@ -527,27 +554,3 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
 };
 export default OverviewTab;
 
-const ThemeButton = () => {
-  const { theme, cycleThemes } = useContext(ThemeContext);
-  const icon = useMemo(() => {
-    switch (theme) {
-      case "dark":
-        return "🌙";
-      case "light":
-        return "☀️";
-      case "auto":
-      default:
-        return "💻";
-    }
-  }, [theme]);
-
-  return (
-    <button
-      onClick={cycleThemes}
-      className="ml-auto flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1 text-sm dark:border-gray-700 dark:bg-gray-900"
-    >
-      <span>{icon}</span>
-      <span className="capitalize">{theme}</span>
-    </button>
-  );
-};

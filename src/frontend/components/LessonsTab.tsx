@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import ThemeButton from "./common/ThemeButton";
 import {
   Class,
   Lesson,
@@ -436,10 +437,29 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl p-8">
-      <h2 className="text-gradient-blue mb-4 text-2xl font-bold md:mb-8 md:text-3xl">
-        Gestionare Lecții
-      </h2>
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-2 p-8">
+      <div className="mb-4 flex items-center gap-2 px-4">
+        <svg
+          className="h-6 w-6 text-gray-800 dark:text-white"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke="black"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="m17 21-5-4-5 4V3.889a.92.92 0 0 1 .244-.629.808.808 0 0 1 .59-.26h8.333a.81.81 0 0 1 .589.26.92.92 0 0 1 .244.63V21Z"
+          />
+        </svg>
+
+        <span className="text-lg font-semibold">Gestionare Profesori</span>
+        <ThemeButton />
+      </div>
 
       {classes.length === 0 ? (
         <GradientContainer className="p-8">
@@ -457,8 +477,8 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
       ) : (
         <>
           <GradientContainer className="mb-8 p-8">
-            <h3 className="mb-6 flex items-center text-xl font-semibold text-blue-500">
-              <span className="mr-3 text-2xl">🏛️</span> Selectați Clasa
+          <h3 className="mb-6 flex items-center text-lg text-xl font-semibold">
+          <span className="mr-3 text-2xl">🏛️</span> Selectați Clasa
             </h3>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
               {classes.map((cls, index) => (

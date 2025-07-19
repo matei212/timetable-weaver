@@ -3,5 +3,26 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @utility text-gradient-blue {
-  @apply bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent;
+  @apply bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent;
 }
+
+.dark {
+  --inv: invert(1);
+}
+
+.inverted {
+  filter: invert(1);
+}
+/* .light{
+  filter: invert(0);
+} */
+
+.inverted,.stats,.emoji, svg,p{
+  filter: invert(1) hue-rotate(180deg);
+}
+
+.light ,.stats,.emoji, svg,p{
+  filter: invert(0);
+}
+
+

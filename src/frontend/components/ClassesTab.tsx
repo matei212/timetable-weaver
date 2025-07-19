@@ -5,6 +5,7 @@ import GradientContainer from "./common/GradientContainer";
 import TextInput from "./common/TextInput";
 import Note from "./common/Note";
 import ColorButton from "./common/ColorButton";
+import ThemeButton from "./common/ThemeButton";
 
 interface ClassesTabProps {
   classes: Class[];
@@ -71,13 +72,31 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
 
   return (
     <div className="mx-auto w-full max-w-5xl p-8">
-      <h2 className="text-gradient-blue mb-8 text-3xl font-bold">
-        Gestionare Clase
-      </h2>
+      <div className="mb-4 flex items-center gap-2 px-4">
+        <svg
+          className="h-6 w-6 text-gray-800 dark:text-white"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke="black"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M8 20v-9l-4 1.125V20h4Zm0 0h8m-8 0V6.66667M16 20v-9l4 1.125V20h-4Zm0 0V6.66667M18 8l-6-4-6 4m5 1h2m-2 3h2"
+          />
+        </svg>
+        <span className="text-lg font-semibold">Gestionare Clase</span>
+        <ThemeButton />
+      </div>
 
       <GradientContainer className="mb-8 p-8">
-        <h3 className="mb-6 flex items-center text-xl font-semibold text-blue-500">
-          <span className="mr-3 text-2xl">🏛️</span> Adaugă Clasă Nouă
+      <h3 className="mb-6 flex items-center text-lg text-xl font-semibold">
+      <span className="mr-3 text-2xl">🏛️</span> Adaugă Clasă Nouă
         </h3>
         <div className="flex gap-3">
           <TextInput
@@ -97,10 +116,10 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
       </GradientContainer>
 
       {classes.length > 0 ? (
-        <GradientContainer className="p-8">
+        <GradientContainer className="mb-8 p-8">
           <div className="mb-6 flex items-center justify-between">
-            <h3 className="flex items-center text-xl font-semibold text-blue-500">
-              <span className="mr-3 text-2xl">📋</span> Listă Clase
+          <h3 className="mb-6 flex items-center text-lg text-xl font-semibold">
+          <span className="mr-3 text-2xl">📋</span> Listă Clase
             </h3>
             <GradientButton
               variant="green"
@@ -111,17 +130,18 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
               <span className="font-medium">Exportă în CSV</span>
             </GradientButton>
           </div>
-          <div className="overflow-x-auto rounded-lg">
-            <table className="w-full border-collapse">
+
+          <div className="relative overflow-hidden rounded-lg shadow-md">
+            <table className="w-full table-fixed text-center">
               <thead>
                 <tr className="bg-slate-200 dark:bg-slate-700/50 dark:text-slate-200">
-                  <th className="border-b border-slate-600/50 p-3 text-left font-medium tracking-wide">
+                  <th className="border-b border-slate-600/50 p-3 text-center font-medium tracking-wide">
                     Nume
                   </th>
-                  <th className="border-b border-slate-600/50 p-3 text-left font-medium tracking-wide">
+                  <th className="border-b border-slate-600/50 p-3 text-center font-medium tracking-wide">
                     Număr de Lecții
                   </th>
-                  <th className="border-b border-slate-600/50 p-3 text-left font-medium tracking-wide">
+                  <th className="border-b border-slate-600/50 p-3 text-center font-medium tracking-wide">
                     Total de ore
                   </th>
                   <th className="w-32 border-b border-slate-600/50 p-3 text-center font-medium tracking-wide">
@@ -129,6 +149,7 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
                   </th>
                 </tr>
               </thead>
+
               <tbody>
                 {classes.map((cls, index) => (
                   <tr
@@ -179,14 +200,34 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
                     <td className="p-3 dark:text-slate-300">
                       {cls.getTotalPeriodsPerWeek()} de ore
                     </td>
-                    <td className="p-3 text-center">
-                      <ColorButton
+                    <td className="flex items-center justify-center p-3 text-center">
+                      <button
+                        className="group relative flex h-11 w-11 cursor-pointer items-center justify-start overflow-hidden rounded-full bg-red-600 shadow-lg transition-all duration-200 hover:w-25 hover:rounded-lg active:translate-x-1 active:translate-y-1"
                         onClick={() => handleRemoveClass(index)}
-                        variant="red"
-                        className="px-3 py-1.5"
                       >
-                        Șterge
-                      </ColorButton>
+                        <div className="flex w-full items-center justify-center transition-all duration-300 group-hover:justify-start group-hover:px-3">
+                          <svg
+                            className="h-6 w-6 text-gray-800 dark:text-white"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke="white"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
+                            />
+                          </svg>
+                        </div>
+                        <div className="absolute right-2 translate-x-full transform text-lg font-semibold text-white opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+                          Șterge
+                        </div>
+                      </button>
                     </td>
                   </tr>
                 ))}

@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 
-type Theme = "auto" | "dark" | "light";
+type Theme = "light" | "inverted";
 type ThemeContextType = {
   theme: Theme;
   cycleThemes: () => void;
@@ -16,7 +16,7 @@ export const ThemeContext = createContext<ThemeContextType>(
   {} as ThemeContextType,
 );
 
-const THEMES = ["auto", "dark", "light"] as Theme[];
+const THEMES = ["light", "inverted"] as Theme[];
 
 const ThemeProvider = ({ children }: PropsWithChildren) => {
   const [themeIdx, setThemeIdx] = useState(0);
@@ -29,34 +29,16 @@ const ThemeProvider = ({ children }: PropsWithChildren) => {
   const theme = useMemo(() => THEMES[themeIdx], [themeIdx]);
 
   useEffect(() => {
-    const darkClass = "dark";
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const invertedClass = "inverted";
+    const lightClass = "light";
 
-    const applyTheme = () => {
-      const prefersDark = mediaQuery.matches;
-      if (prefersDark) {
-        document.documentElement.classList.add(darkClass);
-      } else {
-        document.documentElement.classList.remove(darkClass);
-      }
-    };
-
-    if (theme === "auto") {
-      applyTheme();
-      mediaQuery.addEventListener("change", applyTheme); // Listen for changes
-    } else {
-      mediaQuery.removeEventListener("change", applyTheme); // Clean up in case it was listening before
-      if (theme === "dark") {
-        document.documentElement.classList.add(darkClass);
-      } else {
-        document.documentElement.classList.remove(darkClass);
-      }
+    if (theme === "light") {
+      document.documentElement.classList.add(lightClass);
+      document.documentElement.classList.remove(invertedClass);
+    } else if (theme === "inverted") {
+      document.documentElement.classList.add(invertedClass);
+      document.documentElement.classList.remove(lightClass);
     }
-
-    // Cleanup
-    return () => {
-      mediaQuery.removeEventListener("change", applyTheme);
-    };
   }, [theme]);
 
   return (

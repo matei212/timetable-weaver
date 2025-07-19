@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import {
   Teacher,
   Availability,
@@ -10,11 +10,11 @@ import {
   importTeachersFromCSV,
 } from "../../util/timetable";
 import TeacherAvailabilityModal from "./TeacherAvailabilityModal";
-import GradientButton from "./common/GradientButton";
 import GradientContainer from "./common/GradientContainer";
 import TextInput from "./common/TextInput";
 import Note from "./common/Note";
 import ColorButton from "./common/ColorButton";
+import ThemeButton from "./common/ThemeButton";
 
 interface TeachersTabProps {
   teachers: Teacher[];
@@ -201,7 +201,7 @@ const TeacherForm: React.FC<{
 
   return (
     <GradientContainer className="mb-8 p-8">
-      <h3 className="mb-6 flex items-center text-xl font-semibold text-lg">
+      <h3 className="mb-6 flex items-center text-lg text-xl font-semibold">
         <span className="mr-3 text-2xl">👨‍🏫</span> Adaugă Profesor Nou
       </h3>
       <form onSubmit={handleSubmit} className="flex gap-3">
@@ -211,13 +211,13 @@ const TeacherForm: React.FC<{
           placeholder="Numele profesorului"
           className="flex-1 p-3"
         />
-        <GradientButton
-          variant="blue"
+        <button
+          //variant="blue"
           type="submit"
-          className="px-6 py-3 font-medium"
+          className="rounded-md bg-black px-6 py-3 font-medium text-white hover:bg-gray-400"
         >
           Adaugă Profesor
-        </GradientButton>
+        </button>
       </form>
     </GradientContainer>
   );
@@ -255,7 +255,6 @@ const getTeacherSubjects = (teacherName: string, classes: Class[]) => {
 const TeacherListItem: React.FC<{
   teacher: Teacher;
   classes: Class[];
-  index: number;
   onRemove: () => void;
   onEditAvailability: () => void;
   onUpdateName: (name: string) => boolean;
@@ -268,7 +267,6 @@ const TeacherListItem: React.FC<{
 }> = ({
   teacher,
   classes,
-  index,
   onRemove,
   onEditAvailability,
   onUpdateName,
@@ -377,18 +375,40 @@ const TeacherListItem: React.FC<{
           <div className="flex flex-col justify-end gap-2 sm:flex-row sm:justify-center">
             <button
               onClick={onEditAvailability}
-              className="rounded-lg bg-indigo-500/ px-3 py-1.5 text-indigo-300 transition-all duration-300 hover:bg-indigo-500/30 hover:text-indigo-200 sm:hidden"
+              className="bg-indigo-500/ rounded-lg px-3 py-1.5 text-indigo-300 transition-all duration-300 hover:bg-indigo-500/30 hover:text-indigo-200 sm:hidden"
             >
               Disponibilitate
             </button>
 
-            <ColorButton
-              onClick={onRemove}
-              variant="red"
-              className="px-3 py-1.5"
-            >
-              Șterge
-            </ColorButton>
+            <td className="flex items-center justify-center p-3 text-left">
+              <button
+                className="group relative flex h-11 w-11 cursor-pointer items-center justify-start overflow-hidden rounded-full bg-red-600 shadow-lg transition-all duration-200 hover:w-25 hover:rounded-lg active:translate-x-1 active:translate-y-1"
+                onClick={onRemove}
+              >
+                <div className="flex w-full items-center justify-center transition-all duration-300 group-hover:justify-start group-hover:px-3">
+                  <svg
+                    className="h-6 w-6 text-gray-800 dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="white"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
+                    />
+                  </svg>
+                </div>
+                <div className="absolute right-2 translate-x-full transform text-lg font-semibold text-white opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+                  Șterge
+                </div>
+              </button>
+            </td>
           </div>
         </td>
       </tr>
@@ -491,7 +511,7 @@ const TeacherList: React.FC<{
   return (
     <GradientContainer className="p-8">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="flex items-center text-xl font-semibold font-semibold text-lg">
+        <h3 className="flex items-center text-lg text-xl font-semibold">
           <span className="mr-3 text-2xl">👩‍🏫</span> Listă Profesori
         </h3>
 
@@ -508,23 +528,23 @@ const TeacherList: React.FC<{
             className="hidden"
             id="import-teachers-file"
           />
-          <GradientButton
-            variant="blue"
-            onClick={handleExportToCSV}
-            className="flex items-center justify-center px-4 py-2"
+          <button
+            //variant="blue"
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center justify-center rounded-md border border-black px-4 py-2 hover:bg-black hover:text-white"
           >
             <span className="mr-2">📥</span>
-            <span className="font-medium">Exportă CSV</span>
-          </GradientButton>
+            <span className="font-medium">Importă CSV</span>
+          </button>
 
-          <GradientButton
-            variant="green"
+          <button
+            //variant="green"
             onClick={handleExportToCSV}
-            className="flex items-center justify-center px-4 py-2"
+            className="flex items-center justify-center rounded-md border border-black px-4 py-2 hover:bg-black hover:text-white"
           >
             <span className="mr-2">📥</span>
             <span className="font-medium">Exportă CSV</span>
-          </GradientButton>
+          </button>
         </div>
       </div>
 
@@ -550,7 +570,6 @@ const TeacherList: React.FC<{
                   key={index}
                   teacher={teacher}
                   classes={classes}
-                  index={index}
                   onRemove={() => onRemoveTeacher(index)}
                   onEditAvailability={() => onEditAvailability(index)}
                   onUpdateName={name => onUpdateTeacherName(index, name)}
@@ -614,12 +633,27 @@ const TeachersTab: React.FC<TeachersTabProps> = ({
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl p-8 flex flex-col gap-2">
-      
-      <div className="flex items-center gap-2 px-4 mb-4">
-          <span className="text-xl">📋</span>
-          <span className="font-semibold text-lg">Gestionare Profesori</span>
-        </div>
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-2 p-8">
+      <div className="mb-4 flex items-center gap-2 px-4">
+        <svg
+          width="20"
+          height="20"
+          fill="none"
+          stroke="currentColor  "
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          viewBox="0 0 24 24"
+        >
+          <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+
+        <span className="text-lg font-semibold">Gestionare Profesori</span>
+        <ThemeButton />
+      </div>
 
       <TeacherForm onAddTeacher={addTeacher} />
 
