@@ -17,26 +17,107 @@ interface SidebarTab {
 
 const icons = {
   home: (
-    <svg width="20" height="20" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M3 9.5L12 4l9 5.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9.5z"/><path d="M9 22V12h6v10"/></svg>
+    <svg
+      width="20"
+      height="20"
+      fill="none"
+      stroke="#2563eb"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+    >
+      <path d="M3 9.5L12 4l9 5.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9.5z" />
+      <path d="M9 22V12h6v10" />
+    </svg>
   ),
   about: (
-    <svg width="20" height="20" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    <svg
+      width="20"
+      height="20"
+      fill="none"
+      stroke="#64748b"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="16" x2="12" y2="12" />
+      <line x1="12" y1="8" x2="12.01" y2="8" />
+    </svg>
   ),
   overview: (
-    <svg width="20" height="20" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+    <svg
+      width="20"
+      height="20"
+      fill="none"
+      stroke="#2563eb"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+    >
+      <rect x="3" y="3" width="7" height="7" rx="1.5" />
+      <rect x="14" y="3" width="7" height="7" rx="1.5" />
+      <rect x="14" y="14" width="7" height="7" rx="1.5" />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" />
+    </svg>
   ),
   teachers: (
-    <svg width="20" height="20" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    <svg
+      width="20"
+      height="20"
+      fill="none"
+      stroke="#2563eb"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+    >
+      <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
   ),
   classes: (
-    <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-  <path stroke="#06b6d4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 20v-9l-4 1.125V20h4Zm0 0h8m-8 0V6.66667M16 20v-9l4 1.125V20h-4Zm0 0V6.66667M18 8l-6-4-6 4m5 1h2m-2 3h2"/>
-</svg>
+    <svg
+      className="h-6 w-6 text-gray-800 dark:text-white"
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke="#06b6d4"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M8 20v-9l-4 1.125V20h4Zm0 0h8m-8 0V6.66667M16 20v-9l4 1.125V20h-4Zm0 0V6.66667M18 8l-6-4-6 4m5 1h2m-2 3h2"
+      />
+    </svg>
   ),
   lessons: (
-    <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-  <path stroke="#6366f1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m17 21-5-4-5 4V3.889a.92.92 0 0 1 .244-.629.808.808 0 0 1 .59-.26h8.333a.81.81 0 0 1 .589.26.92.92 0 0 1 .244.63V21Z"/>
-</svg>
+    <svg
+      className="h-6 w-6 text-gray-800 dark:text-white"
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke="#6366f1"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="m17 21-5-4-5 4V3.889a.92.92 0 0 1 .244-.629.808.808 0 0 1 .59-.26h8.333a.81.81 0 0 1 .589.26.92.92 0 0 1 .244.63V21Z"
+      />
+    </svg>
   ),
 };
 
@@ -51,8 +132,18 @@ const Sidebar: React.FC<SidebarProps> = ({ mode, onModeChange }) => {
   ];
 
   const timetableTabs: SidebarTab[] = [
-    { id: "overview", path: "/overview", label: "Overview", icon: icons.overview },
-    { id: "teachers", path: "/teachers", label: "Teachers", icon: icons.teachers },
+    {
+      id: "overview",
+      path: "/overview",
+      label: "Overview",
+      icon: icons.overview,
+    },
+    {
+      id: "teachers",
+      path: "/teachers",
+      label: "Teachers",
+      icon: icons.teachers,
+    },
     { id: "classes", path: "/classes", label: "Classes", icon: icons.classes },
     { id: "lessons", path: "/lessons", label: "Lessons", icon: icons.lessons },
   ];
@@ -108,11 +199,27 @@ const Sidebar: React.FC<SidebarProps> = ({ mode, onModeChange }) => {
           className="rounded-lg bg-gray-200 p-2 text-gray-700 shadow-lg transition-all hover:bg-gray-300"
           aria-label="Toggle menu"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="h-6 w-6">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            className="h-6 w-6"
+          >
             {isMobileMenuOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
             )}
           </svg>
         </button>
@@ -121,16 +228,16 @@ const Sidebar: React.FC<SidebarProps> = ({ mode, onModeChange }) => {
       {/* Overlay for mobile menu */}
       {isMobileMenuOpen && (
         <div
-          className="bg-opacity-50 fixed inset-0 z-40 bg-black lg:hidden"
+          className="fixed inset-0 z-40 bg-black opacity-50 lg:hidden"
           onClick={toggleMobileMenu}
         ></div>
       )}
 
       {/* Sidebar container */}
       <div
-        className={`fixed inset-y-0 left-0 z-40 flex flex-col bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800 shadow-lg transition-transform duration-300 ease-in-out lg:relative lg:w-64 lg:translate-x-0 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed inset-y-0 left-0 z-40 flex flex-col border-r border-gray-200 bg-white shadow-lg transition-transform duration-300 ease-in-out lg:relative lg:w-64 lg:translate-x-0 dark:border-gray-800 dark:bg-gray-950 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
-        <div className="border-b border-gray-200 dark:border-gray-800 p-6">
+        <div className="border-b border-gray-200 p-6 dark:border-gray-800">
           <h1
             className="text-xl font-bold tracking-wider text-gray-900 dark:text-white"
             onClick={handleCancelTimetable}
@@ -145,7 +252,7 @@ const Sidebar: React.FC<SidebarProps> = ({ mode, onModeChange }) => {
           )}
         </div>
 
-        <div className="flex flex-1 flex-col overflow-y-auto px-3 py-5 gap-1">
+        <div className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-5">
           {tabs.map(tab => (
             <NavLink
               key={tab.id}
@@ -153,19 +260,21 @@ const Sidebar: React.FC<SidebarProps> = ({ mode, onModeChange }) => {
               className={({ isActive }) =>
                 `group my-1.5 flex items-center gap-3 rounded-lg px-4 py-3 text-left transition-all duration-200 ${
                   isActive
-                    ? "bg-gray-100 dark:bg-gray-900 border-l-4 border-blue-500 text-blue-700 dark:text-blue-200"
-                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 hover:dark:bg-gray-900"
+                    ? "border-l-4 border-blue-500 bg-gray-100 text-blue-700 dark:bg-gray-900 dark:text-blue-200"
+                    : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 hover:dark:bg-gray-900"
                 }`
               }
             >
-              <span className="flex items-center justify-center w-6 h-6">{tab.icon}</span>
+              <span className="flex h-6 w-6 items-center justify-center">
+                {tab.icon}
+              </span>
               <span className="font-medium tracking-wide">{tab.label}</span>
             </NavLink>
           ))}
         </div>
 
         {mode === "timetable" && (
-          <div className="border-t border-gray-200 dark:border-gray-800 p-5">
+          <div className="border-t border-gray-200 p-5 dark:border-gray-800">
             <GradientButton
               variant="red"
               onClick={handleCancelTimetable}
