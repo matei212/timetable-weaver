@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import ColorButton from "./common/ColorButton";
 import GradientButton from "./common/GradientButton";
 import ThemeButton from "./common/ThemeButton";
+import { GoGear } from "react-icons/go";
+import { RiAiGenerate } from "react-icons/ri";
+
 import {
   exportAllDataToCSV,
   importAllDataFromCSV,
@@ -14,7 +17,6 @@ import {
 } from "../../util/timetable";
 import { AdvancedSettingsContext } from "../providers/AdvancedSettings";
 import Modal from "./common/Modal";
-
 
 interface OverviewTabProps {
   classes: Class[];
@@ -128,8 +130,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
     generateExampleDataFile();
   };
 
-  const card =
-    "rounded-xl border bg-white  p-6 shadow-sm flex flex-col gap-2";
+  const card = "rounded-xl border bg-white  p-6 shadow-sm flex flex-col gap-2";
   const primaryButton =
     "w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors bg-black text-white  hover:bg-gray-800 ";
 
@@ -138,7 +139,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
       <header className="mb-2 flex h-16 shrink-0 items-center gap-2">
         <div className="flex items-center gap-2 px-4">
           <svg
-            className="h-6 w-6 text-gray-800 "
+            className="h-6 w-6 text-gray-800"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -193,15 +194,15 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               </button>
             </div>
           </div>
-          <div className="grid gap-4 ">
+          <div className="grid gap-4">
             <div className="flex flex-col gap-1 rounded-xl border-blue-200 bg-blue-50/30 p-4 shadow-sm">
               <div className="flex flex-row items-center justify-between pb-2">
-                <span className="text-sm font-medium text-blue-700 stats">
+                <span className="stats text-sm font-medium text-blue-700">
                   Teachers
                 </span>
                 <span>
                   <svg
-                  className=""
+                    className=""
                     width="24"
                     height="24"
                     fill="none"
@@ -218,14 +219,16 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   </svg>
                 </span>
               </div>
-              <div className="text-2xl font-bold text-blue-800 stats">
+              <div className="stats text-2xl font-bold text-blue-800">
                 {stats.teachers}
               </div>
-              <p className="text-xs text-blue-600 noninv">Active teaching staff</p>
+              <p className="noninv text-xs text-blue-600">
+                Active teaching staff
+              </p>
             </div>
             <div className="flex flex-col gap-1 rounded-xl border-cyan-200 bg-cyan-50/30 p-4 shadow-sm">
               <div className="flex flex-row items-center justify-between pb-2">
-                <span className="text-sm font-medium text-cyan-700 stats">
+                <span className="stats text-sm font-medium text-cyan-700">
                   Classes
                 </span>
                 <svg
@@ -246,16 +249,16 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   />
                 </svg>
               </div>
-              <div className="text-2xl font-bold text-cyan-800 stats">
+              <div className="stats text-2xl font-bold text-cyan-800">
                 {stats.classes}
               </div>
               <p className="text-xs text-cyan-600">Total class groups</p>
             </div>
           </div>
           <div className="grid gap-4">
-            <div className="flex flex-col gap-1 rounded-xl border-indigo-200 bg-indigo-50/30 p-4 shadow-sm ">
+            <div className="flex flex-col gap-1 rounded-xl border-indigo-200 bg-indigo-50/30 p-4 shadow-sm">
               <div className="flex flex-row items-center justify-between pb-2">
-                <span className="text-sm font-medium text-indigo-700 stats">
+                <span className="stats text-sm font-medium text-indigo-700">
                   Lessons
                 </span>
                 <span>
@@ -278,14 +281,14 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   </svg>
                 </span>
               </div>
-              <div className="text-2xl font-bold text-indigo-800 stats">
+              <div className="stats text-2xl font-bold text-indigo-800">
                 {stats.lessons}
               </div>
               <p className="text-xs text-indigo-600">Scheduled lessons</p>
             </div>
-            <div className="flex flex-col gap-1 rounded-xl border-green-200 bg-green-50/30 p-4 shadow-sm ">
+            <div className="flex flex-col gap-1 rounded-xl border-green-200 bg-green-50/30 p-4 shadow-sm">
               <div className="flex flex-row items-center justify-between pb-2">
-                <span className="text-sm font-medium text-green-700 stats">
+                <span className="stats text-sm font-medium text-green-700">
                   Timetables
                 </span>
                 <span>
@@ -306,7 +309,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   </svg>
                 </span>
               </div>
-              <div className="text-2xl font-bold text-green-800 stats">
+              <div className="stats text-2xl font-bold text-green-800">
                 {stats.timetables}
               </div>
               <p className="text-xs text-green-600">Generated timetables</p>
@@ -433,8 +436,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                     viewBox="0 0 24 24"
                   >
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="17 8 12 3 7 8" />
-                    <line x1="12" y1="3" x2="12" y2="15" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
                 </span>
                 <span className="font-medium text-black">Import Data</span>
@@ -457,10 +460,11 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                     viewBox="0 0 24 24"
                   >
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
                   </svg>
                 </span>
+
                 <span className="font-medium text-black">Export Data</span>
               </GradientButton>
 
@@ -470,19 +474,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 className="flex px-4 py-2 text-sm font-medium text-black"
               >
                 <span className="mr-2">
-                  <svg
-                    width="20"
-                    height="20"
-                    fill="none"
-                    stroke="#64748b"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle cx="12" cy="12" r="3" />
-                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 8 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4 8.6a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09A1.65 1.65 0 0 0 12 3.1V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09A1.65 1.65 0 0 0 21 12.1V12a2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                  </svg>
+                  <GoGear color="#64748b" size="20px" strokeWidth={0.35} />
                 </span>
                 <span className="font-medium text-black">
                   Advanced Settings
@@ -495,19 +487,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 className="flex px-4 py-2 text-sm font-medium text-black"
               >
                 <span className="mr-2">
-                  <svg
-                    width="20"
-                    height="20"
-                    fill="none"
-                    stroke="#64748b"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    viewBox="0 0 24 24"
-                  >
-                    <rect x="3" y="3" width="18" height="18" rx="2" />
-                    <path d="M9 9h6v6H9z" />
-                  </svg>
+                  <RiAiGenerate color="#64748b" size="20px" />
                 </span>
                 <span className="font-medium text-black">
                   Generate Example Data File
@@ -533,7 +513,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                     name={key}
                     value={value}
                     onChange={handleSettingsChange}
-                    className="rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 focus:ring-2 focus:ring-blue-500 "
+                    className="rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 focus:ring-2 focus:ring-blue-500"
                   />
                 </label>
               ))}
@@ -553,4 +533,3 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
   );
 };
 export default OverviewTab;
-

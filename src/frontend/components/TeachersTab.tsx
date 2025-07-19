@@ -15,6 +15,10 @@ import TextInput from "./common/TextInput";
 import Note from "./common/Note";
 import ColorButton from "./common/ColorButton";
 import ThemeButton from "./common/ThemeButton";
+import { FaChalkboardTeacher } from "react-icons/fa";
+import { PiChalkboardTeacher } from "react-icons/pi";
+
+import { PiClipboardText } from "react-icons/pi";
 
 interface TeachersTabProps {
   teachers: Teacher[];
@@ -202,7 +206,10 @@ const TeacherForm: React.FC<{
   return (
     <GradientContainer className="mb-8 p-8">
       <h3 className="mb-6 flex items-center text-lg text-xl font-semibold">
-        <span className="mr-3 text-2xl">👨‍🏫</span> Adaugă Profesor Nou
+        <span className="mr-3 text-2xl">
+          <PiChalkboardTeacher />
+        </span>{" "}
+        Adaugă Profesor Nou
       </h3>
       <form onSubmit={handleSubmit} className="flex gap-3">
         <TextInput
@@ -354,10 +361,10 @@ const TeacherListItem: React.FC<{
               </div>
               <ColorButton
                 onClick={handleStartEdit}
-                variant="blue"
-                className="px-2 py-1 text-sm"
+                variant="gray"
+                className="px-2 py-2 text-sm"
               >
-                Editează
+                Editează Nume
               </ColorButton>
             </div>
           )}
@@ -365,7 +372,7 @@ const TeacherListItem: React.FC<{
         <td className="hidden p-3 sm:table-cell">
           <ColorButton
             onClick={onEditAvailability}
-            variant="indigo"
+            variant="blue"
             className="px-3 py-1.5"
           >
             Setează Disponibilitate
@@ -512,7 +519,10 @@ const TeacherList: React.FC<{
     <GradientContainer className="p-8">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="flex items-center text-lg text-xl font-semibold">
-          <span className="mr-3 text-2xl">👩‍🏫</span> Listă Profesori
+          <span className="mr-3 text-2xl">
+            <PiClipboardText />
+          </span>{" "}
+          Listă Profesori
         </h3>
 
         <div className="flex flex-wrap gap-3">
@@ -529,11 +539,25 @@ const TeacherList: React.FC<{
             id="import-teachers-file"
           />
           <button
-            //variant="blue"
             onClick={() => fileInputRef.current?.click()}
             className="flex items-center justify-center rounded-md border border-black px-4 py-2 hover:bg-black hover:text-white"
           >
-            <span className="mr-2">📥</span>
+            <span className="mr-2">
+              <svg
+                width="20"
+                height="20"
+                fill="none"
+                stroke="black"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                viewBox="0 0 24 24"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+            </span>
             <span className="font-medium">Importă CSV</span>
           </button>
 
@@ -542,7 +566,22 @@ const TeacherList: React.FC<{
             onClick={handleExportToCSV}
             className="flex items-center justify-center rounded-md border border-black px-4 py-2 hover:bg-black hover:text-white"
           >
-            <span className="mr-2">📥</span>
+            <span className="mr-2">
+              <svg
+                width="20"
+                height="20"
+                fill="none"
+                stroke="black"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                viewBox="0 0 24 24"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+            </span>
             <span className="font-medium">Exportă CSV</span>
           </button>
         </div>

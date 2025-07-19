@@ -1,5 +1,9 @@
 import React, { useContext, useMemo } from "react";
 import { ThemeContext } from "../../providers/Theme";
+import { FaRegSun } from "react-icons/fa";
+import { FaRegMoon } from "react-icons/fa";
+
+
 
 
 const ThemeButton = () => {
@@ -7,9 +11,9 @@ const ThemeButton = () => {
     const icon = useMemo(() => {
       switch (theme) {
         case "light":
-          return "☀️";
+          return <FaRegSun color="orange" strokeWidth={1}/>;
         case "inverted":
-          return "💀";
+          return <FaRegMoon />;
         default:
           return "☀️";
       }

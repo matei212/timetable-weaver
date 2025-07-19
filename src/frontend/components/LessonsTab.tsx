@@ -12,6 +12,8 @@ import GradientButton from "./common/GradientButton";
 import GradientContainer from "./common/GradientContainer";
 import TextInput from "./common/TextInput";
 import ColorButton from "./common/ColorButton";
+import { SiGoogleclassroom } from "react-icons/si";
+
 
 interface LessonsTabProps {
   classes: Class[];
@@ -478,7 +480,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
         <>
           <GradientContainer className="mb-8 p-8">
           <h3 className="mb-6 flex items-center text-lg text-xl font-semibold">
-          <span className="mr-3 text-2xl">🏛️</span> Selectați Clasa
+          <span className="mr-3 text-2xl"><SiGoogleclassroom strokeWidth={.1} /></span> Selectați Clasa
             </h3>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
               {classes.map((cls, index) => (
@@ -502,14 +504,28 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
 
             {/* Export/Import buttons for all classes */}
             <div className="mt-6 flex flex-wrap justify-center gap-3 md:justify-end">
-              <GradientButton
-                variant="green"
+              <button
                 onClick={handleExportAllLessonsToCSV}
-                className="flex items-center justify-center px-4 py-2"
+                className="flex items-center justify-center rounded-md border border-black px-4 py-2 hover:bg-black hover:text-white"
               >
-                <span className="mr-2">📥</span>
+                <span className="mr-2">
+                  <svg
+                    width="20"
+                    height="20"
+                    fill="none"
+                    stroke="black"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
+                </span>
                 <span className="font-medium">Exportă Toate Lecțiile</span>
-              </GradientButton>
+              </button>
 
               <input
                 type="file"
@@ -525,9 +541,24 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
               />
               <label
                 htmlFor="import-all-lessons"
-                className="flex transform cursor-pointer items-center rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2 text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/20"
+                className="flex items-center justify-center rounded-md border border-black px-4 py-2 hover:bg-black hover:text-white"
               >
-                <span className="mr-2">📤</span>
+                <span className="mr-2">
+                  <svg
+                    width="20"
+                    height="20"
+                    fill="none"
+                    stroke="black"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                </span>
                 <span className="font-medium">Importă Toate Lecțiile</span>
               </label>
             </div>

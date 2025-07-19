@@ -6,6 +6,8 @@ import TextInput from "./common/TextInput";
 import Note from "./common/Note";
 import ColorButton from "./common/ColorButton";
 import ThemeButton from "./common/ThemeButton";
+import { PiClipboardText } from "react-icons/pi";
+import { SiGoogleclassroom } from "react-icons/si";
 
 interface ClassesTabProps {
   classes: Class[];
@@ -95,8 +97,11 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
       </div>
 
       <GradientContainer className="mb-8 p-8">
-      <h3 className="mb-6 flex items-center text-lg text-xl font-semibold">
-      <span className="mr-3 text-2xl">🏛️</span> Adaugă Clasă Nouă
+        <h3 className="mb-6 flex items-center text-lg text-xl font-semibold">
+          <span className="mr-3 text-2xl">
+            <SiGoogleclassroom strokeWidth={0.1} />
+          </span>{" "}
+          Adaugă Clasă Nouă
         </h3>
         <div className="flex gap-3">
           <TextInput
@@ -105,30 +110,47 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
             placeholder="Numele clasei (ex., '10A', '11B')"
             className="flex-1 p-3"
           />
-          <GradientButton
-            onClick={handleAddClass}
-            variant="cyan"
-            className="px-6 py-3 font-medium"
-          >
+          <button
+          onClick={handleAddClass}
+          type="submit"
+          className="rounded-md bg-black px-6 py-3 font-medium text-white hover:bg-gray-400"
+        >
             Adaugă Clasă
-          </GradientButton>
+          </button>
         </div>
       </GradientContainer>
 
       {classes.length > 0 ? (
         <GradientContainer className="mb-8 p-8">
           <div className="mb-6 flex items-center justify-between">
-          <h3 className="mb-6 flex items-center text-lg text-xl font-semibold">
-          <span className="mr-3 text-2xl">📋</span> Listă Clase
+            <h3 className="mb-6 flex items-center text-lg text-xl font-semibold">
+              <span className="mr-3 text-2xl">
+                <PiClipboardText />
+              </span>{" "}
+              Listă Clase
             </h3>
-            <GradientButton
-              variant="green"
+            <button
               onClick={handleExportToCSV}
-              className="flex items-center justify-center px-4 py-2"
+              className="flex items-center justify-center rounded-md border border-black px-4 py-2 hover:bg-black hover:text-white"
             >
-              <span className="mr-2">📥</span>
+              <span className="mr-2">
+                <svg
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="black"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+              </span>
               <span className="font-medium">Exportă în CSV</span>
-            </GradientButton>
+            </button>
           </div>
 
           <div className="relative overflow-hidden rounded-lg shadow-md">
@@ -186,10 +208,10 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
                           </span>
                           <ColorButton
                             onClick={() => handleStartEdit(index)}
-                            className="px-2 py-1 text-sm"
+                            className="px-2 py-2 text-sm"
                             variant="blue"
                           >
-                            Editează
+                            Editează Nume
                           </ColorButton>
                         </div>
                       )}
@@ -202,7 +224,7 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
                     </td>
                     <td className="flex items-center justify-center p-3 text-center">
                       <button
-                        className="group relative flex h-11 w-11 cursor-pointer items-center justify-start overflow-hidden rounded-full bg-red-600 shadow-lg transition-all duration-200 hover:w-25 hover:rounded-lg active:translate-x-1 active:translate-y-1"
+                        className="group relative flex h-11 w-11 cursor-pointer items-center justify-start overflow-hidden rounded-full bg-red-600 shadow-lg transition-all duration-200 hover:w-25 hover:rounded-lg active:translate-x-1 active:translate-y-1 "
                         onClick={() => handleRemoveClass(index)}
                       >
                         <div className="flex w-full items-center justify-center transition-all duration-300 group-hover:justify-start group-hover:px-3">

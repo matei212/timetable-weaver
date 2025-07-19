@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import GradientButton from "../components/common/GradientButton";
+import ThemeButton from "../components/common/ThemeButton";
 
 interface HomeProps {
   storageAvailable: boolean;
@@ -25,7 +26,37 @@ const Home: React.FC<HomeProps> = ({
 
   return (
     <div className="mx-auto max-w-2xl p-6 text-center">
-      <img src="./vite.svg" className="logo mx-auto mb-8" alt="Logo Vite" />
+      <ThemeButton />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 200 200"
+        width="100px"
+        height="100px"
+        className="logo mx-auto mb-8 stats"
+      >
+        <svg
+          stroke="black"
+          fill="currentColor"
+          stroke-width="0"
+          viewBox="0 0 24 24"
+          height="200px"
+          width="200px"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fill="none"
+            stroke-width="2"
+            d="M8,5 L8,23 M16,5 L16,23 M1,11 L23,11 M1,5 L23,5 M1,17 L23,17 M1,1 L23,1 L23,23 L1,23 L1,1 Z"
+          ></path>
+        </svg>
+
+        <g transform="translate(25, 25) scale(10)">
+          <path
+            d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09z"
+            fill="yellow"
+          ></path>
+        </g>
+      </svg>
       <h1 className="mb-6 text-3xl font-bold dark:text-white">
         Bine ați venit la Timetable Weaver
       </h1>
@@ -41,30 +72,30 @@ const Home: React.FC<HomeProps> = ({
         </div>
       )}
 
-      <GradientButton
-        variant="blue"
+      <button
+        //variant="blue"
         onClick={handleCreateTimetable}
-        className="px-6 py-3 text-lg font-medium"
+        className="rounded-lg border border-blue-500/10 bg-blue-300/30 px-6 py-3 text-lg font-medium text-blue-400 backdrop-blur-sm"
       >
         Creează Orar Nou
-      </GradientButton>
+      </button>
 
       {hasData && (
         <div className="mt-4 flex justify-center gap-4">
-          <GradientButton
+          <button
             onClick={onClearData}
-            variant="red"
-            className="px-6 py-3 text-lg font-medium"
+            //variant="red"
+            className="rounded-lg border border-red-500/10 bg-red-200 px-6 py-3 text-lg font-medium text-red-600 backdrop-blur-sm"
           >
             Șterge Datele Salvate
-          </GradientButton>
+          </button>
 
-          <GradientButton
+          <button
             onClick={onForceSave}
-            className="px-6 py-3 text-lg font-medium"
+            className="rounded-lg border border-green-500/10 bg-green-200 px-6 py-3 text-lg font-medium text-green-700 backdrop-blur-sm"
           >
             Forțează Salvarea Datelor
-          </GradientButton>
+          </button>
         </div>
       )}
     </div>

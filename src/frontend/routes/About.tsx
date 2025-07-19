@@ -1,6 +1,11 @@
+
+import ThemeButton from "../components/common/ThemeButton";
+
+
 const About: React.FC = () => {
   return (
     <div className="mx-auto max-w-4xl p-5">
+      <ThemeButton/>
       <h2 className="mb-6 text-3xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-cyan-400 dark:from-blue-400 dark:to-cyan-300">Despre Timetable Weaver</h2>
       
       <div className="prose prose-lg dark:prose-invert mx-auto">
