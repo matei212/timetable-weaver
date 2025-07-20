@@ -32,7 +32,7 @@ const Home: React.FC<HomeProps> = ({
         viewBox="0 0 200 200"
         width="100px"
         height="100px"
-        className="logo mx-auto mb-8 stats"
+        className="logo stats mx-auto mb-8"
       >
         <svg
           stroke="black"

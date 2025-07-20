@@ -17,13 +17,23 @@
   filter: invert(0);
 } */
 
-.inverted,.stats,.emoji,  svg,p{
-  filter: invert(1)  hue-rotate(180deg);
+.inverted,
+.stats,
+.emoji,
+svg,
+p {
+  filter: invert(1) hue-rotate(180deg);
 }
 
-.light ,.stats,.emoji,button, svg,p{
+.inverted .logo {
+  filter: invert(1);
+}
+
+.light,
+.stats,
+.emoji,
+button,
+svg,
+p {
   filter: invert(0);
 }
-
-
-

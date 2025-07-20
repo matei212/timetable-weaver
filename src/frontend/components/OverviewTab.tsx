@@ -162,7 +162,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
       </header>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-          <div className="flex aspect-video flex-col justify-between rounded-xl border bg-gray-50 p-6">
+          <div className="flex flex-col justify-between rounded-xl border bg-gray-50 p-6">
             <h2 className="mb-4 text-2xl font-bold">
               Welcome to Timetable Weaver
             </h2>

@@ -19,7 +19,12 @@ export const ThemeContext = createContext<ThemeContextType>(
 const THEMES = ["light", "inverted"] as Theme[];
 
 const ThemeProvider = ({ children }: PropsWithChildren) => {
-  const [themeIdx, setThemeIdx] = useState(0);
+  const [themeIdx, setThemeIdx] = useState(() => {
+    const isDarkTheme = window.matchMedia(
+      "(prefers-color-scheme: dark)",
+    ).matches;
+    return isDarkTheme ? 1 : 0;
+  });
   const toggleTheme = useCallback(() => {
     setThemeIdx(prev => {
       const out = prev + 1;
