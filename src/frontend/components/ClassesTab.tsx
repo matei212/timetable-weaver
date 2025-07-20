@@ -16,7 +16,7 @@ import { SiGoogleclassroom } from "react-icons/si";
 
 interface ClassesTabProps {
   classes: Class[];
-  onClassesChange: (classes: Class[]) => void;
+  onClassesChange: (classes: Class[] | ((prev: Class[]) => Class[])) => void;
 }
 
 const ClassesTab: React.FC<ClassesTabProps> = ({

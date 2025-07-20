@@ -3,7 +3,7 @@ import ClassesTab from "../components/ClassesTab";
 
 interface ClassesRouteProps {
   classes: Class[];
-  onClassesChange: (classes: Class[]) => void;
+  onClassesChange: (classes: Class[] | ((prev: Class[]) => Class[])) => void;
 }
 
 const Classes: React.FC<ClassesRouteProps> = ({ classes, onClassesChange }) => {

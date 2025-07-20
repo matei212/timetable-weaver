@@ -198,7 +198,7 @@ const StateProvider: React.FC<{
     handleClearData: () => void;
     handleForceSave: () => void;
     setTeachers: (teachers: Teacher[]) => void;
-    setClasses: (classes: Class[]) => void;
+    setClasses: (classes: Class[] | ((prev: Class[]) => Class[])) => void;
   }) => React.ReactNode;
 }> = ({ children }) => {
   const [sidebarMode, setSidebarMode] = useState<"default" | "timetable">(
@@ -417,7 +417,7 @@ const RoutesConfig: React.FC<{
   onCreateTimetable: () => void;
   onTimetableGenerated: (timetable: Timetable | null) => void;
   setTeachers: (teachers: Teacher[]) => void;
-  setClasses: (classes: Class[]) => void;
+  setClasses: (classes: Class[] | ((prev: Class[]) => Class[])) => void;
 }> = ({
   sidebarMode,
   teachers,
