@@ -16,8 +16,6 @@ import { SiGoogleclassroom } from "react-icons/si";
 import { MdOutlineLibraryBooks } from "react-icons/md";
 import { MdOutlineSummarize } from "react-icons/md";
 
-
-
 interface LessonsTabProps {
   classes: Class[];
   teachers: Teacher[];
@@ -574,9 +572,10 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
             <GradientContainer className="mb-8 p-8">
               <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <h3 className="flex items-center text-xl font-semibold">
-                  <span className="mr-3 text-2xl"><MdOutlineLibraryBooks color="black"/>
-                  </span> Adaugă Lecție la{" "}
-                  {classes[selectedClassIndex].name}
+                  <span className="mr-3 text-2xl">
+                    <MdOutlineLibraryBooks color="black" />
+                  </span>{" "}
+                  Adaugă Lecție la {classes[selectedClassIndex].name}
                 </h3>
 
                 <div className="flex flex-wrap gap-3">
@@ -617,9 +616,10 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
 
               {/* Add Teacher Periods Summary Section */}
               <GradientContainer variant="light" className="mb-6 p-4">
-                <h4 className="text-md mb-3 flex items-center font-semibold text-blue-500">
-                  <span className="mr-2"><MdOutlineSummarize />
-                  </span> Rezumat de ore Profesori
+                <h4 className="text-bold mb-3 flex items-center font-semibold text-blue-500">
+                  <span className="mr-2">
+                  </span>{" "}
+                  Rezumat de ore Profesori
                 </h4>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
                   {teachers.map(teacher => {
@@ -660,7 +660,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
 
               <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
-                  <label className="mb-2 block text-sm text-blue-500">
+                  <label className="mb-2 block text-bold text-blue-500">
                     Numele Materiei
                   </label>
                   <TextInput
@@ -672,7 +672,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm text-blue-500">
+                  <label className="mb-2 block text-bold text-blue-500">
                     Profesor
                   </label>
                   <select
@@ -697,8 +697,8 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
               </div>
 
               <div className="mb-6">
-                <label className="mb-2 block text-sm text-blue-500">
-                  ore pe Săptămână
+                <label className="mb-2 block text-bold text-blue-500">
+                  Ore pe Săptămână
                 </label>
                 <div className="flex items-center gap-4">
                   <input
@@ -714,7 +714,21 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                   <div className="flex h-10 w-12 items-center justify-center rounded-lg border border-blue-500/30 bg-slate-200 dark:bg-blue-900/20 dark:text-blue-500">
                     {periodsPerWeek}
                   </div>
+
+                  <div className="inline-flex items-center"></div>
                 </div>
+
+
+
+
+                
+                <label className="group relative flex cursor-pointer items-center">
+                  <input className="peer sr-only" type="checkbox" />
+                  <div className="h-8 w-8 rounded-lg border-2 border-blue-500 bg-white from-blue-500 to-blue-900 transition-all duration-300 ease-in-out peer-checked:rotate-12 peer-checked:border-0 peer-checked:bg-gradient-to-br after:absolute after:top-1/2 after:left-1/2 after:h-5 after:w-5 after:-translate-x-1/2 after:-translate-y-1/2 after:bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cG9seWxpbmUgcG9pbnRzPSIyMCA2IDkgMTcgNCAxMiI+PC9wb2x5bGluZT48L3N2Zz4=')] after:bg-contain after:bg-no-repeat after:opacity-0 after:transition-opacity after:duration-300 after:content-[''] peer-checked:after:opacity-100 hover:shadow-[0_0_15px_rgba(168,85,247,0.5)]"></div>
+                  <span className="ml-3 text-medium font-medium text-gray-900">
+                    Împare clasa in 2 grupe - Bilingv si Intensiv
+                  </span>
+                </label>
               </div>
 
               <div className="text-center">
