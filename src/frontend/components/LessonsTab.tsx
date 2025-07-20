@@ -588,7 +588,9 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                         handleImportFromCSV(
                           e.target.files[0],
                           classes[selectedClassIndex].name,
-                        );
+                        )
+                          .then(() => (e.target.value = ""))
+                          .catch(() => (e.target.value = ""));
                       }
                     }}
                     className="hidden"
@@ -616,8 +618,9 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
 
               {/* Add Teacher Periods Summary Section */}
               <GradientContainer variant="light" className="mb-6 p-4">
-                <h4 className="text-bold mb-3 flex items-center font-semibold text-blue-500">
+                <h4 className="text-md mb-3 flex items-center font-semibold text-blue-500">
                   <span className="mr-2">
+                    <MdOutlineSummarize />
                   </span>{" "}
                   Rezumat de ore Profesori
                 </h4>
