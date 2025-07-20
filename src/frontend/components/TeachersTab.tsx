@@ -56,8 +56,27 @@ const useTeacherManagement = (
   };
 
   const removeTeacher = (index: number) => {
+    if (index < 0 || index >= teachers.length) {
+      return;
+    }
+
+    const updatedClasses = [...classes];
     const updatedTeachers = [...teachers];
-    updatedTeachers.splice(index, 1);
+
+    const removedTeacher = updatedTeachers[index];
+    // Remove every lesson of the teacher
+    for (let classIdx = 0; classIdx < updatedClasses.length; classIdx++) {
+      const cls = updatedClasses[classIdx];
+      for (let lessonIdx = 0; lessonIdx < cls.lessons.length; lessonIdx++) {
+        const lesson = cls.lessons[lessonIdx];
+        if (lesson.teacher.name === removedTeacher.name) {
+          cls.lessons.splice(lessonIdx, 1);
+        }
+      }
+    }
+    updatedTeachers.splice(index, 1); // remove from teachers array
+
+    onClassesChange(updatedClasses);
     onTeachersChange(updatedTeachers);
   };
 
