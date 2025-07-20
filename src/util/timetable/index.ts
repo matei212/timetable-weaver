@@ -2984,19 +2984,11 @@ export function exportClassesToCSV(
 ): Promise<string> {
   return new Promise(resolve => {
     // Create CSV header and detailed data in one section for better import compatibility
-    let csvContent = "Subject,Teacher,PeriodsPerWeek,Class\r\n";
+    let csvContent = "Class Name\r\n";
 
     // Add all class data in a consistent format
     for (const cls of classes) {
-      // If the class has no lessons, add a placeholder row to preserve the class
-      if (cls.lessons.length === 0) {
-        csvContent += `Class Information,N/A,0,${cls.name}\r\n`;
-      }
-
-      // Add actual lessons
-      for (const lesson of cls.lessons) {
-        csvContent += `${lesson.name},${lesson.teacher.name},${lesson.periodsPerWeek},${cls.name}\r\n`;
-      }
+      csvContent += `${cls.name}\r\n`;
     }
 
     // Create and download the file
@@ -3134,10 +3126,7 @@ export function importTeachersFromCSV(file: File): Promise<Teacher[]> {
  * @param teachers - List of existing teachers to reference
  * @returns Promise resolving to an array of Class objects
  */
-export function importClassesFromCSV(
-  file: File,
-  teachers: Teacher[],
-): Promise<Class[]> {
+export function importClassesFromCSV(file: File): Promise<Class[]> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
@@ -3149,68 +3138,27 @@ export function importClassesFromCSV(
           return;
         }
 
-        const classes: Map<string, Class> = new Map();
+        const classes = [] as Class[];
+
         // Parse CSV content
         const lines = csvText.split("\n");
-
-        // Skip header line
-        let parsingDetailedSection = false;
-
         for (let i = 1; i < lines.length; i++) {
-          const line = lines[i].trim();
-          if (!line) continue;
+          const name = lines[i].trim();
+          if (!name) continue;
 
-          // Check if we've reached the detailed section
-          if (line.includes("--- Detailed Class Information ---")) {
-            parsingDetailedSection = true;
-            i++; // Skip the header line of the detailed section
-            continue;
+          let classExists = false;
+          for (const cls of classes) {
+            if (cls.name === name) {
+              classExists = true;
+            }
           }
 
-          if (!parsingDetailedSection) {
-            // Parse summary section
-            const [className] = line.split(",");
-            if (className) {
-              classes.set(className.trim(), new Class(className.trim(), []));
-            }
-          } else {
-            // Parse detailed class section
-            const parts = line.split(",");
-            if (parts.length >= 4) {
-              const [className, subjectName, teacherName, periodsPerWeekStr] =
-                parts;
-
-              // Find the teacher by name
-              const teacher = teachers.find(t => t.name === teacherName.trim());
-              if (teacher && className && subjectName) {
-                const periodsPerWeek = parseInt(periodsPerWeekStr) || 1;
-                const lesson = new Lesson(
-                  subjectName.trim(),
-                  teacher,
-                  periodsPerWeek,
-                );
-
-                // Get or create the class
-                if (!classes.has(className.trim())) {
-                  classes.set(
-                    className.trim(),
-                    new Class(className.trim(), []),
-                  );
-                }
-
-                // Add the lesson to the class
-                const classObj = classes.get(className.trim())!;
-                const updatedLessons = [...classObj.lessons, lesson];
-                classes.set(
-                  className.trim(),
-                  new Class(className.trim(), updatedLessons),
-                );
-              }
-            }
+          if (!classExists) {
+            classes.push(new Class(name, []));
           }
         }
 
-        resolve(Array.from(classes.values()));
+        resolve(Array.from(classes));
       } catch (error) {
         reject(error);
       }
