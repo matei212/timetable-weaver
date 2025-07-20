@@ -13,6 +13,10 @@ import GradientContainer from "./common/GradientContainer";
 import TextInput from "./common/TextInput";
 import ColorButton from "./common/ColorButton";
 import { SiGoogleclassroom } from "react-icons/si";
+import { MdOutlineLibraryBooks } from "react-icons/md";
+import { MdOutlineSummarize } from "react-icons/md";
+
+
 
 interface LessonsTabProps {
   classes: Class[];
@@ -569,8 +573,9 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
           {selectedClassIndex !== null && (
             <GradientContainer className="mb-8 p-8">
               <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <h3 className="flex items-center text-xl font-semibold text-blue-500">
-                  <span className="mr-3 text-2xl">📚</span> Adaugă Lecție la{" "}
+                <h3 className="flex items-center text-xl font-semibold">
+                  <span className="mr-3 text-2xl"><MdOutlineLibraryBooks color="black"/>
+                  </span> Adaugă Lecție la{" "}
                   {classes[selectedClassIndex].name}
                 </h3>
 
@@ -613,7 +618,8 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
               {/* Add Teacher Periods Summary Section */}
               <GradientContainer variant="light" className="mb-6 p-4">
                 <h4 className="text-md mb-3 flex items-center font-semibold text-blue-500">
-                  <span className="mr-2">👩‍🏫</span> Rezumat de ore Profesori
+                  <span className="mr-2"><MdOutlineSummarize />
+                  </span> Rezumat de ore Profesori
                 </h4>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
                   {teachers.map(teacher => {
