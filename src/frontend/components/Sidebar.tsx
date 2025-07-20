@@ -127,25 +127,25 @@ const Sidebar: React.FC<SidebarProps> = ({ mode, onModeChange }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const defaultTabs: SidebarTab[] = [
-    { id: "home", path: "/", label: "Home", icon: icons.home },
-    { id: "about", path: "/about", label: "About", icon: icons.about },
+    { id: "home", path: "/", label: "Acasă", icon: icons.home },
+    { id: "about", path: "/about", label: "Despre", icon: icons.about },
   ];
 
   const timetableTabs: SidebarTab[] = [
     {
       id: "overview",
       path: "/overview",
-      label: "Overview",
+      label: "Prezentare generală",
       icon: icons.overview,
     },
     {
       id: "teachers",
       path: "/teachers",
-      label: "Teachers",
+      label: "Profesori",
       icon: icons.teachers,
     },
-    { id: "classes", path: "/classes", label: "Classes", icon: icons.classes },
-    { id: "lessons", path: "/lessons", label: "Lessons", icon: icons.lessons },
+    { id: "classes", path: "/classes", label: "Clase", icon: icons.classes },
+    { id: "lessons", path: "/lessons", label: "Lecții", icon: icons.lessons },
   ];
 
   const tabs = mode === "timetable" ? timetableTabs : defaultTabs;
@@ -247,7 +247,7 @@ const Sidebar: React.FC<SidebarProps> = ({ mode, onModeChange }) => {
           {mode === "timetable" && (
             <p className="mt-2 flex items-center text-sm font-light text-blue-500">
               <span className="mr-2 animate-pulse text-cyan-400">◉</span>
-              New Timetable
+              Orar Nou
             </p>
           )}
         </div>
@@ -280,7 +280,7 @@ const Sidebar: React.FC<SidebarProps> = ({ mode, onModeChange }) => {
               onClick={handleCancelTimetable}
               className="w-full px-4 py-3 font-medium"
             >
-              Cancel Timetable
+              Anulează orarul
             </GradientButton>
           </div>
         )}

@@ -53,7 +53,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
   const handleGenerateTimetable = () => {
     if (!classes.length || !teachers.length) {
       alert(
-        "You must have at least one class and one teacher to generate a timetable.",
+        "Trebuie să aveți cel puțin o clasă și un profesor pentru a genera un orar.",
       );
       return;
     }
@@ -62,7 +62,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
       const timetable = scheduler.generateTimetable();
       onTimetableGenerated(timetable);
     } catch (e) {
-      alert("Failed to generate timetable. Check your data and try again.");
+      alert("Nu s-a putut genera orarul. Verificați datele și încercați din nou.");
       console.error(e);
     }
   };
@@ -81,19 +81,19 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         importedData.classes.length === 0
       ) {
         alert(
-          "The file contained no valid data. Please use the example file as a template.",
+          "Fișierul nu conținea date valide. Vă rugăm să utilizați fișierul exemplu ca șablon.",
         );
         return;
       }
-      const replaceMessage = `Found ${importedData.teachers.length} teachers and ${importedData.classes.length} classes. This will replace all your existing data. Continue?`;
+      const replaceMessage = `A fost găsit ${importedData.teachers.length} profesori și ${importedData.classes.length} clase. Acest lucru va înlocui toate datele existente. Continuați?`;
       if (window.confirm(replaceMessage)) {
         onTeachersChange(importedData.teachers);
         onClassesChange(importedData.classes);
-        alert("All data imported successfully!");
+        alert("Datele au fost importate cu succes!");
       }
     } catch {
       alert(
-        "Error importing data. Please check the file format and try again. Check browser console for details.",
+        "Eroare la importul datelor. Vă rugăm să verificați formatul fișierului și încercați din nou. Verificați consola browserului pentru detalii.",
       );
     } finally {
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -156,7 +156,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             />
           </svg>
 
-          <span className="text-lg font-semibold">Dashboard</span>
+          <span className="text-lg font-semibold">Tablou de bord</span>
         </div>
         <ThemeButton />
       </header>
@@ -164,11 +164,10 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         <div className="grid auto-rows-min gap-4 md:grid-cols-3">
           <div className="flex flex-col justify-between rounded-xl border bg-gray-50 p-6">
             <h2 className="mb-4 text-2xl font-bold">
-              Welcome to Timetable Weaver
+              Bine ai venit la Timetable Weaver
             </h2>
             <p className="mb-4 text-gray-500">
-              Manage your school's timetables efficiently with our automated
-              scheduling system.
+              Gestionează orarele școlii tale eficient cu sistemul nostru automatizat de programare.
             </p>
             <div className="flex gap-2">
               <button
@@ -190,7 +189,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                     d="M4 10h16m-8-3V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Zm3-7h.01v.01H8V13Zm4 0h.01v.01H12V13Zm4 0h.01v.01H16V13Zm-8 4h.01v.01H8V17Zm4 0h.01v.01H12V17Zm4 0h.01v.01H16V17Z"
                   />
                 </svg>
-                Generate Timetable
+                Generează orar
               </button>
             </div>
           </div>
@@ -198,7 +197,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             <div className="flex flex-col gap-1 rounded-xl border-blue-200 bg-blue-50/30 p-4 shadow-sm">
               <div className="flex flex-row items-center justify-between pb-2">
                 <span className="stats text-sm font-medium text-blue-700">
-                  Teachers
+                  Profesori
                 </span>
                 <span>
                   <svg
@@ -223,13 +222,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 {stats.teachers}
               </div>
               <p className="noninv text-xs text-blue-600">
-                Active teaching staff
+                Cadre didactice active
               </p>
             </div>
             <div className="flex flex-col gap-1 rounded-xl border-cyan-200 bg-cyan-50/30 p-4 shadow-sm">
               <div className="flex flex-row items-center justify-between pb-2">
                 <span className="stats text-sm font-medium text-cyan-700">
-                  Classes
+                  Clase
                 </span>
                 <svg
                   className="h-6 w-6 text-gray-800"
@@ -252,14 +251,14 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               <div className="stats text-2xl font-bold text-cyan-800">
                 {stats.classes}
               </div>
-              <p className="text-xs text-cyan-600">Total class groups</p>
+              <p className="text-xs text-cyan-600">Total clase</p>
             </div>
           </div>
           <div className="grid gap-4">
             <div className="flex flex-col gap-1 rounded-xl border-indigo-200 bg-indigo-50/30 p-4 shadow-sm">
               <div className="flex flex-row items-center justify-between pb-2">
                 <span className="stats text-sm font-medium text-indigo-700">
-                  Lessons
+                  Lecții
                 </span>
                 <span>
                   <svg
@@ -284,12 +283,12 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               <div className="stats text-2xl font-bold text-indigo-800">
                 {stats.lessons}
               </div>
-              <p className="text-xs text-indigo-600">Scheduled lessons</p>
+              <p className="text-xs text-indigo-600">Lecții programate</p>
             </div>
             <div className="flex flex-col gap-1 rounded-xl border-green-200 bg-green-50/30 p-4 shadow-sm">
               <div className="flex flex-row items-center justify-between pb-2">
                 <span className="stats text-sm font-medium text-green-700">
-                  Timetables
+                  Orar(e)
                 </span>
                 <span>
                   <svg
@@ -312,16 +311,16 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               <div className="stats text-2xl font-bold text-green-800">
                 {stats.timetables}
               </div>
-              <p className="text-xs text-green-600">Generated timetables</p>
+              <p className="text-xs text-green-600">Orare generate</p>
             </div>
           </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className={card}>
-            <h3 className="mb-1 text-lg font-bold text-black">Quick Actions</h3>
+            <h3 className="mb-1 text-lg font-bold text-black">Acțiuni rapide</h3>
             <div className="mb-4 text-sm text-gray-400">
-              Common tasks and operations
+              Activități și operațiuni comune
             </div>
             <div className="flex flex-col gap-2">
               <GradientButton
@@ -346,7 +345,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                     <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                   </svg>
                 </span>
-                <span className="font-medium text-black">Manage Teachers</span>
+                <span className="font-medium text-black">Gestionează profesorii</span>
               </GradientButton>
 
               <GradientButton
@@ -372,7 +371,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   />
                 </svg>
 
-                <span className="font-medium text-black">Manage Classes</span>
+                <span className="font-medium text-black">Gestionează clasele</span>
               </GradientButton>
 
               <GradientButton
@@ -399,15 +398,15 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                     />
                   </svg>
                 </span>
-                <span className="font-medium text-black">Manage Lessons</span>
+                <span className="font-medium text-black">Gestionează lecțiile</span>
               </GradientButton>
             </div>
           </div>
 
           <div className={card}>
-            <h3 className="mb-1 text-lg font-bold">Data Management</h3>
+            <h3 className="mb-1 text-lg font-bold">Administrare date</h3>
             <div className="mb-4 text-sm text-gray-400">
-              Import and export your data
+              Importează și exportă datele tale
             </div>
             <div className="flex flex-col gap-2">
               <input
@@ -440,7 +439,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                     <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
                 </span>
-                <span className="font-medium text-black">Import Data</span>
+                <span className="font-medium text-black">Importă date</span>
               </GradientButton>
 
               <GradientButton
@@ -465,7 +464,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   </svg>
                 </span>
 
-                <span className="font-medium text-black">Export Data</span>
+                <span className="font-medium text-black">Exportă date</span>
               </GradientButton>
 
               <GradientButton
@@ -477,7 +476,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   <GoGear color="#64748b" size="20px" strokeWidth={0.35} />
                 </span>
                 <span className="font-medium text-black">
-                  Advanced Settings
+                  Setări avansate
                 </span>
               </GradientButton>
 
@@ -490,7 +489,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   <RiAiGenerate color="#64748b" size="20px" />
                 </span>
                 <span className="font-medium text-black">
-                  Generate Example Data File
+                  Generează fișier exemplu de date
                 </span>
               </GradientButton>
             </div>
@@ -501,7 +500,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         <Modal isOpen={showAdvancedSettings} onClose={handleCancelSettings}>
           <div className="} w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
             {" "}
-            <h2 className="mb-4 text-lg font-bold">Advanced Settings</h2>
+            <h2 className="mb-4 text-lg font-bold">Setări avansate</h2>
             <form className="flex flex-col gap-3">
               {Object.entries(settingsDraft).map(([key, value]) => (
                 <label key={key} className="flex flex-col gap-1 text-sm">
@@ -520,10 +519,10 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             </form>
             <div className="mt-6 flex justify-end gap-2">
               <ColorButton variant="gray" onClick={handleCancelSettings}>
-                Cancel
+                Anulează
               </ColorButton>
               <GradientButton variant="blue" onClick={handleSaveSettings}>
-                Save
+                Salvează
               </GradientButton>
             </div>
           </div>
