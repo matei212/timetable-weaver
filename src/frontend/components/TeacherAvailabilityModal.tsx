@@ -78,7 +78,7 @@ const TeacherAvailabilityModal: React.FC<TeacherAvailabilityModalProps> = ({
                   className="transition-colors duration-200 hover:bg-slate-700/50"
                 >
                   <th className="p-3 text-left font-medium dark:text-zinc-300">
-                    Perioada {p + 1}
+                     {p + 8}:00 - {p + 8}:50
                   </th>
                   {Array.from({ length: DAYS }, (_, d) => {
                     const available = editAvailability.get(d, p);
