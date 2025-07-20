@@ -536,7 +536,7 @@ const TimetableLayout: React.FC<{
       <Sidebar mode={sidebarMode} onModeChange={onSidebarModeChange} />
 
       <div className="flex-1 overflow-y-auto bg-gray-100 pt-16 lg:pt-0 dark:bg-gray-900 dark:text-white">
-        <div className="container mx-auto px-4">{children}</div>
+        <div className="mx-auto px-4">{children}</div>
       </div>
 
       {generatedTimetable && (
