@@ -3869,6 +3869,6 @@ function parseSimpleCsvFormat(csvText: string): {
 }
 
 // Helper for getting all teachers for a lesson
-function getAllTeachers(lesson: Lesson): Teacher[] {
+export function getAllTeachers(lesson: Lesson): Teacher[] {
   return isAlternatingLesson(lesson) ? lesson.teachers : [lesson.teacher];
 }

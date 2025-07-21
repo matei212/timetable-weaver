@@ -9,6 +9,7 @@ import {
   getLessonName,
   getLessonTeacher,
   isAlternatingLesson,
+  getAllTeachers,
 } from "../../util/timetable";
 import GradientButton from "./common/GradientButton";
 import GradientContainer from "./common/GradientContainer";
@@ -684,16 +685,20 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                   <span className="mr-2">
                     <MdOutlineSummarize />
                   </span>{" "}
-                  Rezumat de ore Profesori
+                  Rezumat Profesori
                 </h4>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
                   {teachers.map(teacher => {
                     // Calculate total periods this teacher has with this class
                     const teacherPeriods = classes[selectedClassIndex].lessons
-                      .filter(
-                        lesson =>
-                          getLessonTeacher(lesson).name === teacher.name,
-                      )
+                      .filter(lesson => {
+                        for (const l of getAllTeachers(lesson)) {
+                          if (l.name === teacher.name) {
+                            return true;
+                          }
+                        }
+                        return false;
+                      })
                       .reduce(
                         (total, lesson) => total + lesson.periodsPerWeek,
                         0,
