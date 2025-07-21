@@ -5,9 +5,10 @@ import {
   DAYS,
   PERIODS_PER_DAY,
   Class,
-  Lesson,
   exportTeachersToCSV,
   importTeachersFromCSV,
+  getLessonTeacher,
+  getLessonName,
 } from "../../util/timetable";
 import TeacherAvailabilityModal from "./TeacherAvailabilityModal";
 import GradientContainer from "./common/GradientContainer";
@@ -15,7 +16,6 @@ import TextInput from "./common/TextInput";
 import Note from "./common/Note";
 import ColorButton from "./common/ColorButton";
 import ThemeButton from "./common/ThemeButton";
-import { FaChalkboardTeacher } from "react-icons/fa";
 import { PiChalkboardTeacher } from "react-icons/pi";
 
 import { PiClipboardText } from "react-icons/pi";
@@ -69,7 +69,7 @@ const useTeacherManagement = (
       const cls = updatedClasses[classIdx];
       for (let lessonIdx = 0; lessonIdx < cls.lessons.length; lessonIdx++) {
         const lesson = cls.lessons[lessonIdx];
-        if (lesson.teacher.name === removedTeacher.name) {
+        if (getLessonTeacher(lesson).name === removedTeacher.name) {
           cls.lessons.splice(lessonIdx, 1);
         }
       }
@@ -117,20 +117,20 @@ const useTeacherManagement = (
       const updatedClasses = classes.map(cls => {
         // Check if any lessons in this class use the teacher
         const hasTeacher = cls.lessons.some(
-          lesson => lesson.teacher.name === oldTeacherName,
+          lesson => getLessonTeacher(lesson).name === oldTeacherName,
         );
 
         if (!hasTeacher) return cls; // No changes needed
 
         // Update lessons that use this teacher
         const updatedLessons = cls.lessons.map(lesson => {
-          if (lesson.teacher.name === oldTeacherName) {
-            // Create a new lesson with the updated teacher
-            return new Lesson(
-              lesson.name,
-              updatedTeachers[index], // Use the updated teacher
-              lesson.periodsPerWeek,
-            );
+          if (getLessonTeacher(lesson).name === oldTeacherName) {
+            return {
+              name: getLessonName(lesson),
+              teacher: updatedTeachers[index],
+              periodsPerWeek: lesson.periodsPerWeek,
+              type: "normal" as const,
+            };
           }
           return lesson;
         });
@@ -164,23 +164,19 @@ const useTeacherManagement = (
       if (cls.name === className) {
         const lessonIndex = cls.lessons.findIndex(
           lesson =>
-            lesson.teacher.name === teacherName && lesson.name === subjectName,
+            getLessonTeacher(lesson).name === teacherName &&
+            getLessonName(lesson) === subjectName,
         );
 
         if (lessonIndex !== -1) {
-          // Create a new lesson with updated periods
           const oldLesson = cls.lessons[lessonIndex];
-          const newLesson = new Lesson(
-            oldLesson.name,
-            oldLesson.teacher,
-            newPeriods,
-          );
-
-          // Update the lesson in the class
           const updatedLessons = [...cls.lessons];
-          updatedLessons[lessonIndex] = newLesson;
-
-          // Create a new class with updated lessons
+          updatedLessons[lessonIndex] = {
+            name: getLessonName(oldLesson),
+            teacher: getLessonTeacher(oldLesson),
+            periodsPerWeek: newPeriods,
+            type: "normal" as const,
+          };
           updatedClasses[classIndex] = new Class(cls.name, updatedLessons);
           changed = true;
         }
@@ -260,11 +256,12 @@ const getTeacherSubjects = (teacherName: string, classes: Class[]) => {
 
   classes.forEach(cls => {
     cls.lessons.forEach(lesson => {
-      if (lesson.teacher.name === teacherName) {
-        if (!subjects[lesson.name]) {
-          subjects[lesson.name] = [];
+      if (getLessonTeacher(lesson).name === teacherName) {
+        const subj = getLessonName(lesson);
+        if (!subjects[subj]) {
+          subjects[subj] = [];
         }
-        subjects[lesson.name].push({
+        subjects[subj].push({
           className: cls.name,
           periodsPerWeek: lesson.periodsPerWeek,
         });

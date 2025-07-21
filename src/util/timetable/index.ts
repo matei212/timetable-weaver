@@ -183,24 +183,40 @@ export class Teacher {
 }
 
 /**
- * Class representing a lesson
+ * Lesson type supporting normal and alternating lessons
  */
-export class Lesson {
-  name: string;
-  teacher: Teacher;
+export type Lesson = {
   periodsPerWeek: number;
+} & (
+  | {
+      name: string;
+      teacher: Teacher;
+      type: "normal";
+    }
+  | {
+      names: [string, string];
+      teachers: [Teacher, Teacher];
+      type: "alternating";
+    }
+);
 
-  /**
-   * Create a lesson
-   * @param name - Lesson name
-   * @param teacher - Teacher for this lesson
-   * @param periodsPerWeek - Number of periods per week
-   */
-  constructor(name: string, teacher: Teacher, periodsPerWeek: number) {
-    this.name = name;
-    this.teacher = teacher;
-    this.periodsPerWeek = periodsPerWeek;
-  }
+/**
+ * Helper functions for Lesson compatibility
+ */
+export function getLessonName(lesson: Lesson, week: 0 | 1 = 0): string {
+  if (lesson.type === "normal") return lesson.name;
+  return lesson.names[week];
+}
+
+export function getLessonTeacher(lesson: Lesson, week: 0 | 1 = 0): Teacher {
+  if (lesson.type === "normal") return lesson.teacher;
+  return lesson.teachers[week];
+}
+
+export function isAlternatingLesson(
+  lesson: Lesson,
+): lesson is Extract<Lesson, { type: "alternating" }> {
+  return lesson.type === "alternating";
 }
 
 /**
@@ -279,7 +295,7 @@ export class Timetable {
     // Initialize availability map for all teachers
     for (const cls of this.classes) {
       for (const lesson of cls.lessons) {
-        const teacher = lesson.teacher;
+        const teacher = getLessonTeacher(lesson);
         if (!teacherAvailability.has(teacher.name)) {
           // Create a 2D array for this teacher's availability
           const availMatrix: boolean[][] = [];
@@ -310,8 +326,8 @@ export class Timetable {
       // Prioritize lessons with most constrained teachers
       lessonQueue.sort((a, b) => {
         // Count the actual number of available slots for each teacher
-        const aTeacher = a.teacher;
-        const bTeacher = b.teacher;
+        const aTeacher = getLessonTeacher(a);
+        const bTeacher = getLessonTeacher(b);
 
         let aAvailableSlots = 0;
         let bAvailableSlots = 0;
@@ -331,7 +347,7 @@ export class Timetable {
       // First pass: place lessons in available slots
       for (let i = 0; i < lessonQueue.length; ) {
         const lesson = lessonQueue[i];
-        const teacher = lesson.teacher;
+        const teacher = getLessonTeacher(lesson);
         let placed = false;
 
         // Try all possible slots
@@ -347,7 +363,9 @@ export class Timetable {
 
               const otherClassSchedule = this.schedule[otherClass.name];
               if (
-                otherClassSchedule[day][period]?.teacher.name === teacher.name
+                otherClassSchedule[day][period] &&
+                getLessonTeacher(otherClassSchedule[day][period]!).name ===
+                  teacher.name
               ) {
                 teacherBusy = true;
                 break;
@@ -376,7 +394,9 @@ export class Timetable {
         unscheduledLessons = [...lessonQueue];
         console.warn(
           `Class ${cls.name}: Could not schedule some lessons due to constraints:`,
-          unscheduledLessons.map(l => `${l.name} (${l.teacher.name})`),
+          unscheduledLessons.map(
+            l => `${getLessonName(l)} (${getLessonTeacher(l).name})`,
+          ),
         );
       }
     }
@@ -422,7 +442,7 @@ export class Timetable {
               period++
             ) {
               // CRITICAL: Never place in periods where teacher is unavailable
-              if (!lesson.teacher.isAvailable(day, period)) continue;
+              if (!getLessonTeacher(lesson).isAvailable(day, period)) continue;
 
               // Check if teacher is busy elsewhere
               let teacherBusy = false;
@@ -430,8 +450,9 @@ export class Timetable {
                 if (otherClass.name === cls.name) continue;
 
                 if (
-                  this.schedule[otherClass.name][day][period]?.teacher.name ===
-                  lesson.teacher.name
+                  this.schedule[otherClass.name][day][period] &&
+                  getLessonTeacher(this.schedule[otherClass.name][day][period]!)
+                    .name === getLessonTeacher(lesson).name
                 ) {
                   teacherBusy = true;
                   break;
@@ -449,7 +470,7 @@ export class Timetable {
             // If no slot found on this day, log a warning
             if (!slotFound) {
               console.warn(
-                `Cannot compact: No available slot for ${lesson.name} (${lesson.teacher.name}) on day ${day}`,
+                `Cannot compact: No available slot for ${getLessonName(lesson)} (${getLessonTeacher(lesson).name}) on day ${day}`,
               );
             }
           }
@@ -484,7 +505,7 @@ export class Timetable {
     for (const cls of this.classes) {
       if (cls.name === skipClassName) continue;
       const lesson = this.schedule[cls.name][day][period];
-      if (lesson && lesson.teacher.name === teacher.name) {
+      if (lesson && getLessonTeacher(lesson).name === teacher.name) {
         return true;
       }
     }
@@ -539,7 +560,7 @@ export class Timetable {
           const lesson = this.schedule[cls.name][day][period];
           if (!lesson) continue;
 
-          const teacher = lesson.teacher;
+          const teacher = getLessonTeacher(lesson);
           const teacherName = teacher.name;
 
           // First check: Is teacher available at this time?
@@ -676,7 +697,7 @@ export class Timetable {
           const lesson = schedule[day][period];
 
           if (lesson) {
-            const teacher = lesson.teacher;
+            const teacher = getLessonTeacher(lesson);
 
             // Check availability conflict
             if (!teacher.isAvailable(day, period)) {
@@ -747,7 +768,7 @@ export class Timetable {
     if (!lesson) return false; // Safety check
 
     console.warn(
-      `Resolving ${type} conflict for ${lesson.name} (${lesson.teacher.name}) in class ${className}, day ${day}, period ${period}`,
+      `Resolving ${type} conflict for ${getLessonName(lesson)} (${getLessonTeacher(lesson).name}) in class ${className}, day ${day}, period ${period}`,
     );
 
     // For availability conflicts, we must move the lesson since the teacher is not available at this time
@@ -773,8 +794,8 @@ export class Timetable {
         const lessonAfterRebuild = timetable.schedule[className][day][period];
         if (
           !lessonAfterRebuild ||
-          lessonAfterRebuild.teacher.name !== conflict.teacherName ||
-          lessonAfterRebuild.teacher.isAvailable(day, period)
+          getLessonTeacher(lessonAfterRebuild).name !== conflict.teacherName ||
+          getLessonTeacher(lessonAfterRebuild).isAvailable(day, period)
         ) {
           return true;
         }
@@ -783,7 +804,7 @@ export class Timetable {
       // Step 5: Remove the lesson if we can't resolve the conflict
       // It's better to have an unscheduled lesson than to violate teacher availability
       console.error(
-        `Could not resolve availability conflict. Removing lesson ${lesson.name} from class ${className}`,
+        `Could not resolve availability conflict. Removing lesson ${getLessonName(lesson)} from class ${className}`,
       );
       timetable.schedule[className][day][period] = null;
       return true;
@@ -811,7 +832,7 @@ export class Timetable {
     // If rebuilding failed, remove the lesson as a last resort
     if (!rebuildSuccessful) {
       console.error(
-        `Could not resolve double booking conflict. Removing lesson ${lesson.name} from class ${className}`,
+        `Could not resolve double booking conflict. Removing lesson ${getLessonName(lesson)} from class ${className}`,
       );
       timetable.schedule[className][day][period] = null;
     }
@@ -836,8 +857,8 @@ export class Timetable {
     const lesson = timetable.schedule[className][day][period];
     if (!lesson) return false;
 
-    const currentTeacher = lesson.teacher;
-    const lessonName = lesson.name;
+    const currentTeacher = getLessonTeacher(lesson);
+    const lessonName = getLessonName(lesson);
 
     // Find all teachers who teach this subject
     const potentialTeachers: Teacher[] = [];
@@ -846,11 +867,13 @@ export class Timetable {
     for (const cls of this.classes) {
       for (const clsLesson of cls.lessons) {
         if (
-          clsLesson.name === lessonName &&
-          clsLesson.teacher.name !== currentTeacher.name &&
-          !potentialTeachers.some(t => t.name === clsLesson.teacher.name)
+          getLessonName(clsLesson) === lessonName &&
+          getLessonTeacher(clsLesson).name !== currentTeacher.name &&
+          !potentialTeachers.some(
+            t => t.name === getLessonTeacher(clsLesson).name,
+          )
         ) {
-          potentialTeachers.push(clsLesson.teacher);
+          potentialTeachers.push(getLessonTeacher(clsLesson));
         }
       }
     }
@@ -862,13 +885,12 @@ export class Timetable {
         !this.isTeacherBusy(teacher, day, period, className)
       ) {
         // Create a new lesson with this teacher
-        const newLesson = new Lesson(
-          lesson.name,
+        const newLesson = {
+          name: lessonName,
           teacher,
-          lesson.periodsPerWeek,
-        );
-
-        // Update the timetable
+          periodsPerWeek: lesson.periodsPerWeek,
+          type: "normal" as const,
+        };
         timetable.schedule[className][day][period] = newLesson;
         console.log(
           `Substituted teacher ${currentTeacher.name} with ${teacher.name} for ${lessonName} in class ${className}`,
@@ -907,8 +929,8 @@ export class Timetable {
 
     // Prioritize lessons by teacher availability (most constrained first)
     lessonQueue.sort((a, b) => {
-      const aSlots = a.teacher.getAvailableSlots().length;
-      const bSlots = b.teacher.getAvailableSlots().length;
+      const aSlots = getLessonTeacher(a).getAvailableSlots().length;
+      const bSlots = getLessonTeacher(b).getAvailableSlots().length;
       return aSlots - bSlots;
     });
 
@@ -916,11 +938,11 @@ export class Timetable {
     let placedCount = 0;
 
     for (const lesson of lessonQueue) {
-      const teacher = lesson.teacher;
+      const teacher = getLessonTeacher(lesson);
       let placed = false;
 
       // Get all valid slots for this teacher
-      const validSlots: { day: number; period: number }[] = [];
+      const validSlots: { day: number; period: number; score: number }[] = [];
 
       for (let day = 0; day < DAYS; day++) {
         for (let period = 0; period < PERIODS_PER_DAY; period++) {
@@ -929,7 +951,7 @@ export class Timetable {
             teacher.isAvailable(day, period) &&
             !this.isTeacherBusy(teacher, day, period, className)
           ) {
-            validSlots.push({ day, period });
+            validSlots.push({ day, period, score: 10 });
           }
         }
       }
@@ -1063,8 +1085,8 @@ export class Timetable {
 
       // Check that the swap doesn't create new conflicts
       if (lesson1 && lesson2) {
-        const teacher1 = lesson1.teacher;
-        const teacher2 = lesson2.teacher;
+        const teacher1 = getLessonTeacher(lesson1);
+        const teacher2 = getLessonTeacher(lesson2);
 
         const teacher1CanSwap =
           teacher1.isAvailable(day2, period2) &&
@@ -1122,14 +1144,17 @@ export class Timetable {
     const maxLessonNameLength = Math.max(
       ...this.classes.map(cls =>
         Math.max(
-          ...cls.lessons.map(lesson => lesson.name.length),
+          ...cls.lessons.map(lesson => getLessonName(lesson).length),
           "Free".length,
         ),
       ),
     );
     const maxTeacherNameLength = Math.max(
       ...this.classes.map(cls =>
-        Math.max(...cls.lessons.map(lesson => lesson.teacher.name.length), 0),
+        Math.max(
+          ...cls.lessons.map(lesson => getLessonTeacher(lesson).name.length),
+          0,
+        ),
       ),
     );
     const maxCellWidth = maxLessonNameLength + maxTeacherNameLength + 3;
@@ -1160,7 +1185,7 @@ export class Timetable {
           const isGap = lesson === null && period < lessonCount;
 
           if (lesson) {
-            const lessonStr = `${lesson.name} (${lesson.teacher.name})`;
+            const lessonStr = `${getLessonName(lesson)} (${getLessonTeacher(lesson).name})`;
             daySchedule += ` ${padRight(lessonStr, maxCellWidth)} |`;
           } else {
             if (isGap) {
@@ -1342,7 +1367,7 @@ export class Timetable {
         for (let day = 0; day < DAYS; day++) {
           const lesson = schedule[day][period];
           if (lesson) {
-            html += `<td><div class="lesson">${lesson.name}</div><div class="teacher">${lesson.teacher.name}</div></td>`;
+            html += `<td><div class="lesson">${getLessonName(lesson)}</div><div class="teacher">${getLessonTeacher(lesson).name}</div></td>`;
           } else {
             html += '<td class="free">Free</td>';
           }
@@ -1606,7 +1631,7 @@ export class Timetable {
         for (let period = 0; period < PERIODS_PER_DAY; period++) {
           const lesson = this.schedule[className][day][period];
           if (lesson) {
-            const teacherName = lesson.teacher.name;
+            const teacherName = getLessonTeacher(lesson).name;
 
             // Initialize teacher schedule
             if (!teacherSchedules.has(teacherName)) {
@@ -1625,7 +1650,7 @@ export class Timetable {
             // Save the lesson for this period
             daySchedule.set(period, {
               class: className,
-              lessonName: lesson.name,
+              lessonName: getLessonName(lesson),
             });
           }
         }
@@ -1730,7 +1755,7 @@ export class Timetable {
 
       // Find the teacher object to check availability
       const teacher = this.classes
-        .flatMap(cls => cls.lessons.map(l => l.teacher))
+        .flatMap(cls => cls.lessons.map(l => getLessonTeacher(l)))
         .find(t => t.name === teacherName);
 
       if (!teacher) continue;
@@ -2044,7 +2069,7 @@ export class Timetable {
     const lesson = timetable.schedule[className][day][period];
     if (!lesson) return false;
 
-    const teacher = lesson.teacher;
+    const teacher = getLessonTeacher(lesson);
 
     // Create a list of all possible slots sorted by preference:
     // 1. Same day, different period (to minimize disruption)
@@ -2117,7 +2142,7 @@ export class Timetable {
     const lesson = timetable.schedule[className][day][period];
     if (!lesson) return false;
 
-    const teacher = lesson.teacher;
+    const teacher = getLessonTeacher(lesson);
 
     // Find potential swap candidates in the same class
     type SwapCandidate = {
@@ -2139,7 +2164,7 @@ export class Timetable {
 
         // Only consider non-null lessons
         if (otherLesson) {
-          const otherTeacher = otherLesson.teacher;
+          const otherTeacher = getLessonTeacher(otherLesson);
 
           // Check if both teachers can be swapped
           const firstTeacherCanMoveTo =
@@ -2289,7 +2314,7 @@ export class Scheduler {
         for (const cls of timetable.classes) {
           const lesson = timetable.schedule[cls.name][day][period];
           if (lesson) {
-            const teacher = lesson.teacher;
+            const teacher = getLessonTeacher(lesson);
 
             // Check teacher availability
             if (!teacher.isAvailable(day, period)) {
@@ -2470,7 +2495,7 @@ export class Scheduler {
           const lesson = timetable.schedule[cls.name][day][period];
           if (!lesson) continue;
 
-          const teacher = lesson.teacher;
+          const teacher = getLessonTeacher(lesson);
           const teacherName = teacher.name;
 
           if (!teacherAssignments.has(teacherName)) {
@@ -2501,12 +2526,12 @@ export class Scheduler {
           const lesson = timetable.schedule[cls.name][day][period];
           if (!lesson) continue;
 
-          const teacher = lesson.teacher;
+          const teacher = getLessonTeacher(lesson);
 
           // CRITICAL CHECK: Remove if teacher is unavailable
           if (!teacher.isAvailable(day, period)) {
             console.error(
-              `EMERGENCY FIX: Removing lesson ${lesson.name} with unavailable teacher ${teacher.name} from class ${cls.name} on day ${day + 1}, period ${period + 1}`,
+              `EMERGENCY FIX: Removing lesson ${getLessonName(lesson)} with unavailable teacher ${teacher.name} from class ${cls.name} on day ${day + 1}, period ${period + 1}`,
             );
             timetable.schedule[cls.name][day][period] = null;
           }
@@ -2700,8 +2725,8 @@ export class Scheduler {
 
       // Initialize counts for each subject
       for (const lesson of cls.lessons) {
-        if (!subjectCounts.has(lesson.name)) {
-          subjectCounts.set(lesson.name, Array(DAYS).fill(0));
+        if (!subjectCounts.has(getLessonName(lesson))) {
+          subjectCounts.set(getLessonName(lesson), Array(DAYS).fill(0));
         }
       }
 
@@ -2710,7 +2735,7 @@ export class Scheduler {
         for (let period = 0; period < PERIODS_PER_DAY; period++) {
           const lesson = timetable.schedule[cls.name][day][period];
           if (lesson) {
-            const counts = subjectCounts.get(lesson.name)!;
+            const counts = subjectCounts.get(getLessonName(lesson))!;
             counts[day]++;
           }
         }
@@ -2750,13 +2775,13 @@ export class Scheduler {
             continue;
           }
 
-          if (lesson.name in classesObj) {
-            classesObj[lesson.name].count++;
-            if (classesObj[lesson.name].count > 2) {
+          if (getLessonName(lesson) in classesObj) {
+            classesObj[getLessonName(lesson)].count++;
+            if (classesObj[getLessonName(lesson)].count > 2) {
               sameClassesPenality += 1;
             }
           } else {
-            classesObj[lesson.name] = { count: 1 };
+            classesObj[getLessonName(lesson)] = { count: 1 };
           }
         }
       }
@@ -2789,7 +2814,7 @@ export class Scheduler {
         for (let period = 0; period < PERIODS_PER_DAY; period++) {
           const lesson = timetable.schedule[cls.name][day][period];
           if (lesson) {
-            const teacherName = lesson.teacher.name;
+            const teacherName = getLessonTeacher(lesson).name;
 
             if (!teacherSchedule.has(teacherName)) {
               teacherSchedule.set(teacherName, new Map());
@@ -3029,7 +3054,7 @@ export function exportLessonsToCSV(
 
     // Add data for each lesson
     for (const lesson of lessons) {
-      csvContent += `${lesson.name},${lesson.teacher.name},${lesson.periodsPerWeek},${className || ""}\r\n`;
+      csvContent += `${getLessonName(lesson)},${getLessonTeacher(lesson).name},${lesson.periodsPerWeek},${className || ""}\r\n`;
     }
 
     // Create and download the file
@@ -3252,11 +3277,12 @@ export function importLessonsFromCSV(
 
             // Create the lesson
             const periodsPerWeek = parseInt(periodsPerWeekStr) || 1;
-            const lesson = new Lesson(
-              subjectName.trim(),
+            const lesson = {
+              name: subjectName.trim(),
               teacher,
               periodsPerWeek,
-            );
+              type: "normal" as const,
+            };
 
             // Determine which class to add the lesson to
             let classToUpdate = className?.trim() || "";
@@ -3367,7 +3393,7 @@ export function exportAllDataToCSV(
 
       // Add lessons for each class
       for (const lesson of cls.lessons) {
-        csvContent += `${lesson.name},${lesson.teacher.name},${lesson.periodsPerWeek},${cls.name}\r\n`;
+        csvContent += `${getLessonName(lesson)},${getLessonTeacher(lesson).name},${lesson.periodsPerWeek},${cls.name}\r\n`;
       }
     }
 
@@ -3412,9 +3438,24 @@ export function generateExampleDataFile(): Promise<string> {
   exampleTeachers[0].availability.set(0, 2, false); // Monday, period 3
   exampleTeachers[1].availability.set(2, 1, false); // Wednesday, period 2
 
-  const math = new Lesson("Mathematics", exampleTeachers[0], 5);
-  const english = new Lesson("English", exampleTeachers[1], 4);
-  const science = new Lesson("Science", exampleTeachers[0], 3);
+  const math = {
+    name: "Mathematics",
+    teacher: exampleTeachers[0],
+    periodsPerWeek: 5,
+    type: "normal" as const,
+  };
+  const english = {
+    name: "English",
+    teacher: exampleTeachers[1],
+    periodsPerWeek: 4,
+    type: "normal" as const,
+  };
+  const science = {
+    name: "Science",
+    teacher: exampleTeachers[0],
+    periodsPerWeek: 3,
+    type: "normal" as const,
+  };
 
   const exampleClasses = [
     new Class("10A", [math, english]),
@@ -3554,11 +3595,12 @@ export function importAllDataFromCSV(
 
               // Create the lesson
               const periodsPerWeek = parseInt(periodsPerWeekStr) || 1;
-              const lesson = new Lesson(
-                subjectName.trim(),
+              const lesson = {
+                name: subjectName.trim(),
                 teacher,
                 periodsPerWeek,
-              );
+                type: "normal" as const,
+              };
 
               // Get or create the class
               if (!classMap.has(className.trim())) {
@@ -3719,7 +3761,12 @@ function parseSimpleCsvFormat(csvText: string): {
         }
 
         // Create the lesson
-        const lesson = new Lesson(subjectName, teacher, periodsPerWeek);
+        const lesson = {
+          name: subjectName,
+          teacher,
+          periodsPerWeek,
+          type: "normal" as const,
+        };
 
         // Add to class
         if (!classMap.has(className)) {

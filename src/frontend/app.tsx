@@ -1,14 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import {
-  Scheduler,
   Teacher,
   Class,
   Timetable,
   Availability,
   DAYS,
   PERIODS_PER_DAY,
-  Lesson,
 } from "../util/timetable";
 import Sidebar from "./components/Sidebar";
 import TimetableDisplay from "./components/TimetableDisplay";
@@ -56,18 +54,16 @@ const useStorageAvailability = () => {
 /**
  * Helper function to properly reconstruct Teacher objects
  */
-const reconstructTeacher = (teacherData: any): Teacher => {
+const reconstructTeacher = (teacherData: unknown): Teacher => {
+  const t = teacherData as { name: string; availability: { buffer: number[] } };
   // Create availability
   const availability = new Availability(DAYS, PERIODS_PER_DAY);
-  if (
-    teacherData.availability &&
-    Array.isArray(teacherData.availability.buffer)
-  ) {
-    availability.buffer = [...teacherData.availability.buffer];
+  if (t.availability && Array.isArray(t.availability.buffer)) {
+    availability.buffer = [...t.availability.buffer];
   }
 
   // Create teacher with proper prototype methods
-  return new Teacher(teacherData.name, availability);
+  return new Teacher(t.name, availability);
 };
 
 /**
@@ -240,70 +236,64 @@ const StateProvider: React.FC<{
       // Reconstruct objects with their methods
       if (parsedState.teachers && Array.isArray(parsedState.teachers)) {
         console.log(`Reconstructing ${parsedState.teachers.length} teachers`);
-        const reconstructedTeachers = parsedState.teachers.map((t: any) =>
+        const reconstructedTeachers = parsedState.teachers.map((t: unknown) =>
           reconstructTeacher(t),
         );
         setTeachers(reconstructedTeachers);
       }
 
+      // In state rehydration, use getLessonTeacher/getLessonName and object literal for lessons
       if (parsedState.classes && Array.isArray(parsedState.classes)) {
-        console.log(`Reconstructing ${parsedState.classes.length} classes`);
-        const reconstructedClasses = parsedState.classes.map((c: any) => {
-          // First reconstruct all the teachers for the lessons
-          const lessons = c.lessons.map((l: any) => {
-            const teacher = reconstructTeacher(l.teacher);
-            return new Lesson(l.name, teacher, l.periodsPerWeek);
+        const reconstructedClasses = parsedState.classes.map((c: unknown) => {
+          const classObj = c as { name: string; lessons: unknown[] };
+          const lessons = classObj.lessons.map((l: unknown) => {
+            const lessonObj = l as {
+              name: string;
+              teacher: unknown;
+              periodsPerWeek: number;
+            };
+            const teacher = reconstructTeacher(lessonObj.teacher);
+            return {
+              name: lessonObj.name,
+              teacher,
+              periodsPerWeek: lessonObj.periodsPerWeek,
+              type: "normal" as const,
+            };
           });
-          return new Class(c.name, lessons);
+          return new Class(classObj.name, lessons);
         });
         setClasses(reconstructedClasses);
       }
 
       if (parsedState.generatedTimetable && parsedState.classes) {
-        console.log("Reconstructing timetable");
         try {
-          // Reconstruct classes first for the timetable
-          const timetableClasses = parsedState.classes.map((c: any) => {
-            const lessons = c.lessons.map((l: any) => {
-              const teacher = reconstructTeacher(l.teacher);
-              return new Lesson(l.name, teacher, l.periodsPerWeek);
+          const timetableClasses = parsedState.classes.map((c: unknown) => {
+            const classObj = c as { name: string; lessons: unknown[] };
+            const lessons = classObj.lessons.map((l: unknown) => {
+              const lessonObj = l as {
+                name: string;
+                teacher: unknown;
+                periodsPerWeek: number;
+              };
+              const teacher = reconstructTeacher(lessonObj.teacher);
+              return {
+                name: lessonObj.name,
+                teacher,
+                periodsPerWeek: lessonObj.periodsPerWeek,
+                type: "normal" as const,
+              };
             });
-            return new Class(c.name, lessons);
+            return new Class(classObj.name, lessons);
           });
-
           const timetable = new Timetable(timetableClasses);
           if (parsedState.generatedTimetable.schedule) {
             timetable.schedule = parsedState.generatedTimetable.schedule;
-
-            // Make sure all lessons in the schedule have proper teacher objects
-            for (const className in timetable.schedule) {
-              const classSchedule = timetable.schedule[className];
-              for (let day = 0; day < DAYS; day++) {
-                for (let period = 0; period < PERIODS_PER_DAY; period++) {
-                  const lesson = classSchedule[day][period];
-                  if (lesson && lesson.teacher) {
-                    // Replace teacher object with properly reconstructed one
-                    // Find the matching teacher from our list
-                    const matchingTeacher = timetableClasses
-                      .flatMap((c: Class) => c.lessons)
-                      .find(
-                        (l: Lesson) => l.teacher.name === lesson.teacher.name,
-                      )?.teacher;
-
-                    if (matchingTeacher) {
-                      lesson.teacher = matchingTeacher;
-                    } else {
-                      // If no matching teacher, reconstruct from data
-                      lesson.teacher = reconstructTeacher(lesson.teacher);
-                    }
-                  }
-                }
-              }
-            }
+            // No need to mutate lesson.teacher directly, as lessons are now plain objects
+            // and teacher references are set during reconstruction above.
           }
           setGeneratedTimetable(timetable);
-        } catch (e) {
-          console.error("Error reconstructing timetable:", e);
+        } catch (err) {
+          console.error("Error reconstructing timetable:", err);
         }
       }
 

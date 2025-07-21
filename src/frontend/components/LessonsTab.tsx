@@ -1,12 +1,14 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import ThemeButton from "./common/ThemeButton";
 import {
   Class,
   Lesson,
   Teacher,
-  exportLessonsToCSV,
   importLessonsFromCSV,
   exportClassLessonsToCSV,
+  getLessonName,
+  getLessonTeacher,
+  isAlternatingLesson,
 } from "../../util/timetable";
 import GradientButton from "./common/GradientButton";
 import GradientContainer from "./common/GradientContainer";
@@ -62,35 +64,80 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
       classFileInputRefs.current[index] = el;
     };
 
+  // Add state for lesson type and alternating fields
+  const [lessonType, setLessonType] = useState<"normal" | "alternating">(
+    "normal",
+  );
+  const [altLessonNames, setAltLessonNames] = useState<[string, string]>([
+    "",
+    "",
+  ]);
+  const [altTeacherIndexes, setAltTeacherIndexes] = useState<
+    [number | null, number | null]
+  >([null, null]);
+
   const handleAddLesson = () => {
-    if (
-      selectedClassIndex !== null &&
-      newLessonName.trim() &&
-      selectedTeacherIndex !== null &&
-      periodsPerWeek > 0
-    ) {
-      const newLesson = new Lesson(
-        newLessonName.trim(),
-        teachers[selectedTeacherIndex],
+    if (selectedClassIndex === null || periodsPerWeek <= 0) return;
+    let newLesson: Lesson;
+    if (lessonType === "normal") {
+      if (!newLessonName.trim() || selectedTeacherIndex === null) return;
+      newLesson = {
+        name: newLessonName.trim(),
+        teacher: teachers[selectedTeacherIndex],
         periodsPerWeek,
-      );
-
-      const updatedClasses = [...classes];
-      const currentClass = updatedClasses[selectedClassIndex];
-
-      // Create a new class object with the updated lessons array
-      updatedClasses[selectedClassIndex] = new Class(currentClass.name, [
-        ...currentClass.lessons,
-        newLesson,
-      ]);
-
-      onClassesChange(updatedClasses);
-
-      // Reset form
-      setNewLessonName("");
-      setPeriodsPerWeek(1);
+        type: "normal",
+      };
+    } else {
+      if (
+        !altLessonNames[0].trim() ||
+        !altLessonNames[1].trim() ||
+        altTeacherIndexes[0] === null ||
+        altTeacherIndexes[1] === null
+      )
+        return;
+      newLesson = {
+        names: [altLessonNames[0].trim(), altLessonNames[1].trim()],
+        teachers: [
+          teachers[altTeacherIndexes[0]],
+          teachers[altTeacherIndexes[1]],
+        ],
+        periodsPerWeek,
+        type: "alternating",
+      };
     }
+    const updatedClasses = [...classes];
+    const currentClass = updatedClasses[selectedClassIndex];
+    updatedClasses[selectedClassIndex] = new Class(currentClass.name, [
+      ...currentClass.lessons,
+      newLesson,
+    ]);
+    onClassesChange(updatedClasses);
+    setNewLessonName("");
+    setPeriodsPerWeek(1);
+    setAltLessonNames(["", ""]);
+    setAltTeacherIndexes([null, null]);
   };
+
+  const isDisabledButton = useMemo(() => {
+    if (lessonType === "normal") {
+      return newLessonName.trim().length === 0 || selectedTeacherIndex === null;
+    } else {
+      return (
+        altLessonNames[0].trim().length === 0 ||
+        altLessonNames[1].trim().length === 0 ||
+        altTeacherIndexes[0] === null ||
+        altTeacherIndexes[1] === null ||
+        altLessonNames[0] === altLessonNames[1] ||
+        altTeacherIndexes[0] === altTeacherIndexes[1]
+      );
+    }
+  }, [
+    lessonType,
+    newLessonName,
+    selectedTeacherIndex,
+    altLessonNames,
+    altTeacherIndexes,
+  ]);
 
   const handleRemoveLesson = (classIndex: number, lessonIndex: number) => {
     const updatedClasses = [...classes];
@@ -108,14 +155,14 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
   const handleStartEditLesson = (classIndex: number, lessonIndex: number) => {
     const lesson = classes[classIndex].lessons[lessonIndex];
     const teacherIndex = teachers.findIndex(
-      t => t.name === lesson.teacher.name,
+      t => t.name === getLessonTeacher(lesson).name,
     );
 
     if (teacherIndex !== -1) {
       setEditingLesson({
         classIndex,
         lessonIndex,
-        name: lesson.name,
+        name: getLessonName(lesson),
         teacherIndex,
         periodsPerWeek: lesson.periodsPerWeek,
       });
@@ -127,18 +174,17 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
       const updatedClasses = [...classes];
       const currentClass = updatedClasses[editingLesson.classIndex];
       const updatedLessons = [...currentClass.lessons];
-
-      updatedLessons[editingLesson.lessonIndex] = new Lesson(
-        editingLesson.name.trim(),
-        teachers[editingLesson.teacherIndex],
-        editingLesson.periodsPerWeek,
-      );
-
+      // Only allow editing normal lessons for now
+      updatedLessons[editingLesson.lessonIndex] = {
+        name: editingLesson.name.trim(),
+        teacher: teachers[editingLesson.teacherIndex],
+        periodsPerWeek: editingLesson.periodsPerWeek,
+        type: "normal" as const,
+      };
       updatedClasses[editingLesson.classIndex] = new Class(
         currentClass.name,
         updatedLessons,
       );
-
       onClassesChange(updatedClasses);
       setEditingLesson(null);
     }
@@ -157,22 +203,19 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
     const updatedClasses = [...classes];
     const currentClass = updatedClasses[classIndex];
     const lesson = currentClass.lessons[lessonIndex];
-
-    // Create new lesson with updated periods per week
-    const updatedLesson = new Lesson(
-      lesson.name,
-      lesson.teacher,
-      Math.max(1, newValue),
-    );
-
-    // Update the lesson in the class
-    const updatedLessons = [...currentClass.lessons];
-    updatedLessons[lessonIndex] = updatedLesson;
-
-    // Create new class with updated lessons
-    updatedClasses[classIndex] = new Class(currentClass.name, updatedLessons);
-
-    onClassesChange(updatedClasses);
+    // Only allow quick edit for normal lessons
+    if (lesson.type === "normal") {
+      const updatedLesson = {
+        name: getLessonName(lesson),
+        teacher: getLessonTeacher(lesson),
+        periodsPerWeek: Math.max(1, newValue),
+        type: "normal" as const,
+      };
+      const updatedLessons = [...currentClass.lessons];
+      updatedLessons[lessonIndex] = updatedLesson;
+      updatedClasses[classIndex] = new Class(currentClass.name, updatedLessons);
+      onClassesChange(updatedClasses);
+    }
   };
 
   // Update the export all lessons handler
@@ -186,7 +229,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
     classes.forEach(cls => {
       // Add class separator before each class except the first
       cls.lessons.forEach(lesson => {
-        csvContent += `${lesson.name},${lesson.teacher.name},${lesson.periodsPerWeek},${cls.name}\r\n`;
+        csvContent += `${getLessonName(lesson)},${getLessonTeacher(lesson).name},${lesson.periodsPerWeek},${cls.name}\r\n`;
       });
     });
 
@@ -297,9 +340,17 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                       />
                     ) : (
                       <div>
-                        <span className="font-medium text-slate-700 dark:text-slate-100">
-                          {lesson.name}
-                        </span>
+                        {isAlternatingLesson(lesson) ? (
+                          <div>
+                            <span className="font-medium text-slate-700 dark:text-slate-100">
+                              {lesson.names[0]} / {lesson.names[1]}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="font-medium text-slate-700 dark:text-slate-100">
+                            {getLessonName(lesson)}
+                          </span>
+                        )}
                         <div className="mt-1 md:hidden">
                           <div className="mt-2 flex gap-2">
                             <ColorButton
@@ -345,9 +396,20 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                       </select>
                     ) : (
                       <div className="flex flex-col">
-                        <span className="text-bold text-gray-700">
-                          {lesson.teacher.name}
-                        </span>
+                        {isAlternatingLesson(lesson) ? (
+                          <div className="flex flex-col">
+                            <span className="text-bold text-gray-700">
+                              {getLessonTeacher(lesson).name} /{" "}
+                              {getLessonTeacher(lesson).name}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col">
+                            <span className="text-bold text-gray-700">
+                              {getLessonTeacher(lesson).name}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     )}
                   </td>
@@ -628,7 +690,10 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                   {teachers.map(teacher => {
                     // Calculate total periods this teacher has with this class
                     const teacherPeriods = classes[selectedClassIndex].lessons
-                      .filter(lesson => lesson.teacher.name === teacher.name)
+                      .filter(
+                        lesson =>
+                          getLessonTeacher(lesson).name === teacher.name,
+                      )
                       .reduce(
                         (total, lesson) => total + lesson.periodsPerWeek,
                         0,
@@ -663,44 +728,151 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
 
               <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
-                  <label className="mb-2 block text-bold text-blue-500">
-                    Numele Materiei
-                  </label>
-                  <TextInput
-                    value={newLessonName}
-                    onChange={e => setNewLessonName(e.target.value)}
-                    placeholder="Numele materiei (ex. 'Matematică', 'Fizică')"
-                    className="w-full p-3"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-bold text-blue-500">
-                    Profesor
+                  <label className="text-bold mb-2 block text-blue-500">
+                    Tip Lecție
                   </label>
                   <select
-                    value={
-                      selectedTeacherIndex !== null ? selectedTeacherIndex : ""
-                    }
+                    value={lessonType}
                     onChange={e =>
-                      setSelectedTeacherIndex(
-                        e.target.value ? parseInt(e.target.value, 10) : null,
-                      )
+                      setLessonType(e.target.value as "normal" | "alternating")
                     }
-                    className="w-full rounded-lg border border-slate-600/50 bg-slate-100 p-3 backdrop-blur-sm transition-all duration-300 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
+                    className="w-full rounded-lg border border-slate-600/50 bg-slate-100 p-3"
                   >
-                    <option value="">Selectează Profesor</option>
-                    {teachers.map((teacher, index) => (
-                      <option key={index} value={index}>
-                        {teacher.name}
-                      </option>
-                    ))}
+                    <option value="normal">Normală</option>
+                    <option value="alternating">Alternantă</option>
                   </select>
                 </div>
+                {lessonType === "normal" ? (
+                  <>
+                    <div>
+                      <label className="text-bold mb-2 block text-blue-500">
+                        Numele Materiei
+                      </label>
+                      <TextInput
+                        value={newLessonName}
+                        onChange={e => setNewLessonName(e.target.value)}
+                        placeholder="Numele materiei (ex. 'Matematică', 'Fizică')"
+                        className="w-full p-3"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-bold mb-2 block text-blue-500">
+                        Profesor
+                      </label>
+                      <select
+                        value={
+                          selectedTeacherIndex !== null
+                            ? selectedTeacherIndex
+                            : ""
+                        }
+                        onChange={e =>
+                          setSelectedTeacherIndex(
+                            e.target.value
+                              ? parseInt(e.target.value, 10)
+                              : null,
+                          )
+                        }
+                        className="w-full rounded-lg border border-slate-600/50 bg-slate-100 p-3"
+                      >
+                        <option value="">Selectează Profesor</option>
+                        {teachers.map((teacher, index) => (
+                          <option key={index} value={index}>
+                            {teacher.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div>
+                      <label className="text-bold mb-2 block text-blue-500">
+                        Nume Materie (Săptămâna 1)
+                      </label>
+                      <TextInput
+                        value={altLessonNames[0]}
+                        onChange={e =>
+                          setAltLessonNames([e.target.value, altLessonNames[1]])
+                        }
+                        placeholder="ex. 'Arte'"
+                        className="w-full p-3"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-bold mb-2 block text-blue-500">
+                        Profesor (Săptămâna 1)
+                      </label>
+                      <select
+                        value={
+                          altTeacherIndexes[0] !== null
+                            ? altTeacherIndexes[0]
+                            : ""
+                        }
+                        onChange={e =>
+                          setAltTeacherIndexes([
+                            e.target.value
+                              ? parseInt(e.target.value, 10)
+                              : null,
+                            altTeacherIndexes[1],
+                          ])
+                        }
+                        className="w-full rounded-lg border border-slate-600/50 bg-slate-100 p-3"
+                      >
+                        <option value="">Selectează Profesor</option>
+                        {teachers.map((teacher, index) => (
+                          <option key={index} value={index}>
+                            {teacher.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-bold mb-2 block text-blue-500">
+                        Nume Materie (Săptămâna 2)
+                      </label>
+                      <TextInput
+                        value={altLessonNames[1]}
+                        onChange={e =>
+                          setAltLessonNames([altLessonNames[0], e.target.value])
+                        }
+                        placeholder="ex. 'Teorie Muzicală'"
+                        className="w-full p-3"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-bold mb-2 block text-blue-500">
+                        Profesor (Săptămâna 2)
+                      </label>
+                      <select
+                        value={
+                          altTeacherIndexes[1] !== null
+                            ? altTeacherIndexes[1]
+                            : ""
+                        }
+                        onChange={e =>
+                          setAltTeacherIndexes([
+                            altTeacherIndexes[0],
+                            e.target.value
+                              ? parseInt(e.target.value, 10)
+                              : null,
+                          ])
+                        }
+                        className="w-full rounded-lg border border-slate-600/50 bg-slate-100 p-3"
+                      >
+                        <option value="">Selectează Profesor</option>
+                        {teachers.map((teacher, index) => (
+                          <option key={index} value={index}>
+                            {teacher.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="mb-6">
-                <label className="mb-2 block text-bold text-blue-500">
+                <label className="text-bold mb-2 block text-blue-500">
                   Ore pe Săptămână
                 </label>
                 <div className="flex items-center gap-4">
@@ -721,14 +893,10 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                   <div className="inline-flex items-center"></div>
                 </div>
 
-
-
-
-                
                 <label className="group relative flex cursor-pointer items-center">
                   <input className="peer sr-only" type="checkbox" />
                   <div className="h-8 w-8 rounded-lg border-2 border-blue-500 bg-white from-blue-500 to-blue-900 transition-all duration-300 ease-in-out peer-checked:rotate-12 peer-checked:border-0 peer-checked:bg-gradient-to-br after:absolute after:top-1/2 after:left-1/2 after:h-5 after:w-5 after:-translate-x-1/2 after:-translate-y-1/2 after:bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cG9seWxpbmUgcG9pbnRzPSIyMCA2IDkgMTcgNCAxMiI+PC9wb2x5bGluZT48L3N2Zz4=')] after:bg-contain after:bg-no-repeat after:opacity-0 after:transition-opacity after:duration-300 after:content-[''] peer-checked:after:opacity-100 hover:shadow-[0_0_15px_rgba(168,85,247,0.5)]"></div>
-                  <span className="ml-3 text-medium font-medium text-gray-900">
+                  <span className="text-medium ml-3 font-medium text-gray-900">
                     Împare clasa in 2 grupe - Bilingv si Intensiv
                   </span>
                 </label>
@@ -737,9 +905,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
               <div className="text-center">
                 <button
                   onClick={handleAddLesson}
-                  disabled={
-                    !newLessonName.trim() || selectedTeacherIndex === null
-                  }
+                  disabled={isDisabledButton}
                   className={`relative transform rounded-xl px-6 py-2 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 md:px-8 md:py-3 ${
                     !newLessonName.trim() || selectedTeacherIndex === null
                       ? "cursor-not-allowed bg-gray-600"
