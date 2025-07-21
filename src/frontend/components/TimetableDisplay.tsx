@@ -5,6 +5,7 @@ import {
   PERIODS_PER_DAY,
   getLessonTeacher,
   getLessonName,
+  isAlternatingLesson,
 } from "../../util/timetable";
 
 interface TimetableDisplayProps {
@@ -449,7 +450,9 @@ const ClassTimetable: React.FC<{
                           className={`rounded-lg p-2 ${isConflict ? "border border-red-200" : "border border-blue-200"}`}
                         >
                           <div className="mb-1 font-medium text-gray-900">
-                            {getLessonName(lesson)}
+                            {isAlternatingLesson(lesson)
+                              ? `${lesson.names[0]} / ${lesson.names[1]}`
+                              : lesson.name}
                             {isAvailabilityConflict && (
                               <span className="ml-2 rounded-full bg-yellow-100 px-2 py-0.5 text-xs text-yellow-600">
                                 ⚠️ Unavailable
@@ -459,7 +462,9 @@ const ClassTimetable: React.FC<{
                           <div
                             className={`text-sm ${isConflict ? "text-red-600" : "text-blue-600"}`}
                           >
-                            {getLessonTeacher(lesson).name}
+                            {isAlternatingLesson(lesson)
+                              ? `${lesson.teachers[0].name} / ${lesson.teachers[1].name}`
+                              : lesson.teacher.name}
                           </div>
                         </div>
                       ) : (

@@ -399,8 +399,8 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                         {isAlternatingLesson(lesson) ? (
                           <div className="flex flex-col">
                             <span className="text-bold text-gray-700">
-                              {getLessonTeacher(lesson).name} /{" "}
-                              {getLessonTeacher(lesson).name}
+                              {lesson.teachers[0].name} /{" "}
+                              {lesson.teachers[1].name}
                             </span>
                           </div>
                         ) : (
