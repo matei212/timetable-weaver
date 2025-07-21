@@ -559,23 +559,21 @@ export class Timetable {
         for (const cls of this.classes) {
           const lesson = this.schedule[cls.name][day][period];
           if (!lesson) continue;
-
-          const teacher = getLessonTeacher(lesson);
-          const teacherName = teacher.name;
-
-          // First check: Is teacher available at this time?
-          if (!teacher.isAvailable(day, period)) {
-            console.error(
-              `AVAILABILITY CONFLICT: ${teacherName} is scheduled but unavailable on day ${day + 1}, period ${period + 1} for class ${cls.name}`,
-            );
-            conflicts += 2000; // Reduced penalty for availability violation
-          }
-
-          // Track teacher usage for this time slot
-          if (!teacherUsage.has(teacherName)) {
-            teacherUsage.set(teacherName, [cls.name]);
-          } else {
-            teacherUsage.get(teacherName)!.push(cls.name);
+          const teachers = getAllTeachers(lesson);
+          // Check all teachers for availability
+          for (const teacher of teachers) {
+            if (!teacher.isAvailable(day, period)) {
+              console.error(
+                `AVAILABILITY CONFLICT: ${teacher.name} is scheduled but unavailable on day ${day + 1}, period ${period + 1} for class ${cls.name}`,
+              );
+              conflicts += 2000;
+            }
+            // Track teacher usage for this time slot
+            if (!teacherUsage.has(teacher.name)) {
+              teacherUsage.set(teacher.name, [cls.name]);
+            } else {
+              teacherUsage.get(teacher.name)!.push(cls.name);
+            }
           }
         }
 
@@ -697,37 +695,39 @@ export class Timetable {
           const lesson = schedule[day][period];
 
           if (lesson) {
-            const teacher = getLessonTeacher(lesson);
-
-            // Check availability conflict
-            if (!teacher.isAvailable(day, period)) {
-              conflicts.push({
-                type: "availability",
-                className: cls.name,
-                day,
-                period,
-                teacherName: teacher.name,
-              });
-            }
-
-            // Check double booking conflict
-            if (!teacherAssignments[day][period].has(teacher.name)) {
-              teacherAssignments[day][period].set(teacher.name, [cls.name]);
-            } else {
-              const classes = teacherAssignments[day][period].get(
-                teacher.name,
-              )!;
-              classes.push(cls.name);
-
-              // Only add a conflict for the second and subsequent occurrences
-              if (classes.length === 2) {
+            console.log(
+              "Availability conflict",
+              getLessonName(lesson),
+              day,
+              period,
+            );
+            const teachers = getAllTeachers(lesson);
+            for (const teacher of teachers) {
+              if (!teacher.isAvailable(day, period)) {
                 conflicts.push({
-                  type: "double_booking",
+                  type: "availability",
                   className: cls.name,
                   day,
                   period,
                   teacherName: teacher.name,
                 });
+              }
+              if (!teacherAssignments[day][period].has(teacher.name)) {
+                teacherAssignments[day][period].set(teacher.name, [cls.name]);
+              } else {
+                const classes = teacherAssignments[day][period].get(
+                  teacher.name,
+                )!;
+                classes.push(cls.name);
+                if (classes.length === 2) {
+                  conflicts.push({
+                    type: "double_booking",
+                    className: cls.name,
+                    day,
+                    period,
+                    teacherName: teacher.name,
+                  });
+                }
               }
             }
           }
@@ -1185,8 +1185,12 @@ export class Timetable {
           const isGap = lesson === null && period < lessonCount;
 
           if (lesson) {
-            const lessonStr = `${getLessonName(lesson)} (${getLessonTeacher(lesson).name})`;
-            daySchedule += ` ${padRight(lessonStr, maxCellWidth)} |`;
+            if (isAlternatingLesson(lesson)) {
+              daySchedule += ` ${padRight(`${lesson.names[0]} / ${lesson.names[1]}`, maxCellWidth)} |`;
+            } else {
+              daySchedule += ` ${padRight(lesson.name, maxCellWidth)} |`;
+            }
+            daySchedule += ` ${padRight(getLessonTeacher(lesson).name, maxCellWidth)} |`;
           } else {
             if (isGap) {
               daySchedule += ` ${padRight("GAP ERROR", maxCellWidth)} |`;
@@ -1367,7 +1371,11 @@ export class Timetable {
         for (let day = 0; day < DAYS; day++) {
           const lesson = schedule[day][period];
           if (lesson) {
-            html += `<td><div class="lesson">${getLessonName(lesson)}</div><div class="teacher">${getLessonTeacher(lesson).name}</div></td>`;
+            if (isAlternatingLesson(lesson)) {
+              html += `<td><div class="lesson">${lesson.names[0]} / ${lesson.names[1]}</div><div class="teacher">${lesson.teachers[0].name} / ${lesson.teachers[1].name}</div></td>`;
+            } else {
+              html += `<td><div class="lesson">${lesson.name}</div><div class="teacher">${lesson.teacher.name}</div></td>`;
+            }
           } else {
             html += '<td class="free">Free</td>';
           }
@@ -1774,13 +1782,27 @@ export class Timetable {
         html += `<tr><th>Period ${period + 1}</th>`;
 
         for (let day = 0; day < DAYS; day++) {
-          const daySchedule = teacherSchedule.get(day);
-          const lesson = daySchedule?.get(period);
-
+          let lesson: Lesson | null = null;
+          let className: string | null = null;
+          // Find the lesson object for this teacher at this slot
+          for (const cls of this.classes) {
+            const candidate = this.schedule[cls.name][day][period];
+            if (
+              candidate &&
+              getAllTeachers(candidate).some(t => t.name === teacherName)
+            ) {
+              lesson = candidate;
+              className = cls.name;
+              break;
+            }
+          }
           if (lesson) {
-            html += `<td><div class="subject-name">${lesson.lessonName}</div><div class="class-name">Class ${lesson.class}</div></td>`;
+            if (isAlternatingLesson(lesson)) {
+              html += `<td><div class="subject-name">${lesson.names[0]} / ${lesson.names[1]}</div><div class="class-name">Class ${className ?? ""}</div></td>`;
+            } else {
+              html += `<td><div class="subject-name">${lesson.name}</div><div class="class-name">Class ${className ?? ""}</div></td>`;
+            }
           } else if (teacher && !teacher.isAvailable(day, period)) {
-            // Teacher is unavailable during this period
             html += '<td class="unavailable">Indisponibil</td>';
           } else {
             html += '<td class="free">Liber</td>';
@@ -2069,7 +2091,8 @@ export class Timetable {
     const lesson = timetable.schedule[className][day][period];
     if (!lesson) return false;
 
-    const teacher = getLessonTeacher(lesson);
+    // Use all teachers for alternating lessons
+    const teachers = getAllTeachers(lesson);
 
     // Create a list of all possible slots sorted by preference:
     // 1. Same day, different period (to minimize disruption)
@@ -2081,10 +2104,9 @@ export class Timetable {
       if (
         p !== period &&
         timetable.schedule[className][day][p] === null &&
-        teacher.isAvailable(day, p) &&
-        !this.isTeacherBusy(teacher, day, p, className)
+        teachers.every(t => t.isAvailable(day, p)) &&
+        teachers.every(t => !this.isTeacherBusy(t, day, p, className))
       ) {
-        // Higher score for same day slots
         candidateSlots.push({ day, period: p, score: 10 });
       }
     }
@@ -2092,14 +2114,12 @@ export class Timetable {
     // Then check other days
     for (let d = 0; d < DAYS; d++) {
       if (d === day) continue;
-
       for (let p = 0; p < PERIODS_PER_DAY; p++) {
         if (
           timetable.schedule[className][d][p] === null &&
-          teacher.isAvailable(d, p) &&
-          !this.isTeacherBusy(teacher, d, p, className)
+          teachers.every(t => t.isAvailable(d, p)) &&
+          teachers.every(t => !this.isTeacherBusy(t, d, p, className))
         ) {
-          // Score based on how far from original day (closer is better)
           const dayDistance = Math.abs(d - day);
           candidateSlots.push({ day: d, period: p, score: 9 - dayDistance });
         }
@@ -2112,12 +2132,8 @@ export class Timetable {
     // Try the best slot
     if (candidateSlots.length > 0) {
       const bestSlot = candidateSlots[0];
-
-      // Move the lesson
       timetable.schedule[className][bestSlot.day][bestSlot.period] = lesson;
       timetable.schedule[className][day][period] = null;
-
-      // Compact to avoid gaps
       timetable.compactSchedule();
       return true;
     }
@@ -3054,7 +3070,13 @@ export function exportLessonsToCSV(
 
     // Add data for each lesson
     for (const lesson of lessons) {
-      csvContent += `${getLessonName(lesson)},${getLessonTeacher(lesson).name},${lesson.periodsPerWeek},${className || ""}\r\n`;
+      if (isAlternatingLesson(lesson)) {
+        const subjectName = `${lesson.names[0]} / ${lesson.names[1]}`;
+        const teacherName = `${lesson.teachers[0].name} / ${lesson.teachers[1].name}`;
+        csvContent += `${subjectName},${teacherName},${lesson.periodsPerWeek},${className || ""}\r\n`;
+      } else {
+        csvContent += `${lesson.name},${lesson.teacher.name},${lesson.periodsPerWeek},${className || ""}\r\n`;
+      }
     }
 
     // Create and download the file
@@ -3266,23 +3288,49 @@ export function importLessonsFromCSV(
             // Skip empty entries
             if (!subjectName.trim() || !teacherName.trim()) continue;
 
-            // Find the teacher by name
-            const teacher = teachers.find(t => t.name === teacherName.trim());
-            if (!teacher) {
-              console.warn(
-                `Teacher "${teacherName}" not found, skipping lesson "${subjectName}"`,
-              );
-              continue;
-            }
+            const subjectParts = subjectName.trim().split(" / ");
+            const teacherParts = teacherName.trim().split(" / ");
+            let lesson: Lesson;
 
-            // Create the lesson
-            const periodsPerWeek = parseInt(periodsPerWeekStr) || 1;
-            const lesson = {
-              name: subjectName.trim(),
-              teacher,
-              periodsPerWeek,
-              type: "normal" as const,
-            };
+            if (subjectParts.length === 2 && teacherParts.length === 2) {
+              const teachersFound = [
+                teachers.find(t => t.name === teacherParts[0].trim()),
+                teachers.find(t => t.name === teacherParts[1].trim()),
+              ];
+
+              if (teachersFound[0] && teachersFound[1]) {
+                const periodsPerWeek = parseInt(periodsPerWeekStr) || 1;
+                lesson = {
+                  names: [subjectParts[0].trim(), subjectParts[1].trim()],
+                  teachers: [teachersFound[0], teachersFound[1]],
+                  periodsPerWeek,
+                  type: "alternating",
+                };
+              } else {
+                console.warn(
+                  `One or both teachers for alternating lesson "${subjectName}" not found, skipping.`,
+                );
+                continue;
+              }
+            } else {
+              // Find the teacher by name
+              const teacher = teachers.find(t => t.name === teacherName.trim());
+              if (!teacher) {
+                console.warn(
+                  `Teacher "${teacherName}" not found, skipping lesson "${subjectName}"`,
+                );
+                continue;
+              }
+
+              // Create the lesson
+              const periodsPerWeek = parseInt(periodsPerWeekStr) || 1;
+              lesson = {
+                name: subjectName.trim(),
+                teacher,
+                periodsPerWeek,
+                type: "normal",
+              };
+            }
 
             // Determine which class to add the lesson to
             let classToUpdate = className?.trim() || "";
@@ -3393,7 +3441,13 @@ export function exportAllDataToCSV(
 
       // Add lessons for each class
       for (const lesson of cls.lessons) {
-        csvContent += `${getLessonName(lesson)},${getLessonTeacher(lesson).name},${lesson.periodsPerWeek},${cls.name}\r\n`;
+        if (isAlternatingLesson(lesson)) {
+          const subjectName = `${lesson.names[0]} / ${lesson.names[1]}`;
+          const teacherName = `${lesson.teachers[0].name} / ${lesson.teachers[1].name}`;
+          csvContent += `${subjectName},${teacherName},${lesson.periodsPerWeek},${cls.name}\r\n`;
+        } else {
+          csvContent += `${lesson.name},${lesson.teacher.name},${lesson.periodsPerWeek},${cls.name}\r\n`;
+        }
       }
     }
 
@@ -3584,23 +3638,51 @@ export function importAllDataFromCSV(
                 continue;
               }
 
-              // Find the teacher by name
-              const teacher = teachers.find(t => t.name === teacherName.trim());
-              if (!teacher) {
-                console.warn(
-                  `Teacher "${teacherName}" not found, skipping lesson "${subjectName}"`,
-                );
-                continue;
-              }
+              const subjectParts = subjectName.trim().split(" / ");
+              const teacherParts = teacherName.trim().split(" / ");
+              let lesson: Lesson;
 
-              // Create the lesson
-              const periodsPerWeek = parseInt(periodsPerWeekStr) || 1;
-              const lesson = {
-                name: subjectName.trim(),
-                teacher,
-                periodsPerWeek,
-                type: "normal" as const,
-              };
+              if (subjectParts.length === 2 && teacherParts.length === 2) {
+                const teachersFound = [
+                  teachers.find(t => t.name === teacherParts[0].trim()),
+                  teachers.find(t => t.name === teacherParts[1].trim()),
+                ];
+
+                if (teachersFound[0] && teachersFound[1]) {
+                  const periodsPerWeek = parseInt(periodsPerWeekStr) || 1;
+                  lesson = {
+                    names: [subjectParts[0].trim(), subjectParts[1].trim()],
+                    teachers: [teachersFound[0], teachersFound[1]],
+                    periodsPerWeek,
+                    type: "alternating",
+                  };
+                } else {
+                  console.warn(
+                    `One or both teachers for alternating lesson "${subjectName}" not found, skipping.`,
+                  );
+                  continue;
+                }
+              } else {
+                // Find the teacher by name
+                const teacher = teachers.find(
+                  t => t.name === teacherName.trim(),
+                );
+                if (!teacher) {
+                  console.warn(
+                    `Teacher "${teacherName}" not found, skipping lesson "${subjectName}"`,
+                  );
+                  continue;
+                }
+
+                // Create the lesson
+                const periodsPerWeek = parseInt(periodsPerWeekStr) || 1;
+                lesson = {
+                  name: subjectName.trim(),
+                  teacher,
+                  periodsPerWeek,
+                  type: "normal",
+                };
+              }
 
               // Get or create the class
               if (!classMap.has(className.trim())) {
@@ -3784,4 +3866,9 @@ function parseSimpleCsvFormat(csvText: string): {
     teachers: teachers,
     classes: Array.from(classMap.values()),
   };
+}
+
+// Helper for getting all teachers for a lesson
+function getAllTeachers(lesson: Lesson): Teacher[] {
+  return isAlternatingLesson(lesson) ? lesson.teachers : [lesson.teacher];
 }
