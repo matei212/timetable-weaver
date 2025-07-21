@@ -309,7 +309,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                   Profesor
                 </th>
                 <th className="border-b border-slate-600/50 p-3 text-center font-medium tracking-wide">
-                  de ore
+                  ore
                 </th>
                 <th className="hidden w-32 border-b border-slate-600/50 p-3 text-center font-medium tracking-wide md:table-cell">
                   Acțiuni
@@ -562,7 +562,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                   <div className="font-medium text-gray-700">{cls.name}</div>
                   <div className="mt-1 text-sm">
                     {cls.lessons.length} lecții, {cls.getTotalPeriodsPerWeek()}{" "}
-                    de ore
+                    ore
                   </div>
                 </button>
               ))}
@@ -717,7 +717,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                                 : "bg-slate-700/20 dark:text-slate-400"
                             }`}
                           >
-                            {teacherPeriods} de ore
+                            {teacherPeriods} ore
                           </span>
                         </div>
                       </div>
@@ -727,7 +727,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
               </GradientContainer>
 
               <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-                <div>
+                <div className="col-span-full">
                   <label className="text-bold mb-2 block text-blue-500">
                     Tip Lecție
                   </label>
