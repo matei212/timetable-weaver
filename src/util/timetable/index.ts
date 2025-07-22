@@ -3575,6 +3575,26 @@ export function generateExampleDataFile(): Promise<string> {
   );
 }
 
+function parseTeacherCSVLine(line: string) {
+  let name = "";
+  const availability = new Availability(DAYS, PERIODS_PER_DAY);
+
+  const parts = line.split(",");
+  if (parts.length >= 1 + DAYS) {
+    // Name + day buffers
+    name = parts[0];
+
+    // Parse buffer values for each day
+    for (let day = 0; day < DAYS; day++) {
+      if (parts[day + 1] && !isNaN(parseInt(parts[day + 1]))) {
+        availability.buffer[day] = parseInt(parts[day + 1]);
+      }
+    }
+  }
+
+  return new Teacher(name, availability);
+}
+
 /**
  * Import all app data from a single CSV file
  * @param file - The CSV file to import
@@ -3607,29 +3627,30 @@ export function importAllDataFromCSV(
         let headerProcessed = false;
         let teachersFound = false;
         let classesFound = false;
+        let lessonsFound = false;
 
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i].trim();
           if (!line) continue;
 
           // Check for section headers
-          if (
-            line.startsWith("## TEACHERS") ||
-            line.toLowerCase().includes("teachers")
-          ) {
+          if (line.startsWith("## TEACHERS")) {
             currentSection = "TEACHERS";
             headerProcessed = false;
             teachersFound = true;
             console.log("Found TEACHERS section at line", i);
             continue;
-          } else if (
-            line.startsWith("## CLASSES") ||
-            line.toLowerCase().includes("classes and lessons")
-          ) {
+          } else if (line.startsWith("## CLASSES")) {
             currentSection = "CLASSES";
             headerProcessed = false;
             classesFound = true;
             console.log("Found CLASSES section at line", i);
+            continue;
+          } else if (line.startsWith("## LESSONS")) {
+            currentSection = "LESSONS";
+            headerProcessed = false;
+            console.log("Found LESSONS section at line", i);
+            lessonsFound = true;
             continue;
           } else if (line.startsWith("#")) {
             // Skip other comment lines
@@ -3647,25 +3668,31 @@ export function importAllDataFromCSV(
 
             const parts = line.split(",");
             if (parts.length >= 1 + DAYS) {
-              // Name + day buffers
-              const name = parts[0];
-
-              // Create availability
-              const availability = new Availability(DAYS, PERIODS_PER_DAY);
-
-              // Parse buffer values for each day
-              for (let day = 0; day < DAYS; day++) {
-                if (parts[day + 1] && !isNaN(parseInt(parts[day + 1]))) {
-                  availability.buffer[day] = parseInt(parts[day + 1]);
-                }
-              }
-
-              teachers.push(new Teacher(name.trim(), availability));
-              console.log(`Added teacher: ${name.trim()} with availability`);
+              const newTeacher = parseTeacherCSVLine(line);
+              teachers.push(newTeacher);
+              console.log(
+                `Added teacher: ${newTeacher.name.trim()} with availability`,
+              );
             } else {
               console.warn(`Invalid teacher data at line ${i + 1}: ${line}`);
             }
           } else if (currentSection === "CLASSES") {
+            if (!headerProcessed) {
+              headerProcessed = true;
+              console.log("Processing clsses header:", line);
+              continue;
+            }
+
+            const [part] = line.split(",");
+            if (!part) {
+              continue;
+            }
+
+            const name = part.trim();
+            if (!classMap.has(name)) {
+              classMap.set(name, new Class(name, []));
+            }
+          } else if (currentSection === "LESSONS") {
             if (!headerProcessed) {
               // This is the header line
               headerProcessed = true;
