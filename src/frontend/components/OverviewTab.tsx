@@ -62,7 +62,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
       const timetable = scheduler.generateTimetable();
       onTimetableGenerated(timetable);
     } catch (e) {
-      alert("Nu s-a putut genera orarul. Verificați datele și încercați din nou.");
+      alert(
+        "Nu s-a putut genera orarul. Verificați datele și încercați din nou.",
+      );
       console.error(e);
     }
   };
@@ -167,7 +169,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               Bine ai venit la Timetable Weaver
             </h2>
             <p className="mb-4 text-gray-500">
-              Gestionează orarele școlii tale eficient cu sistemul nostru automatizat de programare.
+              Gestionează orarele școlii tale eficient cu sistemul nostru
+              automatizat de programare.
             </p>
             <div className="flex gap-2">
               <button
@@ -318,7 +321,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className={card}>
-            <h3 className="mb-1 text-lg font-bold text-black">Acțiuni rapide</h3>
+            <h3 className="mb-1 text-lg font-bold text-black">
+              Acțiuni rapide
+            </h3>
             <div className="mb-4 text-sm text-gray-400">
               Activități și operațiuni comune
             </div>
@@ -345,7 +350,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                     <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                   </svg>
                 </span>
-                <span className="font-medium text-black">Gestionează profesorii</span>
+                <span className="font-medium text-black">
+                  Gestionează profesorii
+                </span>
               </GradientButton>
 
               <GradientButton
@@ -371,7 +378,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   />
                 </svg>
 
-                <span className="font-medium text-black">Gestionează clasele</span>
+                <span className="font-medium text-black">
+                  Gestionează clasele
+                </span>
               </GradientButton>
 
               <GradientButton
@@ -398,7 +407,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                     />
                   </svg>
                 </span>
-                <span className="font-medium text-black">Gestionează lecțiile</span>
+                <span className="font-medium text-black">
+                  Gestionează lecțiile
+                </span>
               </GradientButton>
             </div>
           </div>
@@ -475,9 +486,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 <span className="mr-2">
                   <GoGear color="#64748b" size="20px" strokeWidth={0.35} />
                 </span>
-                <span className="font-medium text-black">
-                  Setări avansate
-                </span>
+                <span className="font-medium text-black">Setări avansate</span>
               </GradientButton>
 
               <GradientButton
@@ -498,7 +507,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
       </div>
       {showAdvancedSettings && (
         <Modal isOpen={showAdvancedSettings} onClose={handleCancelSettings}>
-          <div className="} w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-xl sm:min-w-md md:min-w-2xl xl:min-w-3xl">
             {" "}
             <h2 className="mb-4 text-lg font-bold">Setări avansate</h2>
             <form className="flex flex-col gap-3">
@@ -518,10 +527,18 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               ))}
             </form>
             <div className="mt-6 flex justify-end gap-2">
-              <ColorButton variant="gray" onClick={handleCancelSettings}>
+              <ColorButton
+                variant="gray"
+                onClick={handleCancelSettings}
+                className="px-2 py-1"
+              >
                 Anulează
               </ColorButton>
-              <GradientButton variant="blue" onClick={handleSaveSettings}>
+              <GradientButton
+                variant="blue"
+                onClick={handleSaveSettings}
+                className="px-2 py-1"
+              >
                 Salvează
               </GradientButton>
             </div>

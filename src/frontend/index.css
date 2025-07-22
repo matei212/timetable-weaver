@@ -25,7 +25,8 @@ p {
   filter: invert(1) hue-rotate(180deg);
 }
 
-.inverted .logo {
+.inverted .logo,
+.inverted dialog {
   filter: invert(1);
 }
 
