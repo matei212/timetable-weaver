@@ -193,7 +193,7 @@ const Sidebar: React.FC<SidebarProps> = ({ mode, onModeChange }) => {
   return (
     <>
       {/* Mobile menu button */}
-      <div className="fixed top-4 left-4 z-50 lg:hidden">
+      <div className="fixed top-4 left-4 z-30 lg:hidden">
         <button
           onClick={toggleMobileMenu}
           className="rounded-lg bg-gray-200 p-2 text-gray-700 shadow-lg transition-all hover:bg-gray-300"
@@ -228,9 +228,9 @@ const Sidebar: React.FC<SidebarProps> = ({ mode, onModeChange }) => {
       {/* Overlay for mobile menu */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black opacity-50 lg:hidden"
+          className="ignore-invert fixed inset-0 z-10 bg-black/70 lg:hidden"
           onClick={toggleMobileMenu}
-        ></div>
+        />
       )}
 
       {/* Sidebar container */}

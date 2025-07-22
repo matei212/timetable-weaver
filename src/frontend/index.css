@@ -38,3 +38,7 @@ svg,
 p {
   filter: invert(0);
 }
+
+.inverted .ignore-invert {
+  filter: invert(1);
+}
