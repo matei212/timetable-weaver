@@ -6,6 +6,7 @@ import React, {
   useCallback,
   ChangeEvent,
   useState,
+  useTransition,
 } from "react";
 import { useNavigate } from "react-router-dom";
 import ColorButton from "./common/ColorButton";
@@ -28,6 +29,8 @@ import {
 import { AdvancedSettingsContext } from "../providers/AdvancedSettings";
 import Modal from "./common/Modal";
 import GradientContainer from "./common/GradientContainer";
+import Background from "./common/Background";
+import LoadingIcon from "./common/LoadingIcon";
 
 interface OverviewTabProps {
   classes: Class[];
@@ -56,14 +59,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
     [teachers, classes],
   );
   const { advancedSettings } = useContext(AdvancedSettingsContext);
+  const [isLoading, startTransition] = useTransition();
 
-  const handleGenerateTimetable = () => {
-    if (!classes.length || !teachers.length) {
-      alert(
-        "Trebuie să aveți cel puțin o clasă și un profesor pentru a genera un orar.",
-      );
-      return;
-    }
+  const createTimetable = () => {
     try {
       const scheduler = new Scheduler(classes, advancedSettings);
       const timetable = scheduler.generateTimetable();
@@ -74,6 +72,17 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
       );
       console.error(e);
     }
+  };
+
+  const handleGenerateTimetable = () => {
+    if (!classes.length || !teachers.length) {
+      alert(
+        "Trebuie să aveți cel puțin o clasă și un profesor pentru a genera un orar.",
+      );
+      return;
+    }
+
+    startTransition(createTimetable);
   };
 
   const handleImportAllData = () => {
@@ -147,6 +156,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         </div>
         <ThemeButton />
       </header>
+
+      {isLoading && (
+        <Background className="grid place-items-center">
+          <LoadingIcon />
+        </Background>
+      )}
+
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="grid auto-rows-min gap-4 md:grid-cols-3">
           <div className="flex flex-col justify-between rounded-xl border bg-gray-50 p-6">
