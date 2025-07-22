@@ -2982,6 +2982,20 @@ function lessonToCSV(lesson: Lesson, className: string) {
 }
 
 /**
+ * Return formated CSV string of teacher
+ */
+function teacherToCSV(teacher: Teacher) {
+  let out = `${teacher.name}`;
+
+  // Add availability buffer data for each day
+  for (let day = 0; day < DAYS; day++) {
+    out += `,${teacher.availability.buffer[day]}`;
+  }
+
+  return out;
+}
+
+/**
  * Export teachers data to CSV
  * @param teachers - List of teachers to export
  * @param filename - Output filename
@@ -3003,13 +3017,7 @@ export function exportTeachersToCSV(
 
     // Add data for each teacher
     for (const teacher of teachers) {
-      csvContent += `${teacher.name}`;
-
-      // Add availability buffer data for each day
-      for (let day = 0; day < DAYS; day++) {
-        csvContent += `,${teacher.availability.buffer[day]}`;
-      }
-      csvContent += "\r\n";
+      csvContent += `${teacherToCSV(teacher)}\r\n`;
     }
 
     // Create and download the file
@@ -3467,17 +3475,19 @@ export function exportAllDataToCSV(
 
     // Add data for each teacher
     for (const teacher of teachers) {
-      csvContent += `${teacher.name}`;
-
-      // Add availability buffer data for each day
-      for (let day = 0; day < DAYS; day++) {
-        csvContent += `,${teacher.availability.buffer[day]}`;
-      }
-      csvContent += "\r\n";
+      csvContent += `${teacherToCSV(teacher)}\r\n`;
     }
 
-    // CLASSES AND LESSONS SECTION
-    csvContent += "\r\n## CLASSES AND LESSONS\r\n";
+    // CLASSES
+    csvContent += "\r\n## CLASSES\r\n";
+    csvContent += "Class Name\r\n";
+
+    for (const cls of classes) {
+      csvContent += `${cls.name}\r\n`;
+    }
+
+    // LESSONS SECTION
+    csvContent += "\r\n## LESSONS\r\n";
     csvContent += "Subject,Teacher,PeriodsPerWeek,Class\r\n";
 
     // Add all classes and their lessons
@@ -3489,13 +3499,7 @@ export function exportAllDataToCSV(
 
       // Add lessons for each class
       for (const lesson of cls.lessons) {
-        if (isAlternatingLesson(lesson)) {
-          const subjectName = `${lesson.names[0]} / ${lesson.names[1]}`;
-          const teacherName = `${lesson.teachers[0].name} / ${lesson.teachers[1].name}`;
-          csvContent += `${subjectName},${teacherName},${lesson.periodsPerWeek},${cls.name}\r\n`;
-        } else {
-          csvContent += `${lesson.name},${lesson.teacher.name},${lesson.periodsPerWeek},${cls.name}\r\n`;
-        }
+        csvContent += `${lessonToCSV(lesson, cls.name)}\r\n`;
       }
     }
 
