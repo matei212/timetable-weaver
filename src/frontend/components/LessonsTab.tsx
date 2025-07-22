@@ -431,7 +431,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                     editingLesson.lessonIndex === lessonIndex ? (
                       <div className="flex justify-center gap-2">
                         <GradientButton
-                          variant="green"
+                          variant="blue"
                           onClick={handleSaveEditLesson}
                           className="rounded-lg bg-red-500 px-3 py-1 text-xs text-white transition-all duration-300 hover:bg-emerald-700"
                         >
