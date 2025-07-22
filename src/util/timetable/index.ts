@@ -695,12 +695,6 @@ export class Timetable {
           const lesson = schedule[day][period];
 
           if (lesson) {
-            console.log(
-              "Availability conflict",
-              getLessonName(lesson),
-              day,
-              period,
-            );
             const teachers = getAllTeachers(lesson);
             for (const teacher of teachers) {
               if (!teacher.isAvailable(day, period)) {
@@ -767,9 +761,9 @@ export class Timetable {
 
     if (!lesson) return false; // Safety check
 
-    console.warn(
-      `Resolving ${type} conflict for ${getLessonName(lesson)} (${getLessonTeacher(lesson).name}) in class ${className}, day ${day}, period ${period}`,
-    );
+    // console.warn(
+    //   `Resolving ${type} conflict for ${getLessonName(lesson)} (${getLessonTeacher(lesson).name}) in class ${className}, day ${day}, period ${period}`,
+    // );
 
     // For availability conflicts, we must move the lesson since the teacher is not available at this time
     if (type === "availability") {
@@ -2587,7 +2581,7 @@ export class Scheduler {
         const randomIndex = Math.floor(Math.random() * conflicts.length);
         const conflict = conflicts[randomIndex];
 
-        console.log("Resolve conflict");
+        // console.log("Resolve conflict");
 
         // Try to resolve the selected conflict
         const resolved = offspring.resolveConflict(offspring, conflict);
@@ -2968,6 +2962,26 @@ export class Scheduler {
 }
 
 /**
+ * Return formated CSV string of lesson
+ */
+function lessonToCSV(lesson: Lesson, className: string) {
+  let out = "";
+
+  // Add name and teacher
+  if (lesson.type === "normal") {
+    out += `${lesson.name},${lesson.teacher.name}`;
+  } else if (lesson.type === "alternating") {
+    out += `${lesson.names[0]} / ${lesson.names[1]}, ${lesson.teachers[0].name} / ${lesson.teachers[1].name}`;
+  }
+  out += ",";
+
+  // Add
+  out += `${lesson.periodsPerWeek},${className}`;
+
+  return out;
+}
+
+/**
  * Export teachers data to CSV
  * @param teachers - List of teachers to export
  * @param filename - Output filename
@@ -3072,16 +3086,12 @@ export function exportLessonsToCSV(
   return new Promise(resolve => {
     // Create CSV header
     let csvContent = "Subject,Teacher,PeriodsPerWeek,Class\r\n";
+    const name = className ?? "";
 
     // Add data for each lesson
     for (const lesson of lessons) {
-      if (isAlternatingLesson(lesson)) {
-        const subjectName = `${lesson.names[0]} / ${lesson.names[1]}`;
-        const teacherName = `${lesson.teachers[0].name} / ${lesson.teachers[1].name}`;
-        csvContent += `${subjectName},${teacherName},${lesson.periodsPerWeek},${className || ""}\r\n`;
-      } else {
-        csvContent += `${lesson.name},${lesson.teacher.name},${lesson.periodsPerWeek},${className || ""}\r\n`;
-      }
+      csvContent += `${lessonToCSV(lesson, name)}\r\n`;
+      console.log(csvContent);
     }
 
     // Create and download the file
@@ -3100,6 +3110,39 @@ export function exportLessonsToCSV(
       document.body.removeChild(downloadLink);
       URL.revokeObjectURL(url);
       resolve(filename);
+    }, 100);
+  });
+}
+
+/** Export all lessons of all classes */
+export function exportAllLessonsToCSV(classes: Class[]): Promise<string> {
+  return new Promise(resolve => {
+    // Create CSV header
+    let csvContent = "Subject,Teacher,PeriodsPerWeek,Class\r\n";
+
+    classes.forEach(cls => {
+      // Add class separator before each class except the first
+      cls.lessons.forEach(lesson => {
+        csvContent += `${lessonToCSV(lesson, cls.name)}\r\n`;
+      });
+    });
+
+    // Create and download the file
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+
+    const downloadLink = document.createElement("a");
+    downloadLink.href = url;
+    downloadLink.download = "all-lessons.csv";
+    downloadLink.style.display = "none";
+
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+
+    setTimeout(() => {
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(url);
+      resolve("all-lessons");
     }, 100);
   });
 }

@@ -10,6 +10,7 @@ import {
   getLessonTeacher,
   isAlternatingLesson,
   getAllTeachers,
+  exportAllLessonsToCSV,
 } from "../../util/timetable";
 import GradientButton from "./common/GradientButton";
 import GradientContainer from "./common/GradientContainer";
@@ -222,34 +223,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
   // Update the export all lessons handler
   const handleExportAllLessonsToCSV = () => {
     if (classes.length === 0) return;
-
-    // Create CSV header
-    let csvContent = "Subject,Teacher,PeriodsPerWeek,Class\r\n";
-
-    // Add data for each class with better class separation
-    classes.forEach(cls => {
-      // Add class separator before each class except the first
-      cls.lessons.forEach(lesson => {
-        csvContent += `${getLessonName(lesson)},${getLessonTeacher(lesson).name},${lesson.periodsPerWeek},${cls.name}\r\n`;
-      });
-    });
-
-    // Create and download the file
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-
-    const downloadLink = document.createElement("a");
-    downloadLink.href = url;
-    downloadLink.download = "all-lessons.csv";
-    downloadLink.style.display = "none";
-
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-
-    setTimeout(() => {
-      document.body.removeChild(downloadLink);
-      URL.revokeObjectURL(url);
-    }, 100);
+    exportAllLessonsToCSV(classes);
   };
 
   // Add handler for exporting a specific class
