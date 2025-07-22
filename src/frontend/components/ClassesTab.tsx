@@ -127,7 +127,6 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
         <span className="text-lg font-semibold">Gestionare Clase</span>
         <ThemeButton />
       </div>
-
       <GradientContainer className="mb-8 p-8">
         <h3 className="mb-6 flex items-center text-lg text-xl font-semibold">
           <span className="mr-3 text-2xl">
@@ -151,77 +150,76 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
           </button>
         </div>
       </GradientContainer>
+      <GradientContainer className="mb-8 p-8">
+        <div className="mb-6 flex items-center justify-between">
+          <h3 className="mb-6 flex items-center text-lg text-xl font-semibold">
+            <span className="mr-3 text-2xl">
+              <PiClipboardText />
+            </span>{" "}
+            Listă Clase
+          </h3>
 
-      {classes.length > 0 ? (
-        <GradientContainer className="mb-8 p-8">
-          <div className="mb-6 flex items-center justify-between">
-            <h3 className="mb-6 flex items-center text-lg text-xl font-semibold">
-              <span className="mr-3 text-2xl">
-                <PiClipboardText />
-              </span>{" "}
-              Listă Clase
-            </h3>
+          <div className="flex gap-3">
+            <input
+              type="file"
+              accept=".csv"
+              className="hidden"
+              onChange={e => {
+                if (e.target.files && e.target.files[0]) {
+                  handleImportCSV(e.target.files[0]);
+                }
+              }}
+              id="import-all-lessons"
+            />
+            <label
+              htmlFor="import-all-lessons"
+              className="flex items-center justify-center rounded-md border border-black px-4 py-2 hover:bg-black hover:text-white"
+            >
+              <span className="mr-2">
+                <svg
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="black"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+              </span>
+              <span className="font-medium">Importă CSV</span>
+            </label>
 
-            <div className="flex gap-3">
-              <input
-                type="file"
-                accept=".csv"
-                className="hidden"
-                onChange={e => {
-                  if (e.target.files && e.target.files[0]) {
-                    handleImportCSV(e.target.files[0]);
-                  }
-                }}
-                id="import-all-lessons"
-              />
-              <label
-                htmlFor="import-all-lessons"
-                className="flex items-center justify-center rounded-md border border-black px-4 py-2 hover:bg-black hover:text-white"
-              >
-                <span className="mr-2">
-                  <svg
-                    width="20"
-                    height="20"
-                    fill="none"
-                    stroke="black"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                  </svg>
-                </span>
-                <span className="font-medium">Importă CSV</span>
-              </label>
-
-              <button
-                onClick={handleExportToCSV}
-                className="flex items-center justify-center rounded-md border border-black px-4 py-2 hover:bg-black hover:text-white"
-              >
-                <span className="mr-2">
-                  <svg
-                    width="20"
-                    height="20"
-                    fill="none"
-                    stroke="black"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="17 8 12 3 7 8" />
-                    <line x1="12" y1="3" x2="12" y2="15" />
-                  </svg>
-                </span>
-                <span className="font-medium">Exportă CSV</span>
-              </button>
-            </div>
+            <button
+              onClick={handleExportToCSV}
+              className="flex items-center justify-center rounded-md border border-black px-4 py-2 hover:bg-black hover:text-white"
+            >
+              <span className="mr-2">
+                <svg
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="black"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+              </span>
+              <span className="font-medium">Exportă CSV</span>
+            </button>
           </div>
+        </div>
 
+        {classes.length > 0 ? (
           <div className="relative overflow-hidden rounded-lg shadow-md">
             <table className="w-full table-fixed text-center">
               <thead>
@@ -325,9 +323,7 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
               </tbody>
             </table>
           </div>
-        </GradientContainer>
-      ) : (
-        <GradientContainer className="p-8">
+        ) : (
           <div className="flex flex-col items-center justify-center py-8">
             <span className="mb-4 text-4xl">🏛️</span>
             <p className="mb-2 text-slate-300">
@@ -337,9 +333,8 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
               Clasele sunt folosite pentru a organiza lecțiile și a crea orare.
             </p>
           </div>
-        </GradientContainer>
-      )}
-
+        )}
+      </GradientContainer>
       <Note className="mt-6 p-4">
         Notă: Veți atribui lecții claselor în secțiunea Lecții.
       </Note>
