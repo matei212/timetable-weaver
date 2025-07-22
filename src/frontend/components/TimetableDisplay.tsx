@@ -553,8 +553,12 @@ const TimetableDisplay: React.FC<TimetableDisplayProps> = ({
   }, [timetable, selectedClass]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/70 backdrop-blur-sm">
-      <div className="m-4 max-h-[90vh] w-full max-w-6xl overflow-y-auto rounded-xl bg-white p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto">
+      <div
+        onClick={onClose}
+        className="ignore-invert fixed h-full w-full cursor-pointer bg-black/70"
+      />
+      <div className="z-50 m-4 max-h-[90vh] w-full max-w-6xl overflow-y-auto rounded-xl bg-white p-6 shadow-2xl">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-gray-900">Orarul Generat</h2>
           <button

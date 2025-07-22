@@ -47,7 +47,11 @@ const TeacherAvailabilityModal: React.FC<TeacherAvailabilityModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div
+        onClick={onClose}
+        className="ignore-invert fixed h-full w-full cursor-pointer bg-black/70"
+      />
       <GradientContainer
         variant="light"
         className="max-w-4xl p-6 shadow-2xl shadow-blue-500/20"
@@ -78,7 +82,7 @@ const TeacherAvailabilityModal: React.FC<TeacherAvailabilityModalProps> = ({
                   className="transition-colors duration-200 hover:bg-slate-700/50"
                 >
                   <th className="p-3 text-left font-medium dark:text-zinc-300">
-                     {p + 8}:00 - {p + 8}:50
+                    {p + 8}:00 - {p + 8}:50
                   </th>
                   {Array.from({ length: DAYS }, (_, d) => {
                     const available = editAvailability.get(d, p);
