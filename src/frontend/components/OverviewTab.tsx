@@ -489,7 +489,7 @@ export default OverviewTab;
 type SectionProps = { title: string } & PropsWithChildren;
 const Section = ({ title, children }: SectionProps) => {
   return (
-    <div>
+    <div className="space-y-1">
       <h3 className="text-lg font-bold">{title}</h3>
       {children}
     </div>
@@ -537,9 +537,11 @@ const Setting = ({
   return (
     <div className="flex items-start justify-between gap-8">
       <div className="w-full">
-        <h4>{title}</h4>
+        <h4 className="font-medium capitalize">{title}</h4>
         {description && (
-          <p className="tex-xs dark:text-slate-400">{description}</p>
+          <p className="tex-xs md:show hidden text-gray-700 md:block">
+            {description}
+          </p>
         )}
       </div>
       <div className="flex items-center gap-2">
@@ -556,7 +558,7 @@ const Setting = ({
           min={min}
           max={max}
           step={step}
-          className="w-33 rounded-lg border border-blue-500/30 bg-slate-200 p-1 text-center text-blue-800 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-800/50 dark:text-blue-500"
+          className="min-w-33 rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 focus:ring-2 focus:ring-blue-500"
         />
       </div>
     </div>
@@ -654,7 +656,7 @@ const AdvancedSettings = () => {
               />
               <Setting
                 title="Min Temperature"
-                description="Rata de răcrire care moidifică temperatura"
+                description="Valoare minimă pe care o poate avea temperatura"
                 min={0.00001}
                 max={0.99999}
                 step={0.00001}
