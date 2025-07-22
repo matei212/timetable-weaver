@@ -187,6 +187,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 <span className="stats text-sm font-medium text-blue-700">
                   Profesori
                 </span>
+                <GradientButton
+                  variant="colapse"
+                  onClick={() => navigate("/teachers")}
+                  className="flex px-4 py-2 text-sm font-medium text-black md:hidden margine"
+                >
+                  Gestioneaza
+                </GradientButton>
                 <span>
                   <svg
                     className=""
@@ -206,9 +213,11 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   </svg>
                 </span>
               </div>
+
               <div className="stats text-2xl font-bold text-blue-800">
                 {stats.teachers}
               </div>
+
               <p className="noninv text-xs text-blue-600">
                 Cadre didactice active
               </p>
@@ -217,7 +226,15 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               <div className="flex flex-row items-center justify-between pb-2">
                 <span className="stats text-sm font-medium text-cyan-700">
                   Clase
+                  
                 </span>
+                <GradientButton
+                    variant="colapse"
+                    onClick={() => navigate("/classes")}
+                    className="flex px-4 py-2 text-sm font-medium text-black md:hidden "
+                  >
+                    Gestioneaza
+                  </GradientButton>
                 <svg
                   className="h-6 w-6 text-gray-800"
                   aria-hidden="true"
@@ -247,7 +264,15 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               <div className="flex flex-row items-center justify-between pb-2">
                 <span className="stats text-sm font-medium text-indigo-700">
                   Lecții
+                  
                 </span>
+                <GradientButton
+                    variant="colapse"
+                    onClick={() => navigate("/lessons")}
+                    className="flex px-4 py-2 text-sm font-medium text-black md:hidden"
+                  >
+                    Gestioneaza
+                  </GradientButton>
                 <span>
                   <svg
                     className="h-6 w-6 text-gray-800"
@@ -305,7 +330,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <div className={card}>
+          <div className={`${card} hidden md:grid`}>
             <h3 className="mb-1 text-lg font-bold text-black">
               Acțiuni rapide
             </h3>

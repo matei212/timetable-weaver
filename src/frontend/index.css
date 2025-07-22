@@ -6,12 +6,17 @@
   @apply bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent;
 }
 
+.margine{ 
+  margin-right: 10%;
+}
+
 .dark {
   --inv: invert(1);
 }
 
 .inverted {
   filter: invert(1);
+  
 }
 /* .light{
   filter: invert(0);
