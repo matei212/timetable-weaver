@@ -2330,18 +2330,20 @@ export class Scheduler {
         for (const cls of timetable.classes) {
           const lesson = timetable.schedule[cls.name][day][period];
           if (lesson) {
-            const teacher = getLessonTeacher(lesson);
+            const teachers = getAllTeachers(lesson);
 
-            // Check teacher availability
-            if (!teacher.isAvailable(day, period)) {
-              availabilityViolations++;
+            for (const teacher of teachers) {
+              // Check teacher availability
+              if (!teacher.isAvailable(day, period)) {
+                availabilityViolations++;
+              }
+
+              // Track teacher usage for double-booking check
+              teacherMap.set(
+                teacher.name,
+                (teacherMap.get(teacher.name) || 0) + 1,
+              );
             }
-
-            // Track teacher usage for double-booking check
-            teacherMap.set(
-              teacher.name,
-              (teacherMap.get(teacher.name) || 0) + 1,
-            );
           }
         }
 
@@ -2406,6 +2408,7 @@ export class Scheduler {
     let currentViolations = this.calculateHardConstraintViolations(current);
     let best = current.clone();
     let bestViolations = currentViolations;
+    console.log("Found violations", bestViolations);
 
     // Schwefel's (1+1)-ES algorithm for hard constraints
     for (
@@ -2583,6 +2586,8 @@ export class Scheduler {
       if (conflicts.length > 0) {
         const randomIndex = Math.floor(Math.random() * conflicts.length);
         const conflict = conflicts[randomIndex];
+
+        console.log("Resolve conflict");
 
         // Try to resolve the selected conflict
         const resolved = offspring.resolveConflict(offspring, conflict);
