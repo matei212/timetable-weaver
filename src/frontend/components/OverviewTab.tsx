@@ -1,10 +1,18 @@
-import React, { useMemo, useRef, useContext } from "react";
+import React, {
+  useMemo,
+  useRef,
+  useContext,
+  PropsWithChildren,
+  useCallback,
+  ChangeEvent,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import ColorButton from "./common/ColorButton";
 import GradientButton from "./common/GradientButton";
 import ThemeButton from "./common/ThemeButton";
 import { GoGear } from "react-icons/go";
-import { RiAiGenerate } from "react-icons/ri";
+import { RiAiGenerate, RiResetRightFill } from "react-icons/ri";
 
 import {
   exportAllDataToCSV,
@@ -14,9 +22,12 @@ import {
   Teacher,
   Class,
   Timetable,
+  SchedulerConfig,
+  DEFAULT_SCHEDULER_CONFIG,
 } from "../../util/timetable";
 import { AdvancedSettingsContext } from "../providers/AdvancedSettings";
 import Modal from "./common/Modal";
+import GradientContainer from "./common/GradientContainer";
 
 interface OverviewTabProps {
   classes: Class[];
@@ -44,11 +55,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
     }),
     [teachers, classes],
   );
-  const { advancedSettings, updateSettings } = useContext(
-    AdvancedSettingsContext,
-  );
-  const [showAdvancedSettings, setShowAdvancedSettings] = React.useState(false);
-  const [settingsDraft, setSettingsDraft] = React.useState(advancedSettings);
+  const { advancedSettings } = useContext(AdvancedSettingsContext);
 
   const handleGenerateTimetable = () => {
     if (!classes.length || !teachers.length) {
@@ -104,28 +111,6 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
 
   const handleExportAllData = () => {
     exportAllDataToCSV(teachers, classes, "timetable-weaver-data.csv");
-  };
-
-  const handleAdvancedSettings = () => {
-    setSettingsDraft(advancedSettings);
-    setShowAdvancedSettings(true);
-  };
-
-  const handleSettingsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type } = e.target;
-    setSettingsDraft(prev => ({
-      ...prev,
-      [name]: type === "number" ? Number(value) : value,
-    }));
-  };
-
-  const handleSaveSettings = () => {
-    updateSettings(settingsDraft);
-    setShowAdvancedSettings(false);
-  };
-
-  const handleCancelSettings = () => {
-    setShowAdvancedSettings(false);
   };
 
   const handleGenerateExampleFile = () => {
@@ -478,16 +463,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 <span className="font-medium text-black">Exportă date</span>
               </GradientButton>
 
-              <GradientButton
-                variant="gray"
-                onClick={handleAdvancedSettings}
-                className="flex px-4 py-2 text-sm font-medium text-black"
-              >
-                <span className="mr-2">
-                  <GoGear color="#64748b" size="20px" strokeWidth={0.35} />
-                </span>
-                <span className="font-medium text-black">Setări avansate</span>
-              </GradientButton>
+              <AdvancedSettings />
 
               <GradientButton
                 variant="gray"
@@ -505,47 +481,198 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           </div>
         </div>
       </div>
-      {showAdvancedSettings && (
-        <Modal isOpen={showAdvancedSettings} onClose={handleCancelSettings}>
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-xl sm:min-w-md md:min-w-2xl xl:min-w-3xl">
-            {" "}
-            <h2 className="mb-4 text-lg font-bold">Setări avansate</h2>
-            <form className="flex flex-col gap-3">
-              {Object.entries(settingsDraft).map(([key, value]) => (
-                <label key={key} className="flex flex-col gap-1 text-sm">
-                  <span className="font-medium capitalize">
-                    {key.replace(/([A-Z])/g, " $1")}
-                  </span>
-                  <input
-                    type="number"
-                    name={key}
-                    value={value}
-                    onChange={handleSettingsChange}
-                    className="rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                  />
-                </label>
-              ))}
-            </form>
-            <div className="mt-6 flex justify-end gap-2">
-              <ColorButton
-                variant="gray"
-                onClick={handleCancelSettings}
-                className="px-2 py-1"
-              >
-                Anulează
-              </ColorButton>
-              <GradientButton
-                variant="blue"
-                onClick={handleSaveSettings}
-                className="px-2 py-1"
-              >
-                Salvează
-              </GradientButton>
-            </div>
-          </div>
-        </Modal>
-      )}
     </>
   );
 };
 export default OverviewTab;
+
+type SectionProps = { title: string } & PropsWithChildren;
+const Section = ({ title, children }: SectionProps) => {
+  return (
+    <div>
+      <h3 className="text-lg font-bold">{title}</h3>
+      {children}
+    </div>
+  );
+};
+
+type SettingProp = {
+  title: string;
+  description?: string;
+  valuePath: keyof SchedulerConfig;
+  min?: number;
+  max?: number;
+  step?: number;
+};
+const Setting = ({
+  title,
+  description,
+  valuePath,
+  min,
+  max,
+  step,
+}: SettingProp) => {
+  const { advancedSettings: settings, updateSettings } = useContext(
+    AdvancedSettingsContext,
+  );
+  const value = useMemo(() => settings[valuePath], [settings, valuePath]);
+  const isDefaultSetting = useMemo(
+    () => value === DEFAULT_SCHEDULER_CONFIG[valuePath],
+    [value, valuePath],
+  );
+
+  const handleChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const newValue = Number(e.target.value);
+      updateSettings({ [valuePath]: newValue });
+    },
+    [updateSettings, valuePath],
+  );
+
+  const handleReset = useCallback(() => {
+    const defaultVal = DEFAULT_SCHEDULER_CONFIG[valuePath];
+    updateSettings({ [valuePath]: defaultVal });
+  }, [updateSettings, valuePath]);
+
+  return (
+    <div className="flex items-start justify-between gap-8">
+      <div className="w-full">
+        <h4>{title}</h4>
+        {description && (
+          <p className="tex-xs dark:text-slate-400">{description}</p>
+        )}
+      </div>
+      <div className="flex items-center gap-2">
+        {!isDefaultSetting && (
+          <RiResetRightFill
+            onClick={handleReset}
+            className="text-xl text-gray-700 transition-colors hover:text-gray-600"
+          />
+        )}
+        <input
+          type="number"
+          value={value}
+          onChange={handleChange}
+          min={min}
+          max={max}
+          step={step}
+          className="w-33 rounded-lg border border-blue-500/30 bg-slate-200 p-1 text-center text-blue-800 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-800/50 dark:text-blue-500"
+        />
+      </div>
+    </div>
+  );
+};
+
+const AdvancedSettings = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const handleOpenModal = useCallback(() => setIsOpen(true), []);
+
+  return (
+    <>
+      <GradientButton
+        variant="gray"
+        onClick={handleOpenModal}
+        className="flex px-4 py-2 text-sm font-medium text-black"
+      >
+        <span className="mr-2">
+          <GoGear color="#64748b" size="20px" strokeWidth={0.35} />
+        </span>
+        <span className="font-medium text-black">Setări avansate</span>
+      </GradientButton>
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+        <GradientContainer className="px-3 py-4 sm:min-w-lg md:min-w-3xl lg:min-w-4xl">
+          <form method="dialog" className="space-y-4">
+            <h2 className="text-4xl font-bold">Setări Avansate</h2>
+            <Setting
+              title="Initial Pool Size"
+              description="Câte generări să facă algoritmul la început"
+              min={1}
+              max={100}
+              step={1}
+              valuePath="initialPoolSize"
+            />
+
+            <Section title="ES (1 + 1)">
+              <Setting
+                title="Max Iterations"
+                description="Numar maxim de iterații ale algoritmului"
+                min={100}
+                max={10000}
+                step={50}
+                valuePath="maxESIterations"
+              />
+              <Setting
+                title="Sigma"
+                description="Rata de schimbare inițială"
+                min={0.1}
+                max={5.0}
+                step={0.1}
+                valuePath="sigma"
+              />
+              <Setting
+                title="Sigma Decay"
+                description="Rata de scădere a lui sigma"
+                min={0.1}
+                max={0.99}
+                step={0.01}
+                valuePath="sigmaDecay"
+              />
+              <Setting
+                title="Min Sigma"
+                description="Valoarea minimă pe care o poate avea sigma"
+                min={0.1}
+                max={5.0}
+                step={0.1}
+                valuePath="minSigma"
+              />
+              <Setting
+                title="Max Stagnant Iterations"
+                description="Numărul de iterați stagnante după care algoritmul devine mai agresiv"
+                min={100}
+                max={1000}
+                step={50}
+                valuePath="maxStagnantIterations"
+              />
+            </Section>
+
+            <Section title="Annealing">
+              <Setting
+                title="Temperature"
+                description="Temperatura cu care algoritmul începe"
+                min={0.1}
+                max={1.0}
+                step={0.01}
+                valuePath="temperature"
+              />
+              <Setting
+                title="Cooling Rate"
+                description="Rata de răcrire care moidifică temperatura"
+                min={0.1}
+                max={0.99}
+                step={0.01}
+                valuePath="coolingRate"
+              />
+              <Setting
+                title="Min Temperature"
+                description="Rata de răcrire care moidifică temperatura"
+                min={0.00001}
+                max={0.99999}
+                step={0.00001}
+                valuePath="minTemperature"
+              />
+            </Section>
+
+            <div className="flex justify-end gap-4 text-lg">
+              <ColorButton variant="gray" className="px-2 py-1">
+                Anulează
+              </ColorButton>
+              <ColorButton variant="green" className="px-2 py-1">
+                Salvează
+              </ColorButton>
+            </div>
+          </form>
+        </GradientContainer>
+      </Modal>
+    </>
+  );
+};
