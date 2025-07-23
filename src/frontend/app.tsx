@@ -19,6 +19,8 @@ import {
   Lessons,
   Overview,
   NotFound,
+  Login,
+  Signup,
 } from "./routes";
 import ThemeProvider from "./providers/Theme";
 
@@ -436,6 +438,8 @@ const RoutesConfig: React.FC<{
           }
         />
         <Route path="/about" element={<About />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
         {/* Timetable creation routes */}
         <Route
