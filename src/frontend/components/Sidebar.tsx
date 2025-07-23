@@ -129,6 +129,20 @@ const Sidebar: React.FC<SidebarProps> = ({ mode, onModeChange }) => {
   const defaultTabs: SidebarTab[] = [
     { id: "home", path: "/", label: "Acasă", icon: icons.home },
     { id: "about", path: "/about", label: "Despre", icon: icons.about },
+    { id: "login", path: "/login", label: "Login", icon: (
+      <svg width="20" height="20" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+        <polyline points="10 17 15 12 10 7" />
+        <line x1="15" y1="12" x2="3" y2="12" />
+      </svg>
+    ) },
+    { id: "signup", path: "/signup", label: "Sign Up", icon: (
+      <svg width="20" height="20" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="16" />
+        <line x1="8" y1="12" x2="16" y2="12" />
+      </svg>
+    ) },
   ];
 
   const timetableTabs: SidebarTab[] = [

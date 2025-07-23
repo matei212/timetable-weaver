@@ -53,7 +53,7 @@ const TeacherAvailabilityModal: React.FC<TeacherAvailabilityModalProps> = ({
       <div className="flex max-h-[calc(100vh-2rem)] w-full max-w-4xl flex-col sm:max-h-[calc(100vh-4rem)]">
         <GradientContainer
           variant="light"
-          className="max-w-4xl p-6 shadow-2xl shadow-blue-500/20"
+          className="max-w-4xl p-7 shadow-2xl shadow-blue-500/20"
         >
           <div className="max-h-[75vh] min-h-0 flex-1 overflow-y-auto">
             <h2 className="mb-5 text-xl font-bold">

@@ -5,3 +5,5 @@ export { default as Classes } from "./Classes";
 export { default as Lessons } from "./Lessons";
 export { default as Overview } from "./Overview";
 export { default as NotFound } from "./NotFound";
+export { default as Login } from "./Login";
+export { default as Signup } from "./Signup";
