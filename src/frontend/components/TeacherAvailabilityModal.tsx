@@ -54,7 +54,7 @@ const TeacherAvailabilityModal: React.FC<TeacherAvailabilityModalProps> = ({
       >
         <GradientContainer
           variant="light"
-          className="max-w-4xl p-6 shadow-2xl shadow-blue-500/20"
+          className="max-w-4xl p-7 shadow-2xl shadow-blue-500/20"
         >
           <div className="min-h-0 flex-1 overflow-y-auto max-h-[75vh] ">
             <h2 className="mb-5 text-xl font-bold">
