@@ -50,71 +50,78 @@ const TeacherAvailabilityModal: React.FC<TeacherAvailabilityModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
         onClick={onClose}
-        className="ignore-invert fixed h-full w-full cursor-pointer bg-black/70"
-      />
-      <GradientContainer
-        variant="light"
-        className="max-w-4xl p-6 shadow-2xl shadow-blue-500/20"
+        className="flex max-h-[calc(100vh-2rem)] w-full max-w-4xl flex-col sm:max-h-[calc(100vh-4rem)]"
       >
-        <h2 className="mb-5 text-xl font-bold">
-          Editează Disponibilitatea Profesorului:{" "}
-          <span className="text-gradient-blue">{teacher.name}</span>
-        </h2>
-        <div className="overflow-x-auto rounded-lg">
-          <table className="w-full table-fixed border-collapse">
-            <thead>
-              <tr className="bg-slate-200 dark:bg-slate-700/50 dark:text-slate-200">
-                <th className="border-slate-600/50 p-3 font-medium tracking-wide"></th>
-                {dayNames.map((day, d) => (
-                  <th
-                    key={d}
-                    className="border-slate-600/50 p-3 font-medium tracking-wide"
-                  >
-                    {day}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {Array.from({ length: PERIODS_PER_DAY }, (_, p) => (
-                <tr
-                  key={p}
-                  className="transition-colors duration-200 hover:bg-slate-700/50"
-                >
-                  <th className="p-3 text-left font-medium dark:text-zinc-300">
-                    {p + 8}:00 - {p + 8}:50
-                  </th>
-                  {Array.from({ length: DAYS }, (_, d) => {
-                    const available = editAvailability.get(d, p);
-                    return (
-                      <td
+        <GradientContainer
+          variant="light"
+          className="max-w-4xl p-6 shadow-2xl shadow-blue-500/20"
+        >
+          <div className="min-h-0 flex-1 overflow-y-auto max-h-[75vh] ">
+            <h2 className="mb-5 text-xl font-bold">
+              Editează Disponibilitatea Profesorului:{" "}
+              <span className="text-gradient-blue">{teacher.name}</span>
+            </h2>
+            <div className="overflow-x-auto rounded-lg">
+              <table className="w-full table-fixed border-collapse">
+                <thead>
+                  <tr className="bg-slate-200 dark:bg-slate-700/50 dark:text-slate-200">
+                    <th className="border-slate-600/50 p-3 font-medium tracking-wide"></th>
+                    {dayNames.map((day, d) => (
+                      <th
                         key={d}
-                        className={`cursor-pointer p-3 text-center text-white select-none ${
-                          available
-                            ? "bg-emerald-600 hover:bg-emerald-700"
-                            : "bg-red-600 hover:bg-red-700"
-                        }`}
-                        onClick={() => handleCellClick(d, p)}
-                        title={available ? "Disponibil" : "Indisponibil"}
+                        className="border-slate-600/50 p-3 font-medium tracking-wide"
                       >
-                        {available ? "✓" : "✗"}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="mt-6 flex justify-end gap-3">
-          <ColorButton variant="gray" onClick={onClose} className="px-5 py-2.5">
-            Anulează
-          </ColorButton>
-          <GradientButton onClick={handleSave} className="px-5 py-2.5">
-            Salvează
-          </GradientButton>
-        </div>
-      </GradientContainer>
+                        {day}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {Array.from({ length: PERIODS_PER_DAY }, (_, p) => (
+                    <tr
+                      key={p}
+                      className="transition-colors duration-200 hover:bg-slate-700/50"
+                    >
+                      <th className="p-3 text-left font-medium dark:text-zinc-300">
+                        {p + 8}:00 - {p + 8}:50
+                      </th>
+                      {Array.from({ length: DAYS }, (_, d) => {
+                        const available = editAvailability.get(d, p);
+                        return (
+                          <td
+                            key={d}
+                            className={`cursor-pointer p-3 text-center text-white select-none ${
+                              available
+                                ? "bg-emerald-600 hover:bg-emerald-700"
+                                : "bg-red-600 hover:bg-red-700"
+                            }`}
+                            onClick={() => handleCellClick(d, p)}
+                            title={available ? "Disponibil" : "Indisponibil"}
+                          >
+                            {available ? "✓" : "✗"}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div className="mt-6 flex justify-end gap-3">
+            <ColorButton
+              variant="gray"
+              onClick={onClose}
+              className="px-5 py-2.5"
+            >
+              Anulează
+            </ColorButton>
+            <GradientButton onClick={handleSave} className="px-5 py-2.5">
+              Salvează
+            </GradientButton>
+          </div>
+        </GradientContainer>
+      </div>
     </div>
   );
 };

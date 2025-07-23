@@ -226,7 +226,7 @@ const TeacherForm: React.FC<{
         </span>{" "}
         Adaugă Profesor Nou
       </h3>
-      <form onSubmit={handleSubmit} className="flex gap-3">
+      <form onSubmit={handleSubmit} className="grid gap-3">
         <TextInput
           value={newTeacherName}
           onChange={e => setNewTeacherName(e.target.value)}
