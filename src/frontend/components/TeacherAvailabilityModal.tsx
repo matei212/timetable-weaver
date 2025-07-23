@@ -50,7 +50,7 @@ const TeacherAvailabilityModal: React.FC<TeacherAvailabilityModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
         onClick={onClose}
-        className="flex max-h-[calc(100vh-2rem)] w-full max-w-4xl flex-col sm:max-h-[calc(100vh-4rem)]"
+        className="flex max-h-[calc(100vh-2rem)] w-full max-w-4xl flex-col sm:max-h-[calc(100vh-4rem)] "
       >
         <GradientContainer
           variant="light"
