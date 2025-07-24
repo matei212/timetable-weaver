@@ -239,13 +239,13 @@ const TeacherForm: React.FC<{
 
   return (
     <GradientContainer className="mb-8 p-8">
-      <h3 className="mb-6 flex items-center text-lg text-xl font-semibold">
+      <h3 className="mb-6 flex items-center text-xl font-semibold">
         <span className="mr-3 text-2xl">
           <PiChalkboardTeacher />
         </span>{" "}
         Adaugă Profesor Nou
       </h3>
-      <form onSubmit={handleSubmit} className="grid gap-3">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3 md:flex-row">
         <TextInput
           value={newTeacherName}
           onChange={e => setNewTeacherName(e.target.value)}
