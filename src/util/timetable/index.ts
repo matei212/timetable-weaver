@@ -295,18 +295,19 @@ export class Timetable {
     // Initialize availability map for all teachers
     for (const cls of this.classes) {
       for (const lesson of cls.lessons) {
-        const teacher = getLessonTeacher(lesson);
-        if (!teacherAvailability.has(teacher.name)) {
-          // Create a 2D array for this teacher's availability
-          const availMatrix: boolean[][] = [];
-          for (let day = 0; day < DAYS; day++) {
-            availMatrix[day] = [];
-            for (let period = 0; period < PERIODS_PER_DAY; period++) {
-              // Critical: directly use the teacher's availability
-              availMatrix[day][period] = teacher.isAvailable(day, period);
+        for (const teacher of getAllTeachers(lesson)) {
+          if (!teacherAvailability.has(teacher.name)) {
+            // Create a 2D array for this teacher's availability
+            const availMatrix: boolean[][] = [];
+            for (let day = 0; day < DAYS; day++) {
+              availMatrix[day] = [];
+              for (let period = 0; period < PERIODS_PER_DAY; period++) {
+                // Critical: directly use the teacher's availability
+                availMatrix[day][period] = teacher.isAvailable(day, period);
+              }
             }
+            teacherAvailability.set(teacher.name, availMatrix);
           }
-          teacherAvailability.set(teacher.name, availMatrix);
         }
       }
     }
@@ -442,20 +443,30 @@ export class Timetable {
               period++
             ) {
               // CRITICAL: Never place in periods where teacher is unavailable
-              if (!getLessonTeacher(lesson).isAvailable(day, period)) continue;
+              let skip = false;
+              for (const teacher of getAllTeachers(lesson)) {
+                if (!teacher.isAvailable(day, period)) {
+                  skip = true;
+                  break;
+                }
+              }
+              if (skip) continue;
 
               // Check if teacher is busy elsewhere
               let teacherBusy = false;
-              for (const otherClass of this.classes) {
+              outer: for (const otherClass of this.classes) {
                 if (otherClass.name === cls.name) continue;
+                if (!this.schedule[otherClass.name][day][period]) continue;
 
-                if (
-                  this.schedule[otherClass.name][day][period] &&
-                  getLessonTeacher(this.schedule[otherClass.name][day][period]!)
-                    .name === getLessonTeacher(lesson).name
-                ) {
-                  teacherBusy = true;
-                  break;
+                for (const teacher of getAllTeachers(
+                  this.schedule[otherClass.name][day][period]!,
+                )) {
+                  for (const otherTeacher of getAllTeachers(lesson)) {
+                    if (teacher.name === otherTeacher.name) {
+                      teacherBusy = true;
+                      break outer;
+                    }
+                  }
                 }
               }
 
@@ -505,8 +516,11 @@ export class Timetable {
     for (const cls of this.classes) {
       if (cls.name === skipClassName) continue;
       const lesson = this.schedule[cls.name][day][period];
-      if (lesson && getLessonTeacher(lesson).name === teacher.name) {
-        return true;
+      if (!lesson) continue;
+      for (const otherTeacher of getAllTeachers(lesson)) {
+        if (lesson && otherTeacher.name === teacher.name) {
+          return true;
+        }
       }
     }
 
@@ -786,12 +800,15 @@ export class Timetable {
       if (this.rebuildClassSchedule(timetable, className)) {
         // Check if the specific conflict was resolved
         const lessonAfterRebuild = timetable.schedule[className][day][period];
-        if (
-          !lessonAfterRebuild ||
-          getLessonTeacher(lessonAfterRebuild).name !== conflict.teacherName ||
-          getLessonTeacher(lessonAfterRebuild).isAvailable(day, period)
-        ) {
-          return true;
+        if (!lessonAfterRebuild) return true;
+
+        for (const teacher of getAllTeachers(lessonAfterRebuild)) {
+          if (
+            teacher.name !== conflict.teacherName ||
+            teacher.isAvailable(day, period)
+          ) {
+            return true;
+          }
         }
       }
 
@@ -932,20 +949,21 @@ export class Timetable {
     let placedCount = 0;
 
     for (const lesson of lessonQueue) {
-      const teacher = getLessonTeacher(lesson);
       let placed = false;
-
-      // Get all valid slots for this teacher
       const validSlots: { day: number; period: number; score: number }[] = [];
 
-      for (let day = 0; day < DAYS; day++) {
-        for (let period = 0; period < PERIODS_PER_DAY; period++) {
-          if (
-            timetable.schedule[className][day][period] === null &&
-            teacher.isAvailable(day, period) &&
-            !this.isTeacherBusy(teacher, day, period, className)
-          ) {
-            validSlots.push({ day, period, score: 10 });
+      for (const teacher of getAllTeachers(lesson)) {
+        // Get all valid slots for this teacher
+
+        for (let day = 0; day < DAYS; day++) {
+          for (let period = 0; period < PERIODS_PER_DAY; period++) {
+            if (
+              timetable.schedule[className][day][period] === null &&
+              teacher.isAvailable(day, period) &&
+              !this.isTeacherBusy(teacher, day, period, className)
+            ) {
+              validSlots.push({ day, period, score: 10 });
+            }
           }
         }
       }

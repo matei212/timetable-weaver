@@ -9,6 +9,7 @@ import {
   importTeachersFromCSV,
   getLessonTeacher,
   getLessonName,
+  getAllTeachers,
 } from "../../util/timetable";
 import TeacherAvailabilityModal from "./TeacherAvailabilityModal";
 import GradientContainer from "./common/GradientContainer";
@@ -88,11 +89,29 @@ const useTeacherManagement = (
   const saveAvailability = (newAvailability: Availability) => {
     if (modalTeacherIndex !== null) {
       const updatedTeachers = [...teachers];
-      updatedTeachers[modalTeacherIndex] = new Teacher(
-        updatedTeachers[modalTeacherIndex].name,
-        newAvailability,
-      );
+      const updatedClasses = [...classes];
+      const teacherName = updatedTeachers[modalTeacherIndex].name;
+      const newTeacher = new Teacher(teacherName, newAvailability);
+
+      updatedTeachers[modalTeacherIndex] = newTeacher;
+      for (const cls of updatedClasses) {
+        for (const lesson of cls.lessons) {
+          if (lesson.type === "normal") {
+            if (lesson.teacher.name === teacherName) {
+              lesson.teacher = newTeacher;
+            }
+          } else {
+            for (let i = 0; i < lesson.teachers.length; i++) {
+              if (lesson.teachers[i].name === teacherName) {
+                lesson.teachers[i] = newTeacher;
+              }
+            }
+          }
+        }
+      }
+
       onTeachersChange(updatedTeachers);
+      onClassesChange(updatedClasses);
     }
   };
 
@@ -220,13 +239,13 @@ const TeacherForm: React.FC<{
 
   return (
     <GradientContainer className="mb-8 p-8">
-      <h3 className="mb-6 flex items-center text-lg text-xl font-semibold">
+      <h3 className="mb-6 flex items-center text-xl font-semibold">
         <span className="mr-3 text-2xl">
           <PiChalkboardTeacher />
         </span>{" "}
         Adaugă Profesor Nou
       </h3>
-      <form onSubmit={handleSubmit} className="grid gap-3">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3 md:flex-row">
         <TextInput
           value={newTeacherName}
           onChange={e => setNewTeacherName(e.target.value)}

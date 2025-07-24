@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import {
   Class,
   Lesson,
@@ -134,7 +134,13 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
           </span>{" "}
           Adaugă Clasă Nouă
         </h3>
-        <div className="flex gap-3">
+        <form
+          onSubmit={e => {
+            e.preventDefault();
+            handleAddClass();
+          }}
+          className="flex flex-col gap-3 md:flex-row"
+        >
           <TextInput
             value={newClassName}
             onChange={e => setNewClassName(e.target.value)}
@@ -142,13 +148,12 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
             className="flex-1 p-3"
           />
           <button
-            onClick={handleAddClass}
             type="submit"
             className="rounded-md bg-black px-6 py-3 font-medium text-white hover:bg-gray-400"
           >
             Adaugă Clasă
           </button>
-        </div>
+        </form>
       </GradientContainer>
       <GradientContainer className="mb-8 p-8">
         <div className="mb-6 flex items-center justify-between">
@@ -269,7 +274,7 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
                           </button>
                         </div>
                       ) : (
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-around">
                           <span className="font-medium dark:text-slate-100">
                             {cls.name}
                           </span>
@@ -287,7 +292,7 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
                       {cls.lessons.length}
                     </td>
                     <td className="p-3 dark:text-slate-300">
-                      {cls.getTotalPeriodsPerWeek()} de ore
+                      {cls.getTotalPeriodsPerWeek()} ore
                     </td>
                     <td className="flex items-center justify-center p-3 text-center">
                       <button

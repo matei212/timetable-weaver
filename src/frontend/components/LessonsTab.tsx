@@ -409,19 +409,9 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                       />
                     ) : (
                       <div className="flex justify-center">
-                        <input
-                          type="number"
-                          min="1"
-                          value={lesson.periodsPerWeek}
-                          onChange={e =>
-                            handleQuickEditPeriodsPerWeek(
-                              classIndex,
-                              lessonIndex,
-                              parseInt(e.target.value, 10) || 1,
-                            )
-                          }
-                          className="w-16 rounded-lg border border-blue-500/30 bg-slate-100 p-1 text-center focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-800/50 dark:text-blue-500"
-                        />
+                        <span className="text-bold text-gray-700">
+                          {lesson.periodsPerWeek}
+                        </span>
                       </div>
                     )}
                   </td>
@@ -705,7 +695,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                 </div>
               </GradientContainer>
 
-              <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div className="mb- 6 grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="col-span-full">
                   <label className="text-bold mb-2 block text-blue-500">
                     Tip Lecție
