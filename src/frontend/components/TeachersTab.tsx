@@ -9,6 +9,7 @@ import {
   importTeachersFromCSV,
   getLessonTeacher,
   getLessonName,
+  getAllTeachers,
 } from "../../util/timetable";
 import TeacherAvailabilityModal from "./TeacherAvailabilityModal";
 import GradientContainer from "./common/GradientContainer";
@@ -88,11 +89,29 @@ const useTeacherManagement = (
   const saveAvailability = (newAvailability: Availability) => {
     if (modalTeacherIndex !== null) {
       const updatedTeachers = [...teachers];
-      updatedTeachers[modalTeacherIndex] = new Teacher(
-        updatedTeachers[modalTeacherIndex].name,
-        newAvailability,
-      );
+      const updatedClasses = [...classes];
+      const teacherName = updatedTeachers[modalTeacherIndex].name;
+      const newTeacher = new Teacher(teacherName, newAvailability);
+
+      updatedTeachers[modalTeacherIndex] = newTeacher;
+      for (const cls of updatedClasses) {
+        for (const lesson of cls.lessons) {
+          if (lesson.type === "normal") {
+            if (lesson.teacher.name === teacherName) {
+              lesson.teacher = newTeacher;
+            }
+          } else {
+            for (let i = 0; i < lesson.teachers.length; i++) {
+              if (lesson.teachers[i].name === teacherName) {
+                lesson.teachers[i] = newTeacher;
+              }
+            }
+          }
+        }
+      }
+
       onTeachersChange(updatedTeachers);
+      onClassesChange(updatedClasses);
     }
   };
 
