@@ -8,6 +8,7 @@ import {
 import GradientContainer from "./common/GradientContainer";
 import GradientButton from "./common/GradientButton";
 import ColorButton from "./common/ColorButton";
+import Background from "./common/Background";
 
 interface TeacherAvailabilityModalProps {
   teacher: Teacher;
@@ -48,15 +49,13 @@ const TeacherAvailabilityModal: React.FC<TeacherAvailabilityModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div
-        onClick={onClose}
-        className="flex max-h-[calc(100vh-2rem)] w-full max-w-4xl flex-col sm:max-h-[calc(100vh-4rem)] "
-      >
+      <Background />
+      <div className="flex max-h-[calc(100vh-2rem)] w-full max-w-4xl flex-col sm:max-h-[calc(100vh-4rem)]">
         <GradientContainer
           variant="light"
           className="max-w-4xl p-7 shadow-2xl shadow-blue-500/20"
         >
-          <div className="min-h-0 flex-1 overflow-y-auto max-h-[75vh] ">
+          <div className="max-h-[75vh] min-h-0 flex-1 overflow-y-auto">
             <h2 className="mb-5 text-xl font-bold">
               Editează Disponibilitatea Profesorului:{" "}
               <span className="text-gradient-blue">{teacher.name}</span>
