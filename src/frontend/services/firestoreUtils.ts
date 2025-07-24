@@ -1,8 +1,22 @@
-import { collection, doc, setDoc, getDoc, getDocs, updateDoc, arrayUnion, addDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
+  updateDoc,
+  arrayUnion,
+  addDoc,
+  DocumentData,
+} from "firebase/firestore";
 import { db } from "./firebase";
 
 // Helper to create user collection with info document
-export async function ensureUserCollection(user: { uid: string, email?: string, judet?: string }) {
+export async function ensureUserCollection(user: {
+  uid: string;
+  email?: string;
+  judet?: string;
+}) {
   if (!user?.uid) return;
   const infoDocRef = doc(db, user.uid, "info");
   const infoDocSnap = await getDoc(infoDocRef);
@@ -10,27 +24,40 @@ export async function ensureUserCollection(user: { uid: string, email?: string, 
     await setDoc(infoDocRef, {
       email: user.email || "",
       judet: user.judet || "",
-      timetables: []
+      timetables: [],
     });
   }
 }
 
 // 1. Create user with role assignment
-export async function createUserWithRole(uid: string, email: string): Promise<"ADMIN" | "TEACHER"> {
+export async function createUserWithRole(
+  uid: string,
+  email: string,
+): Promise<"ADMIN" | "TEACHER"> {
   const usersSnap = await getDocs(collection(db, "users"));
   const isFirstUser = usersSnap.empty;
   const role: "ADMIN" | "TEACHER" = isFirstUser ? "ADMIN" : "TEACHER";
-  await setDoc(doc(db, "users", uid), {
-    uid,
-    email,
-    role,
-    assignedTimetables: [],
-  }, { merge: true });
+  await setDoc(
+    doc(db, "users", uid),
+    {
+      uid,
+      email,
+      role,
+      assignedTimetables: [],
+    },
+    { merge: true },
+  );
   return role;
 }
 
 // 2. Create timetable
-export async function createTimetable({ ownerUid, title, teachers, classes, schedule }: {
+export async function createTimetable({
+  ownerUid,
+  title,
+  teachers,
+  classes,
+  schedule,
+}: {
   ownerUid: string;
   title: string;
   teachers: string[];
@@ -48,17 +75,21 @@ export async function createTimetable({ ownerUid, title, teachers, classes, sche
 }
 
 // 3. Assign timetable to teachers
-export async function assignTimetableToTeachers(timetableId: string, teacherEmails: string[]): Promise<void> {
+export async function assignTimetableToTeachers(
+  timetableId: string,
+  teacherEmails: string[],
+): Promise<void> {
   for (const email of teacherEmails) {
     const usersSnap = await getDocs(collection(db, "users"));
-    let userDoc: { id: string; data: () => any } | null = null;
+    let userDoc: { id: string; data: () => DocumentData } | null = null;
     usersSnap.forEach(docSnap => {
       if (docSnap.data().email === email) {
         userDoc = { id: docSnap.id, data: docSnap.data };
       }
     });
-    if (userDoc) {
-      await updateDoc(doc(db, "users", userDoc.id), {
+    if (userDoc !== null) {
+      const { id } = userDoc;
+      await updateDoc(doc(db, "users", id), {
         assignedTimetables: arrayUnion(timetableId),
       });
     } else {
@@ -74,6 +105,14 @@ export async function assignTimetableToTeachers(timetableId: string, teacherEmai
 }
 
 // 4. Save teacher availability
-export async function saveTeacherAvailability(timetableId: string, teacherUid: string, availability: object): Promise<void> {
-  await setDoc(doc(db, "timetables", timetableId, "availability", teacherUid), availability, { merge: true });
-} 
+export async function saveTeacherAvailability(
+  timetableId: string,
+  teacherUid: string,
+  availability: object,
+): Promise<void> {
+  await setDoc(
+    doc(db, "timetables", timetableId, "availability", teacherUid),
+    availability,
+    { merge: true },
+  );
+}

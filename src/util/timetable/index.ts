@@ -160,7 +160,9 @@ export class Teacher {
    * @param availability - Teacher's availability
    */
   constructor(name: string, availability: Availability) {
-    this.id = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2); // fallback for environments without crypto.randomUUID
+    this.id = crypto.randomUUID
+      ? crypto.randomUUID()
+      : Math.random().toString(36).slice(2); // fallback for environments without crypto.randomUUID
     this.name = name;
     this.availability = availability;
   }
@@ -3647,7 +3649,7 @@ export function importAllDataFromCSV(
         let headerProcessed = false;
         let teachersFound = false;
         let classesFound = false;
-        let lessonsFound: Lesson[] = [];
+        let lessonsFound = false;
 
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i].trim();
