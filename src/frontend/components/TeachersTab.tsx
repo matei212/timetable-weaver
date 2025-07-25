@@ -70,8 +70,10 @@ const useTeacherManagement = (
       const cls = updatedClasses[classIdx];
       for (let lessonIdx = 0; lessonIdx < cls.lessons.length; lessonIdx++) {
         const lesson = cls.lessons[lessonIdx];
-        if (getLessonTeacher(lesson).name === removedTeacher.name) {
-          cls.lessons.splice(lessonIdx, 1);
+        for (const teacher of getAllTeachers(lesson)) {
+          if (teacher.name === removedTeacher.name) {
+            cls.lessons.splice(lessonIdx, 1);
+          }
         }
       }
     }
