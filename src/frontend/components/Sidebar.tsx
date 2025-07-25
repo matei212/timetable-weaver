@@ -151,27 +151,6 @@ const Sidebar: React.FC<SidebarProps> = ({ mode, onModeChange }) => {
       ),
     },
     {
-      id: "signup",
-      path: "/signup",
-      label: "Sign Up",
-      icon: (
-        <svg
-          width="20"
-          height="20"
-          fill="none"
-          stroke="#22c55e"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          viewBox="0 0 24 24"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <line x1="12" y1="8" x2="12" y2="16" />
-          <line x1="8" y1="12" x2="16" y2="12" />
-        </svg>
-      ),
-    },
-    {
       id: "profile",
       path: "/profile",
       label: "Profil",
@@ -211,19 +190,6 @@ const Sidebar: React.FC<SidebarProps> = ({ mode, onModeChange }) => {
   ];
 
   const tabs = mode === "timetable" ? timetableTabs : defaultTabs;
-
-  // When mode changes, navigate to the first tab of the mode
-  useEffect(() => {
-    const currentPath = location.pathname;
-
-    // Check if the current path doesn't match any tab in the current mode
-    const isPathInTabs = tabs.some(tab => tab.path === currentPath);
-
-    if (!isPathInTabs) {
-      // Navigate to the first tab of the current mode
-      navigate(tabs[0].path);
-    }
-  }, [mode, tabs, navigate, location.pathname]);
 
   // Close mobile menu when navigating to a new page
   useEffect(() => {
