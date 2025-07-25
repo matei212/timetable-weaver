@@ -198,13 +198,14 @@ export type Lesson = {
       teachers: [Teacher, Teacher];
       type: "alternating";
     }
+  | { name: string; teachers: [Teacher, Teacher]; type: "group" }
 );
 
 /**
  * Helper functions for Lesson compatibility
  */
 export function getLessonName(lesson: Lesson, week: 0 | 1 = 0): string {
-  if (lesson.type === "normal") return lesson.name;
+  if (lesson.type === "normal" || lesson.type === "group") return lesson.name;
   return lesson.names[week];
 }
 
@@ -1385,6 +1386,8 @@ export class Timetable {
           if (lesson) {
             if (isAlternatingLesson(lesson)) {
               html += `<td><div class="lesson">${lesson.names[0]} / ${lesson.names[1]}</div><div class="teacher">${lesson.teachers[0].name} / ${lesson.teachers[1].name}</div></td>`;
+            } else if (lesson.type === "group") {
+              html += `<td><div class="lesson">${lesson.name}</div><div class="teacher">${lesson.teachers[0].name} / ${lesson.teachers[1].name}</div></td>`;
             } else {
               html += `<td><div class="lesson">${lesson.name}</div><div class="teacher">${lesson.teacher.name}</div></td>`;
             }
@@ -3967,5 +3970,8 @@ function parseSimpleCsvFormat(csvText: string): {
 
 // Helper for getting all teachers for a lesson
 export function getAllTeachers(lesson: Lesson): Teacher[] {
-  return isAlternatingLesson(lesson) ? lesson.teachers : [lesson.teacher];
+  if (lesson.type === "normal") {
+    return [lesson.teacher];
+  }
+  return lesson.teachers;
 }
