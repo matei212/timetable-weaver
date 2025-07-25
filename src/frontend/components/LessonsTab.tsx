@@ -67,9 +67,9 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
     };
 
   // Add state for lesson type and alternating fields
-  const [lessonType, setLessonType] = useState<"normal" | "alternating">(
-    "normal",
-  );
+  const [lessonType, setLessonType] = useState<
+    "normal" | "alternating" | "group"
+  >("normal");
   const [altLessonNames, setAltLessonNames] = useState<[string, string]>([
     "",
     "",
@@ -88,6 +88,18 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
         teacher: teachers[selectedTeacherIndex],
         periodsPerWeek,
         type: "normal",
+      };
+    } else if (lessonType === "group") {
+      if (altTeacherIndexes[0] === null || altTeacherIndexes[1] === null)
+        return;
+      newLesson = {
+        name: newLessonName.trim(),
+        teachers: [
+          teachers[altTeacherIndexes[0]],
+          teachers[altTeacherIndexes[1]],
+        ],
+        periodsPerWeek,
+        type: "group",
       };
     } else {
       if (
@@ -123,6 +135,13 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
   const isDisabledButton = useMemo(() => {
     if (lessonType === "normal") {
       return newLessonName.trim().length === 0 || selectedTeacherIndex === null;
+    } else if (lessonType === "group") {
+      return (
+        newLessonName.trim().length === 0 ||
+        altTeacherIndexes[0] === null ||
+        altTeacherIndexes[1] === null ||
+        altTeacherIndexes[0] === altTeacherIndexes[1]
+      );
     } else {
       return (
         altLessonNames[0].trim().length === 0 ||
@@ -371,7 +390,8 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                       </select>
                     ) : (
                       <div className="flex flex-col">
-                        {isAlternatingLesson(lesson) ? (
+                        {isAlternatingLesson(lesson) ||
+                        lesson.type === "group" ? (
                           <div className="flex flex-col">
                             <span className="text-bold text-gray-700">
                               {lesson.teachers[0].name} /{" "}
@@ -703,12 +723,17 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                   <select
                     value={lessonType}
                     onChange={e =>
-                      setLessonType(e.target.value as "normal" | "alternating")
+                      setLessonType(
+                        e.target.value as "normal" | "alternating" | "group",
+                      )
                     }
                     className="w-full rounded-lg border border-slate-600/50 bg-slate-100 p-3"
                   >
                     <option value="normal">Normală</option>
-                    <option value="alternating">Alternantă</option>
+                    <option value="alternating">
+                      Alternantă (ex. Desen / Muzică)
+                    </option>
+                    <option value="group">împărțită pe grupe</option>
                   </select>
                 </div>
                 {lessonType === "normal" ? (
@@ -752,7 +777,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                       </select>
                     </div>
                   </>
-                ) : (
+                ) : lessonType === "alternating" ? (
                   <>
                     <div>
                       <label className="text-bold mb-2 block text-blue-500">
@@ -837,6 +862,78 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                       </select>
                     </div>
                   </>
+                ) : (
+                  <>
+                    <div className="md:row-span-2 md:my-auto">
+                      <label className="text-bold mb-2 block text-blue-500">
+                        Nume Materie
+                      </label>
+                      <TextInput
+                        value={newLessonName}
+                        onChange={e => setNewLessonName(e.target.value)}
+                        placeholder="Numele materiei (ex. 'Matematică', 'Fizică')"
+                        className="w-full p-3"
+                      />
+                    </div>
+                    <div className="flex w-full flex-col">
+                      <div>
+                        <label className="text-bold mb-2 block text-blue-500">
+                          Profesor (Grupa 1)
+                        </label>
+                        <select
+                          value={
+                            altTeacherIndexes[0] !== null
+                              ? altTeacherIndexes[0]
+                              : ""
+                          }
+                          onChange={e =>
+                            setAltTeacherIndexes([
+                              e.target.value
+                                ? parseInt(e.target.value, 10)
+                                : null,
+                              altTeacherIndexes[1],
+                            ])
+                          }
+                          className="w-full rounded-lg border border-slate-600/50 bg-slate-100 p-3"
+                        >
+                          <option value="">Selectează Profesor</option>
+                          {teachers.map((teacher, index) => (
+                            <option key={index} value={index}>
+                              {teacher.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-bold mb-2 block text-blue-500">
+                          Profesor (Groupa 2)
+                        </label>
+                        <select
+                          value={
+                            altTeacherIndexes[1] !== null
+                              ? altTeacherIndexes[1]
+                              : ""
+                          }
+                          onChange={e =>
+                            setAltTeacherIndexes([
+                              altTeacherIndexes[0],
+                              e.target.value
+                                ? parseInt(e.target.value, 10)
+                                : null,
+                            ])
+                          }
+                          className="w-full rounded-lg border border-slate-600/50 bg-slate-100 p-3"
+                        >
+                          <option value="">Selectează Profesor</option>
+                          {teachers.map((teacher, index) => (
+                            <option key={index} value={index}>
+                              {teacher.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </>
                 )}
               </div>
 
@@ -861,14 +958,6 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
 
                   <div className="inline-flex items-center"></div>
                 </div>
-
-                <label className="group relative flex cursor-pointer items-center">
-                  <input className="peer sr-only" type="checkbox" />
-                  <div className="h-8 w-8 rounded-lg border-2 border-blue-500 bg-white from-blue-500 to-blue-900 transition-all duration-300 ease-in-out peer-checked:rotate-12 peer-checked:border-0 peer-checked:bg-gradient-to-br after:absolute after:top-1/2 after:left-1/2 after:h-5 after:w-5 after:-translate-x-1/2 after:-translate-y-1/2 after:bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cG9seWxpbmUgcG9pbnRzPSIyMCA2IDkgMTcgNCAxMiI+PC9wb2x5bGluZT48L3N2Zz4=')] after:bg-contain after:bg-no-repeat after:opacity-0 after:transition-opacity after:duration-300 after:content-[''] peer-checked:after:opacity-100 hover:shadow-[0_0_15px_rgba(168,85,247,0.5)]"></div>
-                  <span className="text-medium ml-3 font-medium text-gray-900">
-                    Împare clasa in 2 grupe - Bilingv si Intensiv
-                  </span>
-                </label>
               </div>
 
               <div className="text-center">
@@ -876,7 +965,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                   onClick={handleAddLesson}
                   disabled={isDisabledButton}
                   className={`relative transform rounded-xl px-6 py-2 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 md:px-8 md:py-3 ${
-                    !newLessonName.trim() || selectedTeacherIndex === null
+                    isDisabledButton
                       ? "cursor-not-allowed bg-gray-600"
                       : "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 hover:shadow-blue-500/30"
                   }`}
