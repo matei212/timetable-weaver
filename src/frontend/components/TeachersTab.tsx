@@ -423,7 +423,7 @@ const TeacherListItem: React.FC<{
             Disponibilitate
           </button>
 
-          <td className="flex items-center justify-center p-3 text-left">
+          <div className="flex items-center justify-center p-3 text-left">
             <button
               className="group relative flex h-11 w-11 cursor-pointer items-center justify-start overflow-hidden rounded-full bg-red-600 shadow-lg transition-all duration-200 hover:w-25 hover:rounded-lg active:translate-x-1 active:translate-y-1"
               onClick={onRemove}
@@ -451,7 +451,7 @@ const TeacherListItem: React.FC<{
                 Șterge
               </div>
             </button>
-          </td>
+          </div>
         </td>
       </tr>
       {isExpanded &&
