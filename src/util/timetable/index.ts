@@ -150,6 +150,7 @@ export class Availability {
  * Class representing a teacher
  */
 export class Teacher {
+  id: string;
   name: string;
   availability: Availability;
 
@@ -159,6 +160,9 @@ export class Teacher {
    * @param availability - Teacher's availability
    */
   constructor(name: string, availability: Availability) {
+    this.id = crypto.randomUUID
+      ? crypto.randomUUID()
+      : Math.random().toString(36).slice(2); // fallback for environments without crypto.randomUUID
     this.name = name;
     this.availability = availability;
   }

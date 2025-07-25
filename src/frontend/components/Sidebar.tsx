@@ -171,6 +171,26 @@ const Sidebar: React.FC<SidebarProps> = ({ mode, onModeChange }) => {
         </svg>
       ),
     },
+    {
+      id: "profile",
+      path: "/profile",
+      label: "Profil",
+      icon: (
+        <svg
+          width="20"
+          height="20"
+          fill="none"
+          stroke="#3c4043"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          viewBox="0 0 24 24"
+        >
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 20c0-4 8-4 8-4s8 0 8 4" />
+        </svg>
+      ),
+    },
   ];
 
   const timetableTabs: SidebarTab[] = [
