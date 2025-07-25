@@ -26,13 +26,31 @@ interface LessonsTabProps {
   onClassesChange: (classes: Class[]) => void;
 }
 
-interface EditingLesson {
-  classIndex: number;
-  lessonIndex: number;
-  name: string;
-  teacherIndex: number;
-  periodsPerWeek: number;
-}
+type EditingLesson =
+  | {
+      type: "normal";
+      classIndex: number;
+      lessonIndex: number;
+      name: string;
+      teacherIndex: number;
+      periodsPerWeek: number;
+    }
+  | {
+      type: "alternating";
+      classIndex: number;
+      lessonIndex: number;
+      names: [string, string];
+      teacherIndexes: [number, number];
+      periodsPerWeek: number;
+    }
+  | {
+      type: "group";
+      classIndex: number;
+      lessonIndex: number;
+      name: string;
+      teacherIndexes: [number, number];
+      periodsPerWeek: number;
+    };
 
 const LessonsTab: React.FC<LessonsTabProps> = ({
   classes,
@@ -175,68 +193,92 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
 
   const handleStartEditLesson = (classIndex: number, lessonIndex: number) => {
     const lesson = classes[classIndex].lessons[lessonIndex];
-    const teacherIndex = teachers.findIndex(
-      t => t.name === getLessonTeacher(lesson).name,
-    );
-
-    if (teacherIndex !== -1) {
+    if (lesson.type === "normal") {
+      const teacherIndex = teachers.findIndex(
+        t => t.name === lesson.teacher.name,
+      );
       setEditingLesson({
+        type: "normal",
         classIndex,
         lessonIndex,
-        name: getLessonName(lesson),
+        name: lesson.name,
         teacherIndex,
+        periodsPerWeek: lesson.periodsPerWeek,
+      });
+    } else if (lesson.type === "alternating") {
+      const teacherIndexes: [number, number] = [
+        teachers.findIndex(t => t.name === lesson.teachers[0].name),
+        teachers.findIndex(t => t.name === lesson.teachers[1].name),
+      ];
+      setEditingLesson({
+        type: "alternating",
+        classIndex,
+        lessonIndex,
+        names: [lesson.names[0], lesson.names[1]],
+        teacherIndexes,
+        periodsPerWeek: lesson.periodsPerWeek,
+      });
+    } else if (lesson.type === "group") {
+      const teacherIndexes: [number, number] = [
+        teachers.findIndex(t => t.name === lesson.teachers[0].name),
+        teachers.findIndex(t => t.name === lesson.teachers[1].name),
+      ];
+      setEditingLesson({
+        type: "group",
+        classIndex,
+        lessonIndex,
+        name: lesson.name,
+        teacherIndexes,
         periodsPerWeek: lesson.periodsPerWeek,
       });
     }
   };
 
   const handleSaveEditLesson = () => {
-    if (editingLesson && teachers[editingLesson.teacherIndex]) {
-      const updatedClasses = [...classes];
-      const currentClass = updatedClasses[editingLesson.classIndex];
-      const updatedLessons = [...currentClass.lessons];
-      // Only allow editing normal lessons for now
+    if (!editingLesson) return;
+    const updatedClasses = [...classes];
+    const currentClass = updatedClasses[editingLesson.classIndex];
+    const updatedLessons = [...currentClass.lessons];
+
+    if (editingLesson.type === "normal") {
       updatedLessons[editingLesson.lessonIndex] = {
         name: editingLesson.name.trim(),
         teacher: teachers[editingLesson.teacherIndex],
         periodsPerWeek: editingLesson.periodsPerWeek,
-        type: "normal" as const,
+        type: "normal",
       };
-      updatedClasses[editingLesson.classIndex] = new Class(
-        currentClass.name,
-        updatedLessons,
-      );
-      onClassesChange(updatedClasses);
-      setEditingLesson(null);
+    } else if (editingLesson.type === "alternating") {
+      updatedLessons[editingLesson.lessonIndex] = {
+        names: [editingLesson.names[0].trim(), editingLesson.names[1].trim()],
+        teachers: [
+          teachers[editingLesson.teacherIndexes[0]],
+          teachers[editingLesson.teacherIndexes[1]],
+        ],
+        periodsPerWeek: editingLesson.periodsPerWeek,
+        type: "alternating",
+      };
+    } else if (editingLesson.type === "group") {
+      updatedLessons[editingLesson.lessonIndex] = {
+        name: editingLesson.name.trim(),
+        teachers: [
+          teachers[editingLesson.teacherIndexes[0]],
+          teachers[editingLesson.teacherIndexes[1]],
+        ],
+        periodsPerWeek: editingLesson.periodsPerWeek,
+        type: "group",
+      };
     }
+
+    updatedClasses[editingLesson.classIndex] = new Class(
+      currentClass.name,
+      updatedLessons,
+    );
+    onClassesChange(updatedClasses);
+    setEditingLesson(null);
   };
 
   const handleCancelEditLesson = () => {
     setEditingLesson(null);
-  };
-
-  // Add a new function to handle quick edit of periods per week
-  const handleQuickEditPeriodsPerWeek = (
-    classIndex: number,
-    lessonIndex: number,
-    newValue: number,
-  ) => {
-    const updatedClasses = [...classes];
-    const currentClass = updatedClasses[classIndex];
-    const lesson = currentClass.lessons[lessonIndex];
-    // Only allow quick edit for normal lessons
-    if (lesson.type === "normal") {
-      const updatedLesson = {
-        name: getLessonName(lesson),
-        teacher: getLessonTeacher(lesson),
-        periodsPerWeek: Math.max(1, newValue),
-        type: "normal" as const,
-      };
-      const updatedLessons = [...currentClass.lessons];
-      updatedLessons[lessonIndex] = updatedLesson;
-      updatedClasses[classIndex] = new Class(currentClass.name, updatedLessons);
-      onClassesChange(updatedClasses);
-    }
   };
 
   // Update the export all lessons handler
@@ -303,7 +345,10 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                   Profesor
                 </th>
                 <th className="border-b border-slate-600/50 p-3 text-center font-medium tracking-wide">
-                  ore
+                  Tip
+                </th>
+                <th className="border-b border-slate-600/50 p-3 text-center font-medium tracking-wide">
+                  Ore
                 </th>
                 <th className="hidden w-32 border-b border-slate-600/50 p-3 text-center font-medium tracking-wide md:table-cell">
                   Acțiuni
@@ -311,174 +356,227 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
               </tr>
             </thead>
             <tbody>
-              {lessons.map((lesson, lessonIndex) => (
-                <tr
-                  key={lessonIndex}
-                  className="border-b border-slate-700/50 transition-all duration-300 hover:bg-slate-400/10 dark:hover:bg-slate-700/20"
-                >
-                  <td className="p-3">
-                    {editingLesson &&
-                    editingLesson.classIndex === classIndex &&
-                    editingLesson.lessonIndex === lessonIndex ? (
-                      <input
-                        type="text"
-                        value={editingLesson.name}
-                        onChange={e =>
-                          setEditingLesson({
-                            ...editingLesson,
-                            name: e.target.value,
-                          })
-                        }
-                        className="w-full rounded-lg border border-slate-600/50 bg-slate-100 p-2 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
-                        autoFocus
-                      />
-                    ) : (
-                      <div>
-                        {isAlternatingLesson(lesson) ? (
-                          <div>
-                            <span className="font-medium text-slate-700 dark:text-slate-100">
-                              {lesson.names[0]} / {lesson.names[1]}
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="font-medium text-slate-700 dark:text-slate-100">
-                            {getLessonName(lesson)}
-                          </span>
-                        )}
-                        <div className="mt-1 md:hidden">
-                          <div className="mt-2 flex gap-2">
-                            <ColorButton
-                              onClick={() =>
-                                handleStartEditLesson(classIndex, lessonIndex)
+              {lessons.map((lesson, lessonIndex) => {
+                const isEditing =
+                  editingLesson &&
+                  editingLesson.classIndex === classIndex &&
+                  editingLesson.lessonIndex === lessonIndex;
+                return (
+                  <tr
+                    key={lessonIndex}
+                    className="border-b border-slate-700/50 transition-all duration-300 hover:bg-slate-400/10 dark:hover:bg-slate-700/20"
+                  >
+                    {/* Materie cell */}
+                    <td className="p-3">
+                      {isEditing ? (
+                        editingLesson.type === "normal" ||
+                        editingLesson.type === "group" ? (
+                          <input
+                            type="text"
+                            value={editingLesson.name}
+                            onChange={e =>
+                              setEditingLesson({
+                                ...editingLesson,
+                                name: e.target.value,
+                              })
+                            }
+                            className="w-full rounded-lg border border-slate-600/50 bg-slate-100 p-2 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
+                            autoFocus
+                          />
+                        ) : editingLesson.type === "alternating" ? (
+                          <div className="flex flex-col gap-1">
+                            <input
+                              type="text"
+                              value={editingLesson.names[0]}
+                              onChange={e =>
+                                setEditingLesson({
+                                  ...editingLesson,
+                                  names: [
+                                    e.target.value,
+                                    editingLesson.names[1],
+                                  ],
+                                })
                               }
-                              className="px-2 py-1"
-                            >
-                              Editează
-                            </ColorButton>
-                            <ColorButton
-                              onClick={() =>
-                                handleRemoveLesson(classIndex, lessonIndex)
+                              className="w-full rounded-lg border border-slate-600/50 bg-slate-100 p-2 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
+                              placeholder="Nume săpt. 1"
+                            />
+                            <input
+                              type="text"
+                              value={editingLesson.names[1]}
+                              onChange={e =>
+                                setEditingLesson({
+                                  ...editingLesson,
+                                  names: [
+                                    editingLesson.names[0],
+                                    e.target.value,
+                                  ],
+                                })
                               }
-                              className="px-3 py-1.5"
-                            >
-                              Șterge
-                            </ColorButton>
+                              className="w-full rounded-lg border border-slate-600/50 bg-slate-100 p-2 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
+                              placeholder="Nume săpt. 2"
+                            />
                           </div>
-                        </div>
-                      </div>
-                    )}
-                  </td>
-                  <td className="p-3">
-                    {editingLesson &&
-                    editingLesson.classIndex === classIndex &&
-                    editingLesson.lessonIndex === lessonIndex ? (
-                      <select
-                        value={editingLesson.teacherIndex}
-                        onChange={e =>
-                          setEditingLesson({
-                            ...editingLesson,
-                            teacherIndex: parseInt(e.target.value, 10),
-                          })
-                        }
-                        className="w-full rounded-lg border border-slate-600/50 bg-slate-100 p-2 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
-                      >
-                        {teachers.map((teacher, idx) => (
-                          <option key={idx} value={idx}>
-                            {teacher.name}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <div className="flex flex-col">
-                        {isAlternatingLesson(lesson) ||
+                        ) : null
+                      ) : isAlternatingLesson(lesson) ? (
+                        <span className="font-medium text-slate-700 dark:text-slate-100">
+                          {lesson.names[0]} / {lesson.names[1]}
+                        </span>
+                      ) : (
+                        <span className="font-medium text-slate-700 dark:text-slate-100">
+                          {getLessonName(lesson)}
+                        </span>
+                      )}
+                    </td>
+                    {/* Profesor cell */}
+                    <td className="p-3">
+                      {isEditing ? (
+                        editingLesson.type === "normal" ? (
+                          <select
+                            value={editingLesson.teacherIndex}
+                            onChange={e =>
+                              setEditingLesson({
+                                ...editingLesson,
+                                teacherIndex: parseInt(e.target.value, 10),
+                              })
+                            }
+                            className="w-full rounded-lg border border-slate-600/50 bg-slate-100 p-2 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
+                          >
+                            {teachers.map((teacher, idx) => (
+                              <option key={idx} value={idx}>
+                                {teacher.name}
+                              </option>
+                            ))}
+                          </select>
+                        ) : editingLesson.type === "alternating" ||
+                          editingLesson.type === "group" ? (
+                          <div className="flex flex-col gap-1">
+                            <select
+                              value={editingLesson.teacherIndexes[0]}
+                              onChange={e =>
+                                setEditingLesson({
+                                  ...editingLesson,
+                                  teacherIndexes: [
+                                    parseInt(e.target.value, 10),
+                                    editingLesson.teacherIndexes[1],
+                                  ],
+                                })
+                              }
+                              className="w-full rounded-lg border border-slate-600/50 bg-slate-100 p-2 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
+                            >
+                              {teachers.map((teacher, idx) => (
+                                <option key={idx} value={idx}>
+                                  {teacher.name}
+                                </option>
+                              ))}
+                            </select>
+                            <select
+                              value={editingLesson.teacherIndexes[1]}
+                              onChange={e =>
+                                setEditingLesson({
+                                  ...editingLesson,
+                                  teacherIndexes: [
+                                    editingLesson.teacherIndexes[0],
+                                    parseInt(e.target.value, 10),
+                                  ],
+                                })
+                              }
+                              className="w-full rounded-lg border border-slate-600/50 bg-slate-100 p-2 focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
+                            >
+                              {teachers.map((teacher, idx) => (
+                                <option key={idx} value={idx}>
+                                  {teacher.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        ) : null
+                      ) : isAlternatingLesson(lesson) ||
                         lesson.type === "group" ? (
-                          <div className="flex flex-col">
-                            <span className="text-bold text-gray-700">
-                              {lesson.teachers[0].name} /{" "}
-                              {lesson.teachers[1].name}
-                            </span>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col">
-                            <span className="text-bold text-gray-700">
-                              {getLessonTeacher(lesson).name}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </td>
-                  <td className="p-3 text-center">
-                    {editingLesson &&
-                    editingLesson.classIndex === classIndex &&
-                    editingLesson.lessonIndex === lessonIndex ? (
-                      <input
-                        type="number"
-                        min="1"
-                        value={editingLesson.periodsPerWeek}
-                        onChange={e =>
-                          setEditingLesson({
-                            ...editingLesson,
-                            periodsPerWeek: Math.max(
-                              1,
-                              parseInt(e.target.value, 10) || 1,
-                            ),
-                          })
-                        }
-                        className="w-20 rounded-lg border border-slate-600/50 bg-slate-100 p-2 text-center focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
-                      />
-                    ) : (
-                      <div className="flex justify-center">
+                        <span className="text-bold text-gray-700">
+                          {lesson.teachers[0].name} / {lesson.teachers[1].name}
+                        </span>
+                      ) : (
+                        <span className="text-bold text-gray-700">
+                          {getLessonTeacher(lesson).name}
+                        </span>
+                      )}
+                    </td>
+                    {/* Tip cell */}
+                    <td className="p-3 text-center">
+                      {lesson.type === "normal"
+                        ? "Normală"
+                        : lesson.type === "alternating"
+                          ? "Alternantă"
+                          : "Grupă"}
+                    </td>
+                    {/* Ore cell */}
+                    <td className="p-3 text-center">
+                      {isEditing ? (
+                        <input
+                          type="number"
+                          min="1"
+                          value={editingLesson.periodsPerWeek}
+                          onChange={e =>
+                            setEditingLesson({
+                              ...editingLesson,
+                              periodsPerWeek: Math.max(
+                                1,
+                                parseInt(e.target.value, 10) || 1,
+                              ),
+                            })
+                          }
+                          className="w-20 rounded-lg border border-slate-600/50 bg-slate-100 p-2 text-center focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
+                        />
+                      ) : (
                         <span className="text-bold text-gray-700">
                           {lesson.periodsPerWeek}
                         </span>
-                      </div>
-                    )}
-                  </td>
-                  <td className="hidden p-3 text-center md:table-cell">
-                    {editingLesson &&
-                    editingLesson.classIndex === classIndex &&
-                    editingLesson.lessonIndex === lessonIndex ? (
-                      <div className="flex justify-center gap-2">
-                        <GradientButton
-                          variant="blue"
-                          onClick={handleSaveEditLesson}
-                          className="rounded-lg bg-red-500 px-3 py-1 text-xs text-white transition-all duration-300 hover:bg-emerald-700"
-                        >
-                          Salvează
-                        </GradientButton>
-                        <button
-                          onClick={handleCancelEditLesson}
-                          className="rounded-lg bg-slate-600 px-3 py-1 text-xs text-white transition-all duration-300 hover:bg-slate-700"
-                        >
-                          Anulează
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex justify-center gap-2">
-                        <ColorButton
-                          onClick={() =>
-                            handleStartEditLesson(classIndex, lessonIndex)
-                          }
-                          variant="blue"
-                          className="px-3 py-1 text-xs"
-                        >
-                          Editează
-                        </ColorButton>
-                        <ColorButton
-                          variant="red"
-                          onClick={() =>
-                            handleRemoveLesson(classIndex, lessonIndex)
-                          }
-                          className="px-3 py-1.5 text-xs"
-                        >
-                          Șterge
-                        </ColorButton>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                      )}
+                    </td>
+                    {/* Actions cell */}
+                    <td className="hidden p-3 text-center md:table-cell">
+                      {isEditing ? (
+                        <div className="flex justify-center gap-2">
+                          <GradientButton
+                            variant="blue"
+                            onClick={handleSaveEditLesson}
+                            className="rounded-lg bg-red-500 px-3 py-1 text-xs text-white transition-all duration-300 hover:bg-emerald-700"
+                          >
+                            Salvează
+                          </GradientButton>
+                          <button
+                            onClick={handleCancelEditLesson}
+                            className="rounded-lg bg-slate-600 px-3 py-1 text-xs text-white transition-all duration-300 hover:bg-slate-700"
+                          >
+                            Anulează
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex justify-center gap-2">
+                          <ColorButton
+                            onClick={() =>
+                              handleStartEditLesson(classIndex, lessonIndex)
+                            }
+                            variant="blue"
+                            className="px-3 py-1 text-xs"
+                          >
+                            Editează
+                          </ColorButton>
+                          <ColorButton
+                            variant="red"
+                            onClick={() =>
+                              handleRemoveLesson(classIndex, lessonIndex)
+                            }
+                            className="px-3 py-1.5 text-xs"
+                          >
+                            Șterge
+                          </ColorButton>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
