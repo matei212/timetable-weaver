@@ -415,45 +415,43 @@ const TeacherListItem: React.FC<{
             Setează Disponibilitate
           </ColorButton>
         </td>
-        <td className="p-3 text-right sm:text-center">
-          <div className="flex flex-col justify-end gap-2 sm:flex-row sm:justify-center">
-            <button
-              onClick={onEditAvailability}
-              className="bg-indigo-500/ rounded-lg px-3 py-1.5 text-indigo-300 transition-all duration-300 hover:bg-indigo-500/30 hover:text-indigo-200 sm:hidden"
-            >
-              Disponibilitate
-            </button>
+        <td className="flex flex-col justify-end gap-2 p-3 text-right sm:flex-row sm:justify-center sm:text-center">
+          <button
+            onClick={onEditAvailability}
+            className="bg-indigo-500/ rounded-lg px-3 py-1.5 text-indigo-300 transition-all duration-300 hover:bg-indigo-500/30 hover:text-indigo-200 sm:hidden"
+          >
+            Disponibilitate
+          </button>
 
-            <td className="flex items-center justify-center p-3 text-left">
-              <button
-                className="group relative flex h-11 w-11 cursor-pointer items-center justify-start overflow-hidden rounded-full bg-red-600 shadow-lg transition-all duration-200 hover:w-25 hover:rounded-lg active:translate-x-1 active:translate-y-1"
-                onClick={onRemove}
-              >
-                <div className="flex w-full items-center justify-center transition-all duration-300 group-hover:justify-start group-hover:px-3">
-                  <svg
-                    className="h-6 w-6 text-gray-800 dark:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="white"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
-                    />
-                  </svg>
-                </div>
-                <div className="absolute right-2 translate-x-full transform text-lg font-semibold text-white opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
-                  Șterge
-                </div>
-              </button>
-            </td>
-          </div>
+          <td className="flex items-center justify-center p-3 text-left">
+            <button
+              className="group relative flex h-11 w-11 cursor-pointer items-center justify-start overflow-hidden rounded-full bg-red-600 shadow-lg transition-all duration-200 hover:w-25 hover:rounded-lg active:translate-x-1 active:translate-y-1"
+              onClick={onRemove}
+            >
+              <div className="flex w-full items-center justify-center transition-all duration-300 group-hover:justify-start group-hover:px-3">
+                <svg
+                  className="h-6 w-6 text-gray-800 dark:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="white"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
+                  />
+                </svg>
+              </div>
+              <div className="absolute right-2 translate-x-full transform text-lg font-semibold text-white opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+                Șterge
+              </div>
+            </button>
+          </td>
         </td>
       </tr>
       {isExpanded &&
