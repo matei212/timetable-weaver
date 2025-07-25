@@ -2992,7 +2992,9 @@ function lessonToCSV(lesson: Lesson, className: string) {
   if (lesson.type === "normal") {
     out += `${lesson.name},${lesson.teacher.name}`;
   } else if (lesson.type === "alternating") {
-    out += `${lesson.names[0]} / ${lesson.names[1]}, ${lesson.teachers[0].name} / ${lesson.teachers[1].name}`;
+    out += `${lesson.names[0]} / ${lesson.names[1]},${lesson.teachers[0].name} / ${lesson.teachers[1].name}`;
+  } else if (lesson.type === "group") {
+    out += `${lesson.name},${lesson.teachers[0].name} / ${lesson.teachers[1].name}`;
   }
   out += ",";
 
@@ -3759,6 +3761,29 @@ export function importAllDataFromCSV(
                 } else {
                   console.warn(
                     `One or both teachers for alternating lesson "${subjectName}" not found, skipping.`,
+                  );
+                  continue;
+                }
+              } else if (
+                subjectParts.length === 1 &&
+                teacherParts.length === 2
+              ) {
+                const teachersFound = [
+                  teachers.find(t => t.name === teacherParts[0].trim()),
+                  teachers.find(t => t.name === teacherParts[1].trim()),
+                ];
+
+                if (teachersFound[0] && teachersFound[1]) {
+                  const periodsPerWeek = parseInt(periodsPerWeekStr) || 1;
+                  lesson = {
+                    name: subjectParts[0].trim(),
+                    teachers: [teachersFound[0], teachersFound[1]],
+                    periodsPerWeek,
+                    type: "group",
+                  };
+                } else {
+                  console.warn(
+                    `One or both teachers for group lesson "${subjectName}" not found, skipping.`,
                   );
                   continue;
                 }

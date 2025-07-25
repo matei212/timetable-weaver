@@ -462,7 +462,8 @@ const ClassTimetable: React.FC<{
                           <div
                             className={`text-sm ${isConflict ? "text-red-600" : "text-blue-600"}`}
                           >
-                            {isAlternatingLesson(lesson)
+                            {isAlternatingLesson(lesson) ||
+                            lesson.type === "group"
                               ? `${lesson.teachers[0].name} / ${lesson.teachers[1].name}`
                               : lesson.teacher.name}
                           </div>
