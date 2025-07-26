@@ -6,6 +6,7 @@ import GradientButton from "./common/GradientButton";
 interface SidebarProps {
   mode: "default" | "timetable";
   onModeChange: (mode: "default" | "timetable") => void;
+  timetableName?: string;
 }
 
 interface SidebarTab {
@@ -121,7 +122,7 @@ const icons = {
   ),
 };
 
-const Sidebar: React.FC<SidebarProps> = ({ mode, onModeChange }) => {
+const Sidebar: React.FC<SidebarProps> = ({ mode, onModeChange, timetableName }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -272,10 +273,21 @@ const Sidebar: React.FC<SidebarProps> = ({ mode, onModeChange }) => {
           >
             Timetable Weaver
           </h1>
+          {/* Show timetable name when in timetable mode */}
           {mode === "timetable" && (
             <p className="mt-2 flex items-center text-sm font-light text-blue-500">
+              {/* Animated dot indicator */}
               <span className="mr-2 animate-pulse text-cyan-400">◉</span>
-              Orar Nou
+              
+              {/* 
+                This container will hold the timetable name.
+                The 'truncate' class will automatically add '...' 
+                if the text is too long to fit.
+              */}
+              <span className="truncate">
+                {/* We show the timetable name, or "Orar Nou" as a default. */}
+                {timetableName || "Orar Nou"}
+              </span>
             </p>
           )}
         </div>

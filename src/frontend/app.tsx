@@ -31,6 +31,7 @@ interface AppState {
   teachers: Teacher[];
   classes: Class[];
   generatedTimetable: Timetable | null;
+  timetableName?: string;
 }
 
 /**
@@ -112,7 +113,7 @@ const useLocalStorage = (storageAvailable: boolean) => {
                 console.log("Saved UI state while preserving existing data");
                 return;
               }
-            } catch (e) {
+            } catch {
               // If parsing fails, continue with normal save
             }
           }
@@ -190,9 +191,10 @@ const StateProvider: React.FC<{
     classes: Class[];
     generatedTimetable: Timetable | null;
     timetableId?: string;
+    timetableName?: string;
     storageAvailable: boolean;
     handleSidebarModeChange: (mode: "default" | "timetable") => void;
-    handleCreateTimetable: (timetableId?: string) => void;
+    handleCreateTimetable: (timetableId?: string, timetableName?: string) => void;
     handleTimetableGenerated: (timetable: Timetable | null) => void;
     handleCloseTimetable: () => void;
     handleClearData: () => void;
@@ -205,6 +207,7 @@ const StateProvider: React.FC<{
     "default",
   );
   const [timetableId, setTimetableId] = useState<string | undefined>(undefined);
+  const [timetableName, setTimetableName] = useState<string | undefined>(undefined);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [classes, setClasses] = useState<Class[]>([]);
   const [generatedTimetable, setGeneratedTimetable] =
@@ -327,9 +330,10 @@ const StateProvider: React.FC<{
     setSidebarMode(mode);
   };
 
-  const handleCreateTimetable = (id?: string) => {
+  const handleCreateTimetable = (id?: string, name?: string) => {
     setSidebarMode("timetable");
     setTimetableId(id);
+    setTimetableName(name);
   };
 
   const handleTimetableGenerated = (timetable: Timetable | null) => {
@@ -387,6 +391,7 @@ const StateProvider: React.FC<{
         classes,
         generatedTimetable,
         timetableId,
+        timetableName,
         storageAvailable,
         handleSidebarModeChange,
         handleCreateTimetable,
@@ -411,11 +416,12 @@ const RoutesConfig: React.FC<{
   storageAvailable: boolean;
   onClearData: () => void;
   onForceSave: () => void;
-  onCreateTimetable: (timetableId?: string) => void;
+  onCreateTimetable: (timetableId?: string, timetableName?: string) => void;
   onTimetableGenerated: (timetable: Timetable | null) => void;
   setTeachers: (teachers: Teacher[]) => void;
   setClasses: (classes: Class[] | ((prev: Class[]) => Class[])) => void;
   timetableId?: string;
+  timetableName?: string;
 }> = (props) => {
   const {
     sidebarMode,
@@ -429,6 +435,7 @@ const RoutesConfig: React.FC<{
     setTeachers,
     setClasses,
     timetableId,
+    timetableName,
   } = props;
   return (
     <ThemeProvider>
@@ -507,6 +514,7 @@ const RoutesConfig: React.FC<{
                 onTeachersChange={setTeachers}
                 onClassesChange={setClasses}
                 timetableId={timetableId}
+                timetableName={timetableName}
               />
             </RouteGuard>
           }
@@ -528,16 +536,18 @@ const TimetableLayout: React.FC<{
   onSidebarModeChange: (mode: "default" | "timetable") => void;
   onCloseTimetable: () => void;
   children: React.ReactNode;
+  timetableName?: string;
 }> = ({
   sidebarMode,
   generatedTimetable,
   onSidebarModeChange,
   onCloseTimetable,
   children,
+  timetableName,
 }) => {
   return (
     <div className="flex h-screen flex-col overflow-hidden lg:flex-row">
-      <Sidebar mode={sidebarMode} onModeChange={onSidebarModeChange} />
+      <Sidebar mode={sidebarMode} onModeChange={onSidebarModeChange} timetableName={timetableName} />
 
       <div className="flex-1 overflow-y-auto bg-gray-100 pt-16 lg:pt-0 dark:bg-gray-900 dark:text-white">
         <div className="mx-auto px-4">{children}</div>
@@ -565,6 +575,7 @@ function App() {
         classes,
         generatedTimetable,
         timetableId,
+        timetableName,
         storageAvailable,
         handleSidebarModeChange,
         handleCreateTimetable,
@@ -580,6 +591,7 @@ function App() {
           generatedTimetable={generatedTimetable}
           onSidebarModeChange={handleSidebarModeChange}
           onCloseTimetable={handleCloseTimetable}
+          timetableName={timetableName}
         >
           <RoutesConfig
             sidebarMode={sidebarMode}

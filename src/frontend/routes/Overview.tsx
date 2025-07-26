@@ -9,6 +9,7 @@ interface OverviewRouteProps {
   onTeachersChange: (teachers: Teacher[]) => void;
   onClassesChange: (classes: Class[]) => void;
   timetableId?: string;
+  timetableName?: string;
 }
 
 const Overview: React.FC<OverviewRouteProps> = ({
@@ -18,6 +19,7 @@ const Overview: React.FC<OverviewRouteProps> = ({
   onTeachersChange,
   onClassesChange,
   timetableId,
+  timetableName,
 }) => {
   return (
     <AdvancedSettingsProvider>
@@ -28,6 +30,7 @@ const Overview: React.FC<OverviewRouteProps> = ({
         onTeachersChange={onTeachersChange}
         onClassesChange={onClassesChange}
         timetableId={timetableId}
+        timetableName={timetableName}
       />
     </AdvancedSettingsProvider>
   );
