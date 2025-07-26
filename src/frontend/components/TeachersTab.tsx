@@ -9,7 +9,6 @@ import {
   importTeachersFromCSV,
   getLessonTeacher,
   getLessonName,
-  getAllTeachers,
 } from "../../util/timetable";
 import TeacherAvailabilityModal from "./TeacherAvailabilityModal";
 import GradientContainer from "./common/GradientContainer";
@@ -90,19 +89,22 @@ const useTeacherManagement = (
     if (modalTeacherIndex !== null) {
       const updatedTeachers = [...teachers];
       const updatedClasses = [...classes];
-      const teacherName = updatedTeachers[modalTeacherIndex].name;
-      const newTeacher = new Teacher(teacherName, newAvailability);
+      const originalTeacher = updatedTeachers[modalTeacherIndex];
+      
+      // Create new teacher with the same ID but updated availability
+      const newTeacher = new Teacher(originalTeacher.name, newAvailability);
+      newTeacher.id = originalTeacher.id; // Preserve the original ID
 
       updatedTeachers[modalTeacherIndex] = newTeacher;
       for (const cls of updatedClasses) {
         for (const lesson of cls.lessons) {
           if (lesson.type === "normal") {
-            if (lesson.teacher.name === teacherName) {
+            if (lesson.teacher.name === originalTeacher.name) {
               lesson.teacher = newTeacher;
             }
           } else {
             for (let i = 0; i < lesson.teachers.length; i++) {
-              if (lesson.teachers[i].name === teacherName) {
+              if (lesson.teachers[i].name === originalTeacher.name) {
                 lesson.teachers[i] = newTeacher;
               }
             }
@@ -127,10 +129,13 @@ const useTeacherManagement = (
 
       // First update the teacher's name
       const updatedTeachers = [...teachers];
-      updatedTeachers[index] = new Teacher(
+      const originalTeacher = updatedTeachers[index];
+      const newTeacher = new Teacher(
         newTeacherName,
-        updatedTeachers[index].availability,
+        originalTeacher.availability,
       );
+      newTeacher.id = originalTeacher.id; // Preserve the original ID
+      updatedTeachers[index] = newTeacher;
 
       // Now we need to update all classes that use this teacher
       const updatedClasses = classes.map(cls => {
@@ -146,7 +151,7 @@ const useTeacherManagement = (
           if (getLessonTeacher(lesson).name === oldTeacherName) {
             return {
               name: getLessonName(lesson),
-              teacher: updatedTeachers[index],
+              teacher: newTeacher, // Use the new teacher object with preserved ID
               periodsPerWeek: lesson.periodsPerWeek,
               type: "normal" as const,
             };

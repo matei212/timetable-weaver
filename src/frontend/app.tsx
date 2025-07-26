@@ -45,8 +45,8 @@ const useStorageAvailability = () => {
       localStorage.setItem(testKey, testKey);
       localStorage.removeItem(testKey);
       setIsAvailable(true);
-    } catch (e) {
-      console.error("localStorage not available:", e);
+    } catch {
+      console.error("localStorage not available:");
       setIsAvailable(false);
     }
   }, []);
@@ -189,9 +189,10 @@ const StateProvider: React.FC<{
     teachers: Teacher[];
     classes: Class[];
     generatedTimetable: Timetable | null;
+    timetableId?: string;
     storageAvailable: boolean;
     handleSidebarModeChange: (mode: "default" | "timetable") => void;
-    handleCreateTimetable: () => void;
+    handleCreateTimetable: (timetableId?: string) => void;
     handleTimetableGenerated: (timetable: Timetable | null) => void;
     handleCloseTimetable: () => void;
     handleClearData: () => void;
@@ -203,6 +204,7 @@ const StateProvider: React.FC<{
   const [sidebarMode, setSidebarMode] = useState<"default" | "timetable">(
     "default",
   );
+  const [timetableId, setTimetableId] = useState<string | undefined>(undefined);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [classes, setClasses] = useState<Class[]>([]);
   const [generatedTimetable, setGeneratedTimetable] =
@@ -325,8 +327,9 @@ const StateProvider: React.FC<{
     setSidebarMode(mode);
   };
 
-  const handleCreateTimetable = () => {
+  const handleCreateTimetable = (id?: string) => {
     setSidebarMode("timetable");
+    setTimetableId(id);
   };
 
   const handleTimetableGenerated = (timetable: Timetable | null) => {
@@ -383,6 +386,7 @@ const StateProvider: React.FC<{
         teachers,
         classes,
         generatedTimetable,
+        timetableId,
         storageAvailable,
         handleSidebarModeChange,
         handleCreateTimetable,
@@ -407,22 +411,25 @@ const RoutesConfig: React.FC<{
   storageAvailable: boolean;
   onClearData: () => void;
   onForceSave: () => void;
-  onCreateTimetable: () => void;
+  onCreateTimetable: (timetableId?: string) => void;
   onTimetableGenerated: (timetable: Timetable | null) => void;
   setTeachers: (teachers: Teacher[]) => void;
   setClasses: (classes: Class[] | ((prev: Class[]) => Class[])) => void;
-}> = ({
-  sidebarMode,
-  teachers,
-  classes,
-  storageAvailable,
-  onClearData,
-  onForceSave,
-  onCreateTimetable,
-  onTimetableGenerated,
-  setTeachers,
-  setClasses,
-}) => {
+  timetableId?: string;
+}> = (props) => {
+  const {
+    sidebarMode,
+    teachers,
+    classes,
+    storageAvailable,
+    onClearData,
+    onForceSave,
+    onCreateTimetable,
+    onTimetableGenerated,
+    setTeachers,
+    setClasses,
+    timetableId,
+  } = props;
   return (
     <ThemeProvider>
       <Routes>
@@ -499,6 +506,7 @@ const RoutesConfig: React.FC<{
                 onTimetableGenerated={onTimetableGenerated}
                 onTeachersChange={setTeachers}
                 onClassesChange={setClasses}
+                timetableId={timetableId}
               />
             </RouteGuard>
           }
@@ -556,6 +564,7 @@ function App() {
         teachers,
         classes,
         generatedTimetable,
+        timetableId,
         storageAvailable,
         handleSidebarModeChange,
         handleCreateTimetable,
@@ -583,6 +592,7 @@ function App() {
             onTimetableGenerated={handleTimetableGenerated}
             setTeachers={setTeachers}
             setClasses={setClasses}
+            timetableId={timetableId}
           />
         </TimetableLayout>
       )}

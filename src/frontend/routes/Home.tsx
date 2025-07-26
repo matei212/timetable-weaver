@@ -1,13 +1,20 @@
 import { useNavigate } from "react-router-dom";
-import GradientButton from "../components/common/GradientButton";
 import ThemeButton from "../components/common/ThemeButton";
+import { useEffect, useState } from "react";
+import { fetchAllTimetables } from "../services/firestoreUtils";
+
+interface Timetable {
+  id: string;
+  title: string;
+  owner: string;
+}
 
 interface HomeProps {
   storageAvailable: boolean;
   hasData: boolean;
   onClearData: () => void;
   onForceSave: () => void;
-  onCreateTimetable: () => void;
+  onCreateTimetable: (timetableId?: string) => void;
 }
 
 const Home: React.FC<HomeProps> = ({
@@ -18,9 +25,25 @@ const Home: React.FC<HomeProps> = ({
   onCreateTimetable,
 }) => {
   const navigate = useNavigate();
+  const [timetables, setTimetables] = useState<Timetable[]>([]);
+  const [selectedTimetable, setSelectedTimetable] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchAllTimetables().then((data) => {
+      setTimetables(
+        (data as Array<{ id: string; title?: string; owner?: string }>).map(tt => ({
+          id: tt.id,
+          title: tt.title || "(fără titlu)",
+          owner: tt.owner || "necunoscut",
+        }))
+      );
+      setLoading(false);
+    });
+  }, []);
 
   const handleCreateTimetable = () => {
-    onCreateTimetable();
+    onCreateTimetable(selectedTimetable);
     navigate("/overview");
   };
 
@@ -65,6 +88,26 @@ const Home: React.FC<HomeProps> = ({
         sistemul nostru inteligent de programare.
       </p>
 
+      {loading ? (
+        <div className="mb-4">Se încarcă orarele existente...</div>
+      ) : (
+        <div className="mb-4">
+          <label className="block mb-2 font-medium">Selectează orarul de editat:</label>
+          <select
+            className="w-full rounded border px-3 py-2"
+            value={selectedTimetable}
+            onChange={e => setSelectedTimetable(e.target.value)}
+          >
+            <option value="">-- Orar nou --</option>
+            {timetables.map(tt => (
+              <option key={tt.id} value={tt.id}>
+                {tt.title || tt.id} (creat de: {tt.owner})
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {!storageAvailable && (
         <div className="mb-4 rounded border border-yellow-300 bg-yellow-100 p-3 text-yellow-800 dark:border-yellow-900 dark:bg-yellow-900/20 dark:text-yellow-300">
           Avertisment: Stocarea locală nu este disponibilă. Modificările
@@ -76,8 +119,9 @@ const Home: React.FC<HomeProps> = ({
         //variant="blue"
         onClick={handleCreateTimetable}
         className="rounded-lg border border-blue-500/10 bg-blue-300/30 px-6 py-3 text-lg font-medium text-blue-400 backdrop-blur-sm"
+        disabled={loading}
       >
-        Creează Orar Nou
+        {selectedTimetable ? "Editează Orarul Selectat" : "Creează Orar Nou"}
       </button>
 
       {hasData && (

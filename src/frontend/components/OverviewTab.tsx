@@ -31,6 +31,9 @@ import Modal from "./common/Modal";
 import GradientContainer from "./common/GradientContainer";
 import Background from "./common/Background";
 import LoadingIcon from "./common/LoadingIcon";
+import { updateTimetableTeachers, updateTimetableClasses } from "../services/firestoreUtils";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../services/firebase";
 
 interface OverviewTabProps {
   classes: Class[];
@@ -38,6 +41,7 @@ interface OverviewTabProps {
   onTimetableGenerated: (timetable: Timetable | null) => void;
   onTeachersChange: (teachers: Teacher[]) => void;
   onClassesChange: (classes: Class[]) => void;
+  timetableId?: string;
 }
 
 const OverviewTab: React.FC<OverviewTabProps> = ({
@@ -46,6 +50,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
   onTimetableGenerated,
   onTeachersChange,
   onClassesChange,
+  timetableId,
 }) => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -60,6 +65,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
   );
   const { advancedSettings } = useContext(AdvancedSettingsContext);
   const [isLoading, startTransition] = useTransition();
+  const [user] = useAuthState(auth);
+  const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
   const createTimetable = () => {
     try {
@@ -124,6 +131,27 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
 
   const handleGenerateExampleFile = () => {
     generateExampleDataFile();
+  };
+
+  const handleSaveOnline = async () => {
+    if (!user) {
+      setSaveStatus("Trebuie să fii autentificat pentru a salva online.");
+      return;
+    }
+    if (!timetableId) {
+      setSaveStatus("Trebuie să selectezi un orar din pagina principală pentru a salva datele!");
+      return;
+    }
+    try {
+      // Save both teachers and classes
+      await Promise.all([
+        updateTimetableTeachers(timetableId, teachers),
+        updateTimetableClasses(timetableId, classes)
+      ]);
+      setSaveStatus("Profesorii, clasele și disponibilitatea au fost salvate la orarul selectat!");
+    } catch (e) {
+      setSaveStatus("Eroare la salvarea online: " + (e instanceof Error ? e.message : "Unknown error"));
+    }
   };
 
   const card = "rounded-xl border bg-white  p-6 shadow-sm flex flex-col gap-2";
@@ -195,7 +223,31 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 </svg>
                 Generează orar
               </button>
-            </div>
+              <button
+                onClick={handleSaveOnline}
+                className={primaryButton}
+              >
+                <svg
+                  className="h-6 w-6 text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Salvează online orarul
+              </button>
+                          </div>
+              {saveStatus && (
+                <div className="mt-2 text-sm text-blue-600">{saveStatus}</div>
+              )}
           </div>
           <div className="grid gap-4">
             <div className="flex flex-col gap-1 rounded-xl border-blue-200 bg-blue-50/30 p-4 shadow-sm">
