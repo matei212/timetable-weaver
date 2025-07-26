@@ -9,6 +9,7 @@ import {
   importTeachersFromCSV,
   getLessonTeacher,
   getLessonName,
+  getAllTeachers,
 } from "../../util/timetable";
 import TeacherAvailabilityModal from "./TeacherAvailabilityModal";
 import GradientContainer from "./common/GradientContainer";
@@ -92,7 +93,7 @@ const useTeacherManagement = (
       const updatedTeachers = [...teachers];
       const updatedClasses = [...classes];
       const originalTeacher = updatedTeachers[modalTeacherIndex];
-      
+
       // Create new teacher with the same ID but updated availability
       const newTeacher = new Teacher(originalTeacher.name, newAvailability);
       newTeacher.id = originalTeacher.id; // Preserve the original ID
