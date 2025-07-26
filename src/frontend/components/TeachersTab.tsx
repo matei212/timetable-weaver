@@ -43,6 +43,11 @@ const useTeacherManagement = (
   );
 
   const addTeacher = (name: string) => {
+    if (name.includes("/")) {
+      alert("Numele profesorului nu poată să conțină /");
+      return false;
+    }
+
     if (name.trim()) {
       const availability = new Availability(DAYS, PERIODS_PER_DAY);
       // By default, make all slots available

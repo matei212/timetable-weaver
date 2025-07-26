@@ -101,6 +101,10 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
     let newLesson: Lesson;
     if (lessonType === "normal") {
       if (!newLessonName.trim() || selectedTeacherIndex === null) return;
+      if (newLessonName.includes("/")) {
+        alert("Numele lecție nu poate să conțină /");
+        return;
+      }
       newLesson = {
         name: newLessonName.trim(),
         teacher: teachers[selectedTeacherIndex],
@@ -108,6 +112,11 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
         type: "normal",
       };
     } else if (lessonType === "group") {
+      if (!newLessonName.trim()) return;
+      if (newLessonName.includes("/")) {
+        alert("Numele lecție nu poate să conțină /");
+        return;
+      }
       if (altTeacherIndexes[0] === null || altTeacherIndexes[1] === null)
         return;
       newLesson = {
@@ -127,6 +136,10 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
         altTeacherIndexes[1] === null
       )
         return;
+      if (altLessonNames[0].includes("/") || altLessonNames[1].includes("/")) {
+        alert("Numele lecție nu poate să conțină /");
+        return;
+      }
       newLesson = {
         names: [altLessonNames[0].trim(), altLessonNames[1].trim()],
         teachers: [
@@ -152,10 +165,15 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
 
   const isDisabledButton = useMemo(() => {
     if (lessonType === "normal") {
-      return newLessonName.trim().length === 0 || selectedTeacherIndex === null;
+      return (
+        newLessonName.trim().length === 0 ||
+        selectedTeacherIndex === null ||
+        newLessonName.includes("/")
+      );
     } else if (lessonType === "group") {
       return (
         newLessonName.trim().length === 0 ||
+        newLessonName.includes("/") ||
         altTeacherIndexes[0] === null ||
         altTeacherIndexes[1] === null ||
         altTeacherIndexes[0] === altTeacherIndexes[1]
@@ -164,6 +182,8 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
       return (
         altLessonNames[0].trim().length === 0 ||
         altLessonNames[1].trim().length === 0 ||
+        altLessonNames[0].includes("/") ||
+        altLessonNames[1].includes("/") ||
         altTeacherIndexes[0] === null ||
         altTeacherIndexes[1] === null ||
         altLessonNames[0] === altLessonNames[1] ||
