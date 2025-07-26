@@ -2818,7 +2818,7 @@ export class Scheduler {
           if (getLessonName(lesson) in classesObj) {
             classesObj[getLessonName(lesson)].count++;
             if (classesObj[getLessonName(lesson)].count > 2) {
-              sameClassesPenality += 1;
+              sameClassesPenality += 50;
             }
           } else {
             classesObj[getLessonName(lesson)] = { count: 1 };
