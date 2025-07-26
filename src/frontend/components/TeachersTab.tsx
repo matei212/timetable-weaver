@@ -201,14 +201,8 @@ const useTeacherManagement = (
         );
 
         if (lessonIndex !== -1) {
-          const oldLesson = cls.lessons[lessonIndex];
           const updatedLessons = [...cls.lessons];
-          updatedLessons[lessonIndex] = {
-            name: getLessonName(oldLesson),
-            teacher: getLessonTeacher(oldLesson),
-            periodsPerWeek: newPeriods,
-            type: "normal" as const,
-          };
+          updatedLessons[lessonIndex].periodsPerWeek = newPeriods;
           updatedClasses[classIndex] = new Class(cls.name, updatedLessons);
           changed = true;
         }
@@ -288,15 +282,17 @@ const getTeacherSubjects = (teacherName: string, classes: Class[]) => {
 
   classes.forEach(cls => {
     cls.lessons.forEach(lesson => {
-      if (getLessonTeacher(lesson).name === teacherName) {
-        const subj = getLessonName(lesson);
-        if (!subjects[subj]) {
-          subjects[subj] = [];
+      for (const teacher of getAllTeachers(lesson)) {
+        if (teacher.name === teacherName) {
+          const subj = getLessonName(lesson);
+          if (!subjects[subj]) {
+            subjects[subj] = [];
+          }
+          subjects[subj].push({
+            className: cls.name,
+            periodsPerWeek: lesson.periodsPerWeek,
+          });
         }
-        subjects[subj].push({
-          className: cls.name,
-          periodsPerWeek: lesson.periodsPerWeek,
-        });
       }
     });
   });
