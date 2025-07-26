@@ -60,7 +60,7 @@ const Home: React.FC<HomeProps> = ({
         <svg
           stroke="black"
           fill="currentColor"
-          stroke-width="0"
+          strokeWidth="0"
           viewBox="0 0 24 24"
           height="200px"
           width="200px"
@@ -68,7 +68,7 @@ const Home: React.FC<HomeProps> = ({
         >
           <path
             fill="none"
-            stroke-width="2"
+            strokeWidth="2"
             d="M8,5 L8,23 M16,5 L16,23 M1,11 L23,11 M1,5 L23,5 M1,17 L23,17 M1,1 L23,1 L23,23 L1,23 L1,1 Z"
           ></path>
         </svg>

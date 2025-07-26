@@ -202,13 +202,14 @@ export type Lesson = {
       teachers: [Teacher, Teacher];
       type: "alternating";
     }
+  | { name: string; teachers: [Teacher, Teacher]; type: "group" }
 );
 
 /**
  * Helper functions for Lesson compatibility
  */
 export function getLessonName(lesson: Lesson, week: 0 | 1 = 0): string {
-  if (lesson.type === "normal") return lesson.name;
+  if (lesson.type === "normal" || lesson.type === "group") return lesson.name;
   return lesson.names[week];
 }
 
@@ -1389,6 +1390,8 @@ export class Timetable {
           if (lesson) {
             if (isAlternatingLesson(lesson)) {
               html += `<td><div class="lesson">${lesson.names[0]} / ${lesson.names[1]}</div><div class="teacher">${lesson.teachers[0].name} / ${lesson.teachers[1].name}</div></td>`;
+            } else if (lesson.type === "group") {
+              html += `<td><div class="lesson">${lesson.name}</div><div class="teacher">${lesson.teachers[0].name} / ${lesson.teachers[1].name}</div></td>`;
             } else {
               html += `<td><div class="lesson">${lesson.name}</div><div class="teacher">${lesson.teacher.name}</div></td>`;
             }
@@ -2815,7 +2818,7 @@ export class Scheduler {
           if (getLessonName(lesson) in classesObj) {
             classesObj[getLessonName(lesson)].count++;
             if (classesObj[getLessonName(lesson)].count > 2) {
-              sameClassesPenality += 1;
+              sameClassesPenality += 50;
             }
           } else {
             classesObj[getLessonName(lesson)] = { count: 1 };
@@ -2993,7 +2996,9 @@ function lessonToCSV(lesson: Lesson, className: string) {
   if (lesson.type === "normal") {
     out += `${lesson.name},${lesson.teacher.name}`;
   } else if (lesson.type === "alternating") {
-    out += `${lesson.names[0]} / ${lesson.names[1]}, ${lesson.teachers[0].name} / ${lesson.teachers[1].name}`;
+    out += `${lesson.names[0]} / ${lesson.names[1]},${lesson.teachers[0].name} / ${lesson.teachers[1].name}`;
+  } else if (lesson.type === "group") {
+    out += `${lesson.name},${lesson.teachers[0].name} / ${lesson.teachers[1].name}`;
   }
   out += ",";
 
@@ -3763,6 +3768,29 @@ export function importAllDataFromCSV(
                   );
                   continue;
                 }
+              } else if (
+                subjectParts.length === 1 &&
+                teacherParts.length === 2
+              ) {
+                const teachersFound = [
+                  teachers.find(t => t.name === teacherParts[0].trim()),
+                  teachers.find(t => t.name === teacherParts[1].trim()),
+                ];
+
+                if (teachersFound[0] && teachersFound[1]) {
+                  const periodsPerWeek = parseInt(periodsPerWeekStr) || 1;
+                  lesson = {
+                    name: subjectParts[0].trim(),
+                    teachers: [teachersFound[0], teachersFound[1]],
+                    periodsPerWeek,
+                    type: "group",
+                  };
+                } else {
+                  console.warn(
+                    `One or both teachers for group lesson "${subjectName}" not found, skipping.`,
+                  );
+                  continue;
+                }
               } else {
                 // Find the teacher by name
                 const teacher = teachers.find(
@@ -3971,5 +3999,8 @@ function parseSimpleCsvFormat(csvText: string): {
 
 // Helper for getting all teachers for a lesson
 export function getAllTeachers(lesson: Lesson): Teacher[] {
-  return isAlternatingLesson(lesson) ? lesson.teachers : [lesson.teacher];
+  if (lesson.type === "normal") {
+    return [lesson.teacher];
+  }
+  return lesson.teachers;
 }

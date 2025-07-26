@@ -173,9 +173,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           >
             <path
               stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
               d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-3 5h3m-6 0h.01M12 16h3m-6 0h.01M10 3v4h4V3h-4Z"
             />
           </svg>
@@ -215,9 +215,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 >
                   <path
                     stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
                     d="M4 10h16m-8-3V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Zm3-7h.01v.01H8V13Zm4 0h.01v.01H12V13Zm4 0h.01v.01H16V13Zm-8 4h.01v.01H8V17Zm4 0h.01v.01H12V17Zm4 0h.01v.01H16V17Z"
                   />
                 </svg>
@@ -258,7 +258,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 <GradientButton
                   variant="colapse"
                   onClick={() => navigate("/teachers")}
-                  className="flex px-4 py-2 text-sm font-medium text-black md:hidden margine"
+                  className="margine flex px-4 py-2 text-sm font-medium text-black md:hidden"
                 >
                   Gestioneaza
                 </GradientButton>
@@ -294,15 +294,14 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               <div className="flex flex-row items-center justify-between pb-2">
                 <span className="stats text-sm font-medium text-cyan-700">
                   Clase
-                  
                 </span>
                 <GradientButton
-                    variant="colapse"
-                    onClick={() => navigate("/classes")}
-                    className="flex px-4 py-2 text-sm font-medium text-black md:hidden "
-                  >
-                    Gestioneaza
-                  </GradientButton>
+                  variant="colapse"
+                  onClick={() => navigate("/classes")}
+                  className="flex px-4 py-2 text-sm font-medium text-black md:hidden"
+                >
+                  Gestioneaza
+                </GradientButton>
                 <svg
                   className="h-6 w-6 text-gray-800"
                   aria-hidden="true"
@@ -314,9 +313,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 >
                   <path
                     stroke="#06b6d4"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
                     d="M8 20v-9l-4 1.125V20h4Zm0 0h8m-8 0V6.66667M16 20v-9l4 1.125V20h-4Zm0 0V6.66667M18 8l-6-4-6 4m5 1h2m-2 3h2"
                   />
                 </svg>
@@ -332,15 +331,14 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               <div className="flex flex-row items-center justify-between pb-2">
                 <span className="stats text-sm font-medium text-indigo-700">
                   Lecții
-                  
                 </span>
                 <GradientButton
-                    variant="colapse"
-                    onClick={() => navigate("/lessons")}
-                    className="flex px-4 py-2 text-sm font-medium text-black md:hidden"
-                  >
-                    Gestioneaza
-                  </GradientButton>
+                  variant="colapse"
+                  onClick={() => navigate("/lessons")}
+                  className="flex px-4 py-2 text-sm font-medium text-black md:hidden"
+                >
+                  Gestioneaza
+                </GradientButton>
                 <span>
                   <svg
                     className="h-6 w-6 text-gray-800"
@@ -353,9 +351,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   >
                     <path
                       stroke="#6366f1"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
                       d="m17 21-5-4-5 4V3.889a.92.92 0 0 1 .244-.629.808.808 0 0 1 .59-.26h8.333a.81.81 0 0 1 .589.26.92.92 0 0 1 .244.63V21Z"
                     />
                   </svg>
@@ -449,9 +447,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 >
                   <path
                     stroke="#06b6d4"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
                     d="M8 20v-9l-4 1.125V20h4Zm0 0h8m-8 0V6.66667M16 20v-9l4 1.125V20h-4Zm0 0V6.66667M18 8l-6-4-6 4m5 1h2m-2 3h2"
                   />
                 </svg>
@@ -478,9 +476,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   >
                     <path
                       stroke="#6366f1"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
                       d="m17 21-5-4-5 4V3.889a.92.92 0 0 1 .244-.629.808.808 0 0 1 .59-.26h8.333a.81.81 0 0 1 .589.26.92.92 0 0 1 .244.63V21Z"
                     />
                   </svg>
