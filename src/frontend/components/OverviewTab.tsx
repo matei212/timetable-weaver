@@ -55,7 +55,7 @@ interface OverviewTabProps {
   onClassesChange: (classes: Class[] | ((prev: Class[]) => Class[])) => void;
   timetableId?: string;
   timetableName?: string;
-  // timetableName is not used here, so it's removed.
+  isOwner?: boolean | null;
 }
 
 const OverviewTab: React.FC<OverviewTabProps> = ({
@@ -65,6 +65,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
   onTeachersChange,
   onClassesChange,
   timetableId,
+  timetableName,
+  isOwner,
 }) => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -159,7 +161,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
       return;
     }
     try {
-      // Save teachers, classes, and lessons
+      // salvare teachers, classes  si lessons
       await Promise.all([
         updateTimetableTeachers(timetableId, teachers),
         updateTimetableClasses(timetableId, classes),
@@ -197,7 +199,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
     setSaveStatus("Se importă datele...");
 
     try {
-      // Fetch all data in parallel
+      // get all data in parallel
       const [teachersData, gradesData, lessonsData] = await Promise.all([
         fetchTeachersForTimetable(timetableId),
         fetchGradesForTimetable(timetableId),
@@ -237,8 +239,14 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           }
         }
 
-        const newTeacher = new Teacher(t.name, availability);
-        newTeacher.id = t.id;
+        const newTeacher = new Teacher(t.name, availability, t.email || undefined);
+        newTeacher.id = t.name; // Use teacher name as ID since that's the document ID in Firestore
+        
+        // Debug: Log teacher data to verify email loading
+        if (t.email) {
+          console.log(`Loaded teacher ${t.name} with email: ${t.email}`);
+        }
+        
         return newTeacher;
       });
 
@@ -295,6 +303,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         return new Class(g.name, lessons);
       });
 
+      // Save teacher emails to localStorage
+      importedTeachers.forEach(teacher => {
+        if (teacher.email) {
+          localStorage.setItem(`teacher_email_${teacher.name}`, teacher.email);
+        }
+      });
+
       // Update the global state with the new class instances
       onTeachersChange(importedTeachers);
       onClassesChange(importedClasses);
@@ -347,6 +362,22 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             <h2 className="mb-4 text-2xl font-bold">
               Bine ai venit la Timetable Weaver
             </h2>
+            {timetableName && (
+              <div className="mb-3 rounded-lg bg-blue-50 p-3">
+                <h3 className="font-semibold text-blue-800">
+                  Orar: {timetableName}
+                </h3>
+                {isOwner ? (
+                  <p className="text-sm text-blue-600">
+                    👑 Proprietar - Aveți acces complet la acest orar
+                  </p>
+                ) : (
+                  <p className="text-sm text-orange-600">
+                    📋 Asignat - Acces limitat la acest orar
+                  </p>
+                )}
+              </div>
+            )}
             <p className="mb-4 text-gray-500">
               Gestionează orarele școlii tale eficient cu sistemul nostru
               automatizat de programare.

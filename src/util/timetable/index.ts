@@ -153,18 +153,21 @@ export class Teacher {
   id: string;
   name: string;
   availability: Availability;
+  email?: string;
 
   /**
    * Create a teacher
    * @param name - Teacher's name
    * @param availability - Teacher's availability
+   * @param email - Teacher's email (optional)
    */
-  constructor(name: string, availability: Availability) {
+  constructor(name: string, availability: Availability, email?: string) {
     this.id = crypto.randomUUID
       ? crypto.randomUUID()
       : Math.random().toString(36).slice(2); // fallback for environments without crypto.randomUUID
     this.name = name;
     this.availability = availability;
+    this.email = email;
   }
 
   /**
@@ -3230,6 +3233,9 @@ function lessonToCSV(lesson: Lesson, className: string) {
 function teacherToCSV(teacher: Teacher) {
   let out = `${teacher.name}`;
 
+  // Add email if present
+  out += `,${teacher.email || ""}`;
+
   // Add availability buffer data for each day
   for (let day = 0; day < DAYS; day++) {
     out += `,${teacher.availability.buffer[day]}`;
@@ -3250,7 +3256,7 @@ export function exportTeachersToCSV(
 ): Promise<string> {
   return new Promise(resolve => {
     // Create CSV header
-    let csvContent = "Name";
+    let csvContent = "Name,Email";
 
     // Add day columns for availability buffer
     for (let day = 0; day < DAYS; day++) {
@@ -3820,11 +3826,23 @@ export function generateExampleDataFile(): Promise<string> {
 
 function parseTeacherCSVLine(line: string) {
   let name = "";
+  let email = "";
   const availability = new Availability(DAYS, PERIODS_PER_DAY);
 
   const parts = line.split(",");
-  if (parts.length >= 1 + DAYS) {
-    // Name + day buffers
+  if (parts.length >= 2 + DAYS) {
+    // Name + Email + day buffers
+    name = parts[0];
+    email = parts[1] || "";
+
+    // Parse buffer values for each day
+    for (let day = 0; day < DAYS; day++) {
+      if (parts[day + 2] && !isNaN(parseInt(parts[day + 2]))) {
+        availability.buffer[day] = parseInt(parts[day + 2]);
+      }
+    }
+  } else if (parts.length >= 1 + DAYS) {
+    // Legacy format: Name + day buffers (no email)
     name = parts[0];
 
     // Parse buffer values for each day
@@ -3835,7 +3853,7 @@ function parseTeacherCSVLine(line: string) {
     }
   }
 
-  return new Teacher(name, availability);
+  return new Teacher(name, availability, email || undefined);
 }
 
 /**
