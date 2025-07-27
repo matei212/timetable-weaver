@@ -1502,6 +1502,8 @@ export class Timetable {
             font-weight: 500;
             color: #f1f5f9;
           }
+          .class-section { page-break-after: always; }
+          .class-section:last-child { page-break-after: avoid; }
         </style>
       </head>
       <body>
@@ -1510,7 +1512,7 @@ export class Timetable {
 
     for (const cls of this.classes) {
       html += `<h2>Class ${cls.name}</h2>`;
-      html += "<table><tr><th></th>";
+      html += `<div class="class-section"><table><tr><th></th>`;
 
       // Display days as column headers
       for (let day = 0; day < DAYS; day++) {
@@ -1542,7 +1544,7 @@ export class Timetable {
         html += "</tr>";
       }
 
-      html += "</table>";
+      html += "</table></div>";
     }
 
     const conflicts = this.countTeacherConflicts();
