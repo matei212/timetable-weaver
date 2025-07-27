@@ -48,7 +48,35 @@ export async function createUserWithRole(
 ): Promise<"ADMIN" | "TEACHER" | "OWNER"> {
   const usersSnap = await getDocs(collection(db, "users"));
   const isFirstUser = usersSnap.empty;
-  const role: "ADMIN" | "TEACHER" | "OWNER" = isFirstUser ? "ADMIN" : "TEACHER";
+  
+  let role: "ADMIN" | "TEACHER" | "OWNER" = "ADMIN";
+  
+  if (!isFirstUser) {
+    try {
+      const allTimetables = await fetchAllTimetables();
+      let isTeacherInAnyTimetable = false;
+      
+      for (const timetable of allTimetables) {
+        try {
+          const teachersData = await fetchTeachersForTimetable(timetable.id);
+          const teacherData = teachersData.find(t => t.email === email);
+          if (teacherData) {
+            isTeacherInAnyTimetable = true;
+            break;
+          }
+        } catch (error) {
+          console.error(`Error checking teachers in timetable ${timetable.id}:`, error);
+        }
+      }
+      
+      if (isTeacherInAnyTimetable) {
+        role = "TEACHER";
+      }
+    } catch (error) {
+      console.error("Error checking if user is teacher:", error);
+    }
+  }
+  
   await setDoc(
     doc(db, "users", uid),
     {
