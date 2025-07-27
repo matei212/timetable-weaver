@@ -7,7 +7,7 @@ interface OverviewRouteProps {
   teachers: Teacher[];
   onTimetableGenerated: (timetable: Timetable | null) => void;
   onTeachersChange: (teachers: Teacher[]) => void;
-  onClassesChange: (classes: Class[]) => void;
+  onClassesChange: (classes: Class[] | ((prev: Class[]) => Class[])) => void;
   timetableId?: string;
   timetableName?: string;
 }

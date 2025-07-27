@@ -35,7 +35,15 @@ import Modal from "./common/Modal";
 import GradientContainer from "./common/GradientContainer";
 import Background from "./common/Background";
 import LoadingIcon from "./common/LoadingIcon";
-import { updateTimetableTeachers, updateTimetableClasses, updateTimetableLessons, fetchTeachersForTimetable, fetchGradesForTimetable, fetchLessonsForTimetable, FetchedLesson } from "../services/firestoreUtils";
+import {
+  updateTimetableTeachers,
+  updateTimetableClasses,
+  updateTimetableLessons,
+  fetchTeachersForTimetable,
+  fetchGradesForTimetable,
+  fetchLessonsForTimetable,
+  FetchedLesson,
+} from "../services/firestoreUtils";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../services/firebase";
 
@@ -46,6 +54,7 @@ interface OverviewTabProps {
   onTeachersChange: (teachers: Teacher[]) => void;
   onClassesChange: (classes: Class[] | ((prev: Class[]) => Class[])) => void;
   timetableId?: string;
+  timetableName?: string;
   // timetableName is not used here, so it's removed.
 }
 
@@ -144,7 +153,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
       return;
     }
     if (!timetableId) {
-      setSaveStatus("Trebuie să selectezi un orar din pagina principală pentru a salva datele!");
+      setSaveStatus(
+        "Trebuie să selectezi un orar din pagina principală pentru a salva datele!",
+      );
       return;
     }
     try {
@@ -152,9 +163,11 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
       await Promise.all([
         updateTimetableTeachers(timetableId, teachers),
         updateTimetableClasses(timetableId, classes),
-        updateTimetableLessons(timetableId, classes)
+        updateTimetableLessons(timetableId, classes),
       ]);
-      setSaveStatus("Profesorii, clasele, lecțiile și disponibilitatea au fost salvate la orarul selectat!");
+      setSaveStatus(
+        "Profesorii, clasele, lecțiile și disponibilitatea au fost salvate la orarul selectat!",
+      );
     } catch (e) {
       setSaveStatus("Eroare la salvarea online: " + (e as Error).message);
     }
@@ -196,35 +209,40 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         const availability = new Availability(DAYS, PERIODS_PER_DAY);
 
         if (t.availability) {
-            let bufferValues: number[] | null = null;
-            const availabilityData = t.availability as { [key: string]: unknown };
+          let bufferValues: number[] | null = null;
+          const availabilityData = t.availability as { [key: string]: unknown };
 
-            // Check for the NEW format first: { availability: { buffer: { 0: val, ... } } }
-            if (availabilityData.buffer && typeof availabilityData.buffer === 'object') {
-                bufferValues = Object.values(availabilityData.buffer as { [key: string]: number });
-            }
-            // ELSE, check for the OLD format: { availability: { day_0: val, ... } }
-            else {
-                 bufferValues = Object.keys(availabilityData)
-                    .filter(key => key.startsWith('day_'))
-                    .sort((a, b) => parseInt(a.split('_')[1]) - parseInt(b.split('_')[1]))
-                    .map(key => availabilityData[key] as number);
-            }
-            
-            if (bufferValues && bufferValues.length > 0) {
-                // The Availability class expects a standard number array for its buffer
-                availability.buffer = bufferValues;
-            }
+          // Check for the NEW format first: { availability: { buffer: { 0: val, ... } } }
+          if (
+            availabilityData.buffer &&
+            typeof availabilityData.buffer === "object"
+          ) {
+            bufferValues = Object.values(
+              availabilityData.buffer as { [key: string]: number },
+            );
+          }
+          // ELSE, check for the OLD format: { availability: { day_0: val, ... } }
+          else {
+            bufferValues = Object.keys(availabilityData)
+              .filter(key => key.startsWith("day_"))
+              .sort(
+                (a, b) => parseInt(a.split("_")[1]) - parseInt(b.split("_")[1]),
+              )
+              .map(key => availabilityData[key] as number);
+          }
+
+          if (bufferValues && bufferValues.length > 0) {
+            // The Availability class expects a standard number array for its buffer
+            availability.buffer = bufferValues;
+          }
         }
 
         const newTeacher = new Teacher(t.name, availability);
         newTeacher.id = t.id;
         return newTeacher;
       });
-      
-      const teachersMap = new Map(
-        importedTeachers.map(t => [t.name, t]),
-      );
+
+      const teachersMap = new Map(importedTeachers.map(t => [t.name, t]));
 
       // Reconstruct Classes and their Lessons into proper class instances
       const importedClasses = gradesData.map(g => {
@@ -334,7 +352,11 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               automatizat de programare.
             </p>
             <div className="flex flex-wrap gap-2">
-              <GradientButton onClick={handleGenerateTimetable} disabled={isLoading} className="flex-grow">
+              <GradientButton
+                onClick={handleGenerateTimetable}
+                disabled={isLoading}
+                className="flex-grow"
+              >
                 {isLoading ? (
                   <div className="flex items-center">
                     <LoadingIcon /> Se generează...
@@ -343,10 +365,18 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   "Generează orar"
                 )}
               </GradientButton>
-              <GradientButton variant="cyan" onClick={handleSaveOnline} className="flex-grow">
+              <GradientButton
+                variant="cyan"
+                onClick={handleSaveOnline}
+                className="flex-grow"
+              >
                 Salvează online
               </GradientButton>
-              <GradientButton variant="blue" onClick={handleImportOnline} className="flex-grow">
+              <GradientButton
+                variant="blue"
+                onClick={handleImportOnline}
+                className="flex-grow"
+              >
                 Importă din online
               </GradientButton>
             </div>

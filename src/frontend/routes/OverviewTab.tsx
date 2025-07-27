@@ -7,7 +7,7 @@ interface OverviewProps {
   teachers: Teacher[];
   onTimetableGenerated: (timetable: Timetable | null) => void;
   onTeachersChange: (teachers: Teacher[]) => void;
-  onClassesChange: (classes: Class[]) => void;
+  onClassesChange: (classes: Class[] | ((prev: Class[]) => Class[])) => void;
 }
 
 const Overview: FC<OverviewProps> = ({
@@ -28,4 +28,4 @@ const Overview: FC<OverviewProps> = ({
   );
 };
 
-export default Overview; 
+export default Overview;
