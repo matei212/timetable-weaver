@@ -19,6 +19,8 @@ import ColorButton from "./common/ColorButton";
 import { SiGoogleclassroom } from "react-icons/si";
 import { MdOutlineLibraryBooks } from "react-icons/md";
 import { MdOutlineSummarize } from "react-icons/md";
+import { LuBookMarked } from "react-icons/lu";
+import { TfiExport, TfiImport } from "react-icons/tfi";
 
 interface LessonsTabProps {
   classes: Class[];
@@ -632,7 +634,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
       {classes.length === 0 ? (
         <GradientContainer className="p-8">
           <div className="flex flex-col items-center justify-center py-8">
-            <span className="mb-4 text-4xl">📚</span>
+            <LuBookMarked className="mb-4 text-4xl" />
             <p className="mb-2 text-slate-300">
               Nu există clase disponibile. Vă rugăm adăugați clase mai întâi.
             </p>
@@ -763,9 +765,9 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                   />
                   <label
                     htmlFor={`import-class-${selectedClassIndex}`}
-                    className="flex cursor-pointer items-center rounded-lg bg-indigo-500/20 px-3 py-1.5 text-indigo-500 transition-all duration-300 hover:bg-indigo-500/30 hover:text-indigo-200"
+                    className="flex cursor-pointer items-center rounded-lg bg-indigo-500/20 px-3 py-1.5 text-indigo-500 transition-all duration-300 hover:bg-indigo-500/30 hover:text-indigo-400"
                   >
-                    <span className="mr-2">📤</span>
+                    <TfiImport className="mr-2" />
                     <span>Importă</span>
                   </label>
 
@@ -775,7 +777,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                     }
                     className="flex items-center px-3 py-1.5"
                   >
-                    <span className="mr-2">📥</span>
+                    <TfiExport className="mr-2" />
                     <span>Exportă</span>
                   </ColorButton>
                 </div>

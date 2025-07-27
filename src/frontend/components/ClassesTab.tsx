@@ -13,6 +13,7 @@ import ColorButton from "./common/ColorButton";
 import ThemeButton from "./common/ThemeButton";
 import { PiClipboardText } from "react-icons/pi";
 import { SiGoogleclassroom } from "react-icons/si";
+import { HiOutlineBuildingLibrary } from "react-icons/hi2";
 
 interface ClassesTabProps {
   classes: Class[];
@@ -330,7 +331,7 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-8">
-            <span className="mb-4 text-4xl">🏛️</span>
+            <HiOutlineBuildingLibrary className="mb-4 text-4xl" />
             <p className="mb-2 text-slate-300">
               Nu există clase adăugate încă. Adăugați prima clasă mai sus.
             </p>

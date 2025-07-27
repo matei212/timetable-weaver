@@ -20,6 +20,7 @@ import ThemeButton from "./common/ThemeButton";
 import { PiChalkboardTeacher } from "react-icons/pi";
 
 import { PiClipboardText } from "react-icons/pi";
+import { MdOutlinePersonSearch } from "react-icons/md";
 
 interface TeachersTabProps {
   teachers: Teacher[];
@@ -662,7 +663,7 @@ const TeacherList: React.FC<{
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-8">
-          <span className="mb-4 text-4xl">👨‍🏫</span>
+          <MdOutlinePersonSearch className="mb-4 text-4xl" />
           <p className="mb-2 text-center text-slate-300">
             Nu există profesori adăugați încă. Adăugați primul profesor mai sus.
           </p>
