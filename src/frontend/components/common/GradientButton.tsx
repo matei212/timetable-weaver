@@ -5,6 +5,7 @@ type Props = {
   type?: ButtonHTMLAttributes<HTMLButtonElement>["type"];
   onClick?: () => void;
   className?: string;
+  disabled?: boolean; // Adaugă proprietatea disabled
 } & PropsWithChildren;
 
 const GradientButton = ({
@@ -13,8 +14,13 @@ const GradientButton = ({
   onClick,
   className,
   children,
+  disabled, // Preia proprietatea disabled
 }: Props) => {
   const gradientClasses = useMemo(() => {
+    // Dacă butonul este dezactivat, folosește stiluri de inactivitate
+    if (disabled) {
+      return "bg-gray-300 text-gray-500 cursor-not-allowed";
+    }
     switch (variant) {
       case "gray":
         return " bg-gray-100 text-black hover:bg-gray-200 inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium";
@@ -30,13 +36,16 @@ const GradientButton = ({
       default:
         return "from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 hover:shadow-emerald-500/20";
     }
-  }, [variant]);
+  }, [variant, disabled]); // Adaugă disabled la dependențe
 
   return (
     <button
       type={type}
       onClick={onClick}
-      className={`transform rounded-lg bg-gradient-to-r backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg ${gradientClasses} ${className}`}
+      disabled={disabled} // Pasează disabled la elementul button
+      className={`transform rounded-lg backdrop-blur-sm transition-all duration-300 ${
+        !disabled ? "hover:-translate-y-0.5 hover:shadow-lg bg-gradient-to-r" : ""
+      } ${gradientClasses} ${className}`}
     >
       {children}
     </button>

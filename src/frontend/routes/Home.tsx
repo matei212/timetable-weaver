@@ -14,7 +14,7 @@ interface HomeProps {
   hasData: boolean;
   onClearData: () => void;
   onForceSave: () => void;
-  onCreateTimetable: (timetableId?: string) => void;
+  onCreateTimetable: (timetableId?: string, timetableName?: string) => void;
 }
 
 const Home: React.FC<HomeProps> = ({
@@ -43,7 +43,8 @@ const Home: React.FC<HomeProps> = ({
   }, []);
 
   const handleCreateTimetable = () => {
-    onCreateTimetable(selectedTimetable);
+    const selectedTimetableData = timetables.find(tt => tt.id === selectedTimetable);
+    onCreateTimetable(selectedTimetable, selectedTimetableData?.title);
     navigate("/overview");
   };
 

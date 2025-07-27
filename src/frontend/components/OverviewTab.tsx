@@ -23,15 +23,27 @@ import {
   Teacher,
   Class,
   Timetable,
+  Availability,
+  Lesson,
   SchedulerConfig,
   DEFAULT_SCHEDULER_CONFIG,
+  DAYS,
+  PERIODS_PER_DAY,
 } from "../../util/timetable";
 import { AdvancedSettingsContext } from "../providers/AdvancedSettings";
 import Modal from "./common/Modal";
 import GradientContainer from "./common/GradientContainer";
 import Background from "./common/Background";
 import LoadingIcon from "./common/LoadingIcon";
-import { updateTimetableTeachers, updateTimetableClasses } from "../services/firestoreUtils";
+import {
+  updateTimetableTeachers,
+  updateTimetableClasses,
+  updateTimetableLessons,
+  fetchTeachersForTimetable,
+  fetchGradesForTimetable,
+  fetchLessonsForTimetable,
+  FetchedLesson,
+} from "../services/firestoreUtils";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../services/firebase";
 
@@ -40,8 +52,10 @@ interface OverviewTabProps {
   teachers: Teacher[];
   onTimetableGenerated: (timetable: Timetable | null) => void;
   onTeachersChange: (teachers: Teacher[]) => void;
-  onClassesChange: (classes: Class[]) => void;
+  onClassesChange: (classes: Class[] | ((prev: Class[]) => Class[])) => void;
   timetableId?: string;
+  timetableName?: string;
+  // timetableName is not used here, so it's removed.
 }
 
 const OverviewTab: React.FC<OverviewTabProps> = ({
@@ -66,7 +80,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
   const { advancedSettings } = useContext(AdvancedSettingsContext);
   const [isLoading, startTransition] = useTransition();
   const [user] = useAuthState(auth);
-  const [saveStatus, setSaveStatus] = useState<string | null>(null);
+  const [saveStatus, setSaveStatus] = useState<string>("");
 
   const createTimetable = () => {
     try {
@@ -139,24 +153,160 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
       return;
     }
     if (!timetableId) {
-      setSaveStatus("Trebuie să selectezi un orar din pagina principală pentru a salva datele!");
+      setSaveStatus(
+        "Trebuie să selectezi un orar din pagina principală pentru a salva datele!",
+      );
       return;
     }
     try {
-      // Save both teachers and classes
+      // Save teachers, classes, and lessons
       await Promise.all([
         updateTimetableTeachers(timetableId, teachers),
-        updateTimetableClasses(timetableId, classes)
+        updateTimetableClasses(timetableId, classes),
+        updateTimetableLessons(timetableId, classes),
       ]);
-      setSaveStatus("Profesorii, clasele și disponibilitatea au fost salvate la orarul selectat!");
+      setSaveStatus(
+        "Profesorii, clasele, lecțiile și disponibilitatea au fost salvate la orarul selectat!",
+      );
     } catch (e) {
-      setSaveStatus("Eroare la salvarea online: " + (e instanceof Error ? e.message : "Unknown error"));
+      setSaveStatus("Eroare la salvarea online: " + (e as Error).message);
+    }
+  };
+
+  const handleImportOnline = async () => {
+    if (!user) {
+      setSaveStatus("Trebuie să fii autentificat pentru a importa date.");
+      return;
+    }
+
+    if (!timetableId) {
+      setSaveStatus(
+        "Trebuie să selectezi un orar din pagina principală pentru a importa datele!",
+      );
+      return;
+    }
+
+    if (
+      !window.confirm(
+        "Ești sigur că vrei să imporți datele din online? Toate datele locale nesalvate (profesori, clase, lecții) vor fi suprascrise.",
+      )
+    ) {
+      return;
+    }
+
+    setSaveStatus("Se importă datele...");
+
+    try {
+      // Fetch all data in parallel
+      const [teachersData, gradesData, lessonsData] = await Promise.all([
+        fetchTeachersForTimetable(timetableId),
+        fetchGradesForTimetable(timetableId),
+        fetchLessonsForTimetable(timetableId),
+      ]);
+
+      // Reconstruct Teachers into proper class instances
+      const importedTeachers = teachersData.map(t => {
+        const availability = new Availability(DAYS, PERIODS_PER_DAY);
+
+        if (t.availability) {
+          let bufferValues: number[] | null = null;
+          const availabilityData = t.availability as { [key: string]: unknown };
+
+          // Check for the NEW format first: { availability: { buffer: { 0: val, ... } } }
+          if (
+            availabilityData.buffer &&
+            typeof availabilityData.buffer === "object"
+          ) {
+            bufferValues = Object.values(
+              availabilityData.buffer as { [key: string]: number },
+            );
+          }
+          // ELSE, check for the OLD format: { availability: { day_0: val, ... } }
+          else {
+            bufferValues = Object.keys(availabilityData)
+              .filter(key => key.startsWith("day_"))
+              .sort(
+                (a, b) => parseInt(a.split("_")[1]) - parseInt(b.split("_")[1]),
+              )
+              .map(key => availabilityData[key] as number);
+          }
+
+          if (bufferValues && bufferValues.length > 0) {
+            // The Availability class expects a standard number array for its buffer
+            availability.buffer = bufferValues;
+          }
+        }
+
+        const newTeacher = new Teacher(t.name, availability);
+        newTeacher.id = t.id;
+        return newTeacher;
+      });
+
+      const teachersMap = new Map(importedTeachers.map(t => [t.name, t]));
+
+      // Reconstruct Classes and their Lessons into proper class instances
+      const importedClasses = gradesData.map(g => {
+        const classLessonsData = lessonsData.find(l => l.className === g.name);
+        const lessons: Lesson[] = [];
+
+        if (classLessonsData && classLessonsData.lessons) {
+          classLessonsData.lessons.forEach((lessonDoc: FetchedLesson) => {
+            let lesson: Lesson | undefined = undefined;
+            // Reconstruct based on lesson type
+            if (lessonDoc.type === "normal" && lessonDoc.teacher) {
+              const teacher = teachersMap.get(lessonDoc.teacher);
+              if (teacher && lessonDoc.name) {
+                lesson = {
+                  type: "normal",
+                  name: lessonDoc.name,
+                  teacher: teacher, // Use the actual Teacher instance
+                  periodsPerWeek: lessonDoc.periodsPerWeek,
+                };
+              }
+            } else if (lessonDoc.type === "alternating" && lessonDoc.teachers) {
+              const teacher1 = teachersMap.get(lessonDoc.teachers[0]);
+              const teacher2 = teachersMap.get(lessonDoc.teachers[1]);
+              if (teacher1 && teacher2 && lessonDoc.names) {
+                lesson = {
+                  type: "alternating",
+                  names: lessonDoc.names,
+                  teachers: [teacher1, teacher2], // Use Teacher instances
+                  periodsPerWeek: lessonDoc.periodsPerWeek,
+                };
+              }
+            } else if (lessonDoc.type === "group" && lessonDoc.teachers) {
+              const teacher1 = teachersMap.get(lessonDoc.teachers[0]);
+              const teacher2 = teachersMap.get(lessonDoc.teachers[1]);
+              if (teacher1 && teacher2 && lessonDoc.name) {
+                lesson = {
+                  type: "group",
+                  name: lessonDoc.name,
+                  teachers: [teacher1, teacher2], // Use Teacher instances
+                  periodsPerWeek: lessonDoc.periodsPerWeek,
+                };
+              }
+            }
+            if (lesson) {
+              lessons.push(lesson);
+            }
+          });
+        }
+        // Create a new Class instance
+        return new Class(g.name, lessons);
+      });
+
+      // Update the global state with the new class instances
+      onTeachersChange(importedTeachers);
+      onClassesChange(importedClasses);
+
+      setSaveStatus("Datele au fost importate cu succes!");
+    } catch (e) {
+      setSaveStatus("Eroare la importarea datelor: " + (e as Error).message);
+      console.error("Error during online import:", e);
     }
   };
 
   const card = "rounded-xl border bg-white  p-6 shadow-sm flex flex-col gap-2";
-  const primaryButton =
-    "w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors bg-black text-white  hover:bg-gray-800 ";
 
   return (
     <>
@@ -201,53 +351,40 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               Gestionează orarele școlii tale eficient cu sistemul nostru
               automatizat de programare.
             </p>
-            <div className="flex gap-2">
-              <button
+            <div className="flex flex-wrap gap-2">
+              <GradientButton
                 onClick={handleGenerateTimetable}
-                className={primaryButton}
+                disabled={isLoading}
+                className="flex-grow"
               >
-                <svg
-                  className="h-6 w-6 text-white"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 10h16m-8-3V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Zm3-7h.01v.01H8V13Zm4 0h.01v.01H12V13Zm4 0h.01v.01H16V13Zm-8 4h.01v.01H8V17Zm4 0h.01v.01H12V17Zm4 0h.01v.01H16V17Z"
-                  />
-                </svg>
-                Generează orar
-              </button>
-              <button
+                {isLoading ? (
+                  <div className="flex items-center">
+                    <LoadingIcon /> Se generează...
+                  </div>
+                ) : (
+                  "Generează orar"
+                )}
+              </GradientButton>
+              <GradientButton
+                variant="cyan"
                 onClick={handleSaveOnline}
-                className={primaryButton}
+                className="flex-grow"
               >
-                <svg
-                  className="h-6 w-6 text-white"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                Salvează online orarul
-              </button>
-                          </div>
-              {saveStatus && (
-                <div className="mt-2 text-sm text-blue-600">{saveStatus}</div>
-              )}
+                Salvează online
+              </GradientButton>
+              <GradientButton
+                variant="blue"
+                onClick={handleImportOnline}
+                className="flex-grow"
+              >
+                Importă din online
+              </GradientButton>
+            </div>
+            {saveStatus && (
+              <div className="mt-4 rounded-lg bg-blue-50 p-3 text-sm text-blue-700">
+                {saveStatus}
+              </div>
+            )}
           </div>
           <div className="grid gap-4">
             <div className="flex flex-col gap-1 rounded-xl border-blue-200 bg-blue-50/30 p-4 shadow-sm">
