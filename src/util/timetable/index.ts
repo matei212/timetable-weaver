@@ -2,12 +2,6 @@
  * @fileoverview Timetable generation utility for school scheduling
  */
 
-/**
- * Pads a string to the right with spaces
- * @param str - The string to pad
- * @param length - The target length
- * @returns The padded string
- */
 function padRight(
   str: string | number | null | undefined,
   length: number,
@@ -37,11 +31,6 @@ export class Availability {
   periodsPerDay: number;
   buffer: number[];
 
-  /**
-   * Create an availability instance
-   * @param days - Number of days in the schedule
-   * @param periodsPerDay - Number of periods per day
-   */
   constructor(days: number, periodsPerDay: number) {
     this.days = days;
     this.periodsPerDay = periodsPerDay;
@@ -49,12 +38,6 @@ export class Availability {
     this.buffer = new Array(days).fill(0);
   }
 
-  /**
-   * Set availability for a specific time slot
-   * @param day - Day index
-   * @param period - Period index
-   * @param val - Whether the slot is available
-   */
   set(day: number, period: number, val: boolean): void {
     const mask = 1 << period;
     if (val) {
@@ -64,11 +47,6 @@ export class Availability {
     }
   }
 
-  /**
-   * Set availability for an entire day
-   * @param day - Day index
-   * @param val - Whether the day is available
-   */
   setDay(day: number, val: boolean): void {
     if (val) {
       this.buffer[day] = (1 << this.periodsPerDay) - 1;
@@ -77,20 +55,11 @@ export class Availability {
     }
   }
 
-  /**
-   * Get availability for a specific time slot
-   * @param day - Day index
-   * @param period - Period index
-   * @returns Whether the slot is available
-   */
   get(day: number, period: number): boolean {
     const mask = 1 << period;
     return (this.buffer[day] & mask) != 0;
   }
 
-  /**
-   * Print availability to console
-   */
   print(): void {
     const maxCellWidth = "Not Available".length;
 
@@ -108,10 +77,6 @@ export class Availability {
     }
   }
 
-  /**
-   * Get all available time slots
-   * @returns Array of available slots
-   */
   getAvailableSlots(): TimeSlot[] {
     const availableSlots: TimeSlot[] = [];
     for (let day = 0; day < this.days; day++) {
@@ -124,19 +89,11 @@ export class Availability {
     return availableSlots;
   }
 
-  /**
-   * Toggle availability for a specific time slot
-   * @param day - Day index
-   * @param period - Period index
-   */
   toggle(day: number, period: number): void {
     const mask = 1 << period;
     this.buffer[day] ^= mask;
   }
 
-  /**
-   * Custom toJSON to ensure buffer is serialized
-   */
   toJSON() {
     return {
       days: this.days,
@@ -154,11 +111,6 @@ export class Teacher {
   name: string;
   availability: Availability;
 
-  /**
-   * Create a teacher
-   * @param name - Teacher's name
-   * @param availability - Teacher's availability
-   */
   constructor(name: string, availability: Availability) {
     this.id = crypto.randomUUID
       ? crypto.randomUUID()
@@ -167,28 +119,15 @@ export class Teacher {
     this.availability = availability;
   }
 
-  /**
-   * Check if teacher is available at a specific time
-   * @param day - Day index
-   * @param period - Period index
-   * @returns Whether the teacher is available
-   */
   isAvailable(day: number, period: number): boolean {
     return this.availability.get(day, period);
   }
 
-  /**
-   * Get all time slots where the teacher is available
-   * @returns Array of available slots
-   */
   getAvailableSlots(): TimeSlot[] {
     return this.availability.getAvailableSlots();
   }
 }
 
-/**
- * Lesson type supporting normal and alternating lessons
- */
 export type Lesson = {
   periodsPerWeek: number;
 } & (
@@ -205,9 +144,6 @@ export type Lesson = {
   | { name: string; teachers: [Teacher, Teacher]; type: "group" }
 );
 
-/**
- * Helper functions for Lesson compatibility
- */
 export function getLessonName(lesson: Lesson, week: 0 | 1 = 0): string {
   if (lesson.type === "normal" || lesson.type === "group") return lesson.name;
   return lesson.names[week];
@@ -231,11 +167,6 @@ export class Class {
   name: string;
   lessons: Lesson[];
 
-  /**
-   * Create a class
-   * @param name - Class name
-   * @param lessons - Lessons for this class
-   */
   constructor(name: string, lessons: Lesson[]) {
     this.name = name;
     this.lessons = lessons;
@@ -264,10 +195,6 @@ export class Timetable {
   classes: Class[];
   schedule: TimetableSchedule;
 
-  /**
-   * Create a timetable
-   * @param classes - Classes to schedule
-   */
   constructor(classes: Class[]) {
     this.classes = classes;
     this.schedule = this.createEmptySchedule();
@@ -495,15 +422,6 @@ export class Timetable {
     }
   }
 
-  /**
-   * Check if a teacher is busy at a specific time
-   * @param teacher - The teacher to check
-   * @param day - Day index
-   * @param period - Period index
-   * @param skipClassName - Class name to skip in the check
-   * @returns Whether the teacher is busy
-   * @private
-   */
   private isTeacherBusy(
     teacher: Teacher,
     day: number,
@@ -532,11 +450,6 @@ export class Timetable {
     return false;
   }
 
-  /**
-   * Shuffle an array in place
-   * @param array - Array to shuffle
-   * @private
-   */
   private shuffleArray<T>(array: T[]): void {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -676,11 +589,6 @@ export class Timetable {
     return penalty;
   }
 
-  /**
-   * Identify all conflicts in a timetable
-   * @param timetable - The timetable to check
-   * @returns Array of conflicts
-   */
   identifyConflicts(timetable: Timetable): {
     type: "availability" | "double_booking";
     className: string;
@@ -757,12 +665,6 @@ export class Timetable {
     });
   }
 
-  /**
-   * Resolve a specific conflict
-   * @param timetable - The timetable to modify
-   * @param conflict - The conflict to resolve
-   * @returns Whether the conflict was successfully resolved
-   */
   resolveConflict(
     timetable: Timetable,
     conflict: {
@@ -854,14 +756,6 @@ export class Timetable {
     return true;
   }
 
-  /**
-   * Try to find an alternate teacher who can teach the same subject
-   * @param timetable - The timetable to modify
-   * @param className - The class name
-   * @param day - Current day of the lesson
-   * @param period - Current period of the lesson
-   * @returns Whether the substitution was successful
-   */
   findAlternateTeacher(
     timetable: Timetable,
     className: string,
@@ -916,12 +810,6 @@ export class Timetable {
     return false;
   }
 
-  /**
-   * Rebuild the entire schedule for a class to resolve conflicts
-   * @param timetable - The timetable to modify
-   * @param className - The class to rebuild
-   * @returns Whether the rebuild was successful
-   */
   rebuildClassSchedule(timetable: Timetable, className: string): boolean {
     const classObj = this.classes.find(c => c.name === className);
     if (!classObj) return false;
@@ -1005,11 +893,6 @@ export class Timetable {
     return placedCount === lessonQueue.length;
   }
 
-  /**
-   * Perform a random mutation to try to improve the timetable
-   * @param clone - The timetable to mutate
-   * @returns The mutated timetable
-   */
   performRandomMutation(clone: Timetable): Timetable {
     const mutationType = Math.random();
 
@@ -1034,11 +917,6 @@ export class Timetable {
     return clone;
   }
 
-  /**
-   * Swap two random periods within the same day
-   * @param timetable - The timetable to modify
-   * @param randomClass - The class to modify
-   */
   swapRandomPeriodsInSameDay(timetable: Timetable, randomClass: Class): void {
     const schedule = timetable.schedule[randomClass.name];
     const randomDay = Math.floor(Math.random() * DAYS);
@@ -1065,11 +943,6 @@ export class Timetable {
     }
   }
 
-  /**
-   * Swap lessons between two different days
-   * @param timetable - The timetable to modify
-   * @param randomClass - The class to modify
-   */
   swapLessonsBetweenDays(timetable: Timetable, randomClass: Class): void {
     const schedule = timetable.schedule[randomClass.name];
 
@@ -1123,11 +996,6 @@ export class Timetable {
     }
   }
 
-  /**
-   * Shuffle all lessons in a day
-   * @param timetable - The timetable to modify
-   * @param randomClass - The class to modify
-   */
   shuffleDayLessons(timetable: Timetable, randomClass: Class): void {
     const schedule = timetable.schedule[randomClass.name];
     const randomDay = Math.floor(Math.random() * DAYS);
@@ -1147,11 +1015,6 @@ export class Timetable {
     }
   }
 
-  /**
-   * Resolve sameClass violations by moving lessons to other days
-   * @param timetable - The timetable to modify
-   * @param randomClass - The class to modify
-   */
   resolveSameClassViolations(
     timetable: Timetable,
     randomClass: Class,
@@ -1571,11 +1434,6 @@ export class Timetable {
     return html;
   }
 
-  /**
-   * Export the timetable to a PDF file
-   * @param filename - Output filename
-   * @returns Promise resolving to the filename
-   */
   exportToPDF(filename = "timetable.pdf"): Promise<string> {
     return new Promise((resolve, reject) => {
       try {
@@ -1827,91 +1685,6 @@ export class Timetable {
 
     // Generate HTML for each teacher
     let html = `
-      <html>
-      <head>
-        <title>Teacher Timetables</title>
-        <style>
-          body { 
-            font-family: 'Segoe UI', Arial, sans-serif; 
-            margin: 20px; 
-            background-color: #18181b; 
-            color: #e2e8f0; 
-          }
-          h1 { 
-            color: #60a5fa; 
-            font-weight: 600;
-            background: linear-gradient(to right, #60a5fa, #a78bfa);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 30px;
-          }
-          h2 { 
-            color: #93c5fd; 
-            margin-top: 32px;
-            font-weight: 500;
-            padding-left: 8px;
-            border-left: 4px solid #818cf8;
-          }
-          table { 
-            border-collapse: collapse; 
-            width: 100%; 
-            margin-bottom: 24px; 
-            page-break-inside: avoid;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(96, 165, 250, 0.15);
-            background: #27272a;
-          }
-          th, td { 
-            border: 1px solid #3f3f46; 
-            text-align: left; 
-            padding: 12px; 
-          }
-          th { 
-            background: linear-gradient(to right, #27272a, #232329);
-            color: #93c5fd;
-            font-weight: 500;
-          }
-          td {
-            background-color: #2d2d33;
-          }
-          .free { 
-            color:rgb(0, 171, 0); 
-            font-style: italic;
-          }
-          .unavailable {
-            background-color:rgb(255, 233, 224);
-            color:rgb(255, 0, 0);
-            font-style: italic;
-            font-weight: 900;
-          }
-          .teacher-section { 
-            page-break-after: always; 
-            margin-bottom: 40px;
-            padding: 20px;
-            border-radius: 8px;
-            background-color: #1f1f23;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-          }
-          .teacher-section:last-child { 
-            page-break-after: avoid; 
-          }
-          .class-name {
-            color: #a78bfa;
-            font-size: 0.9em;
-            margin-top: 4px;
-          }
-          .subject-name {
-            font-weight: 500;
-            color: #f1f5f9;
-          }
-          @page { 
-            size: landscape; 
-          }
-        </style>
-      </head>
-      <body>
         <h1>Teacher Timetables</h1>
     `;
 
@@ -1973,16 +1746,9 @@ export class Timetable {
       html += "</table></div>";
     }
 
-    html += "</body></html>";
-
     return html;
   }
 
-  /**
-   * Export teacher timetables to a PDF file
-   * @param filename - Output filename
-   * @returns Promise resolving to the filename
-   */
   exportTeacherTimetablesToPDF(
     filename = "teacher-timetables.pdf",
   ): Promise<string> {
@@ -2232,14 +1998,6 @@ export class Timetable {
     return this.performRandomMutation(clone);
   }
 
-  /**
-   * Move a lesson to a valid time slot
-   * @param timetable - The timetable to modify
-   * @param className - The class name
-   * @param day - Current day of the lesson
-   * @param period - Current period of the lesson
-   * @returns Whether the move was successful
-   */
   moveLessonToValidSlot(
     timetable: Timetable,
     className: string,
@@ -2299,14 +2057,6 @@ export class Timetable {
     return false;
   }
 
-  /**
-   * Try to swap with another compatible lesson
-   * @param timetable - The timetable to modify
-   * @param className - The class name
-   * @param day - Day index
-   * @param period - Period index
-   * @returns Whether the swap was successful
-   */
   swapWithCompatibleLesson(
     timetable: Timetable,
     className: string,
@@ -2455,11 +2205,6 @@ export class Scheduler {
   classes: Class[];
   config: SchedulerConfig;
 
-  /**
-   * Create a scheduler
-   * @param classes - Classes to schedule
-   * @param config - Config for the generation algorithm
-   */
   constructor(
     classes: Class[] = [],
     config: SchedulerConfig = DEFAULT_SCHEDULER_CONFIG,
@@ -2468,12 +2213,6 @@ export class Scheduler {
     this.config = config;
   }
 
-  /**
-   * Calculate hard constraint violations for a timetable
-   * @param timetable - The timetable to evaluate
-   * @returns Number of violations (lower is better)
-   * @private
-   */
   private calculateHardConstraintViolations(timetable: Timetable): number {
     // Count availability violations separately with higher weight
     let availabilityViolations = 0;
@@ -2657,10 +2396,6 @@ export class Scheduler {
     return best;
   }
 
-  /**
-   * Emergency cleanup to remove any remaining teacher violations
-   * @param timetable - The timetable to fix
-   */
   private emergencyCleanupTeacherViolations(timetable: Timetable): void {
     for (let day = 0; day < DAYS; day++) {
       for (let period = 0; period < PERIODS_PER_DAY; period++) {
@@ -2717,13 +2452,6 @@ export class Scheduler {
     }
   }
 
-  /**
-   * Create a mutated offspring using intelligent mutation operators
-   * @param parent - The parent timetable
-   * @param sigma - Mutation strength parameter
-   * @returns A new mutated timetable
-   * @private
-   */
   private createMutatedOffspring(parent: Timetable, sigma: number): Timetable {
     const offspring = parent.clone();
 
@@ -2765,12 +2493,6 @@ export class Scheduler {
     return offspring;
   }
 
-  /**
-   * Optimize soft constraints using simulated annealing
-   * @param timetable - The timetable to optimize
-   * @returns Optimized timetable
-   * @private
-   */
   private optimizeSoftConstraints(timetable: Timetable): Timetable {
     let current = timetable.clone();
     let currentFitness = this.calculateSoftConstraintsFitness(current);
@@ -2836,12 +2558,6 @@ export class Scheduler {
     return best;
   }
 
-  /**
-   * Create a neighbor solution for soft constraint optimization
-   * @param timetable - The current timetable
-   * @returns A new timetable with soft constraint focused mutations
-   * @private
-   */
   private createSoftConstraintNeighbor(timetable: Timetable): Timetable {
     const neighbor = timetable.clone();
 
@@ -2882,12 +2598,6 @@ export class Scheduler {
     return neighbor;
   }
 
-  /**
-   * Calculate fitness for soft constraints only
-   * @param timetable - The timetable to evaluate
-   * @returns Fitness score for soft constraints (lower is better)
-   * @private
-   */
   private calculateSoftConstraintsFitness(timetable: Timetable): number {
     // Focus only on soft constraints and optimization criteria
     const unscheduled = timetable.countUnscheduledPeriods() * 50; // Unscheduled periods
@@ -2977,12 +2687,6 @@ export class Scheduler {
     );
   }
 
-  /**
-   * Calculate idle time penalty for teachers
-   * @param timetable - The timetable to evaluate
-   * @returns Penalty score for teacher idle time
-   * @private
-   */
   private calculateTeacherIdlePenalty(timetable: Timetable): number {
     let totalPenalty = 0;
     const teacherSchedule: Map<string, Map<number, number[]>> = new Map();
@@ -3035,12 +2739,6 @@ export class Scheduler {
     return totalPenalty;
   }
 
-  /**
-   * Calculate idle time penalty for groups
-   * @param timetable - The timetable to evaluate
-   * @returns Penalty score for group idle time
-   * @private
-   */
   private calculateGroupIdlePenalty(timetable: Timetable): number {
     let totalPenalty = 0;
     const groups = new Set<string>();
@@ -3081,12 +2779,6 @@ export class Scheduler {
     return totalPenalty;
   }
 
-  /**
-   * Check if there is at least one free hour in the week where no teaching occurs
-   * @param timetable - The timetable to evaluate
-   * @returns Whether there is a free hour
-   * @private
-   */
   private hasFreeHourInWeek(timetable: Timetable): boolean {
     for (let day = 0; day < DAYS; day++) {
       for (let period = 0; period < PERIODS_PER_DAY; period++) {
@@ -3109,12 +2801,6 @@ export class Scheduler {
     return false; // No free hour found
   }
 
-  /**
-   * Calculate fitness of a timetable
-   * @param timetable - Timetable to evaluate
-   * @returns Fitness score (lower is better)
-   * @private
-   */
   private calculateFitness(timetable: Timetable): number {
     // Calculate both hard and soft constraints for total fitness
     const hardConstraints = this.calculateHardConstraintViolations(timetable);
@@ -3161,12 +2847,6 @@ function teacherToCSV(teacher: Teacher) {
   return out;
 }
 
-/**
- * Export teachers data to CSV
- * @param teachers - List of teachers to export
- * @param filename - Output filename
- * @returns Promise resolving to the filename
- */
 export function exportTeachersToCSV(
   teachers: Teacher[],
   filename = "teachers.csv",
@@ -3206,12 +2886,6 @@ export function exportTeachersToCSV(
   });
 }
 
-/**
- * Export classes data to CSV
- * @param classes - List of classes to export
- * @param filename - Output filename
- * @returns Promise resolving to the filename
- */
 export function exportClassesToCSV(
   classes: Class[],
   filename = "classes.csv",
@@ -3245,13 +2919,6 @@ export function exportClassesToCSV(
   });
 }
 
-/**
- * Export lessons data to CSV
- * @param lessons - List of lessons to export
- * @param className - Optional class name for class-specific export
- * @param filename - Output filename
- * @returns Promise resolving to the filename
- */
 export function exportLessonsToCSV(
   lessons: Lesson[],
   className: string | null = null,
@@ -3321,20 +2988,10 @@ export function exportAllLessonsToCSV(classes: Class[]): Promise<string> {
   });
 }
 
-/**
- * Export lessons for a specific class to CSV
- * @param classObj - The class to export lessons for
- * @returns Promise resolving to the filename
- */
 export function exportClassLessonsToCSV(classObj: Class): Promise<string> {
   return exportLessonsToCSV(classObj.lessons, classObj.name);
 }
 
-/**
- * Import teachers data from CSV
- * @param file - The CSV file to import
- * @returns Promise resolving to an array of Teacher objects
- */
 export function importTeachersFromCSV(file: File): Promise<Teacher[]> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -3389,12 +3046,6 @@ export function importTeachersFromCSV(file: File): Promise<Teacher[]> {
   });
 }
 
-/**
- * Import classes data from CSV
- * @param file - The CSV file to import
- * @param teachers - List of existing teachers to reference
- * @returns Promise resolving to an array of Class objects
- */
 export function importClassesFromCSV(file: File): Promise<Class[]> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -3441,14 +3092,6 @@ export function importClassesFromCSV(file: File): Promise<Class[]> {
   });
 }
 
-/**
- * Import lessons data from CSV
- * @param file - The CSV file to import
- * @param teachers - List of existing teachers to reference
- * @param classes - List of existing classes to add lessons to
- * @param targetClassName - Optional class name to import specifically for
- * @returns Promise resolving to an updated array of Class objects
- */
 export function importLessonsFromCSV(
   file: File,
   teachers: Teacher[],
@@ -3613,13 +3256,6 @@ export function importLessonsFromCSV(
   });
 }
 
-/**
- * Export all app data (teachers, classes, lessons) to a single CSV file
- * @param teachers - List of teachers to export
- * @param classes - List of classes with their lessons to export
- * @param filename - Output filename
- * @returns Promise resolving to the filename
- */
 export function exportAllDataToCSV(
   teachers: Teacher[],
   classes: Class[],
@@ -3761,11 +3397,6 @@ function parseTeacherCSVLine(line: string) {
   return new Teacher(name, availability);
 }
 
-/**
- * Import all app data from a single CSV file
- * @param file - The CSV file to import
- * @returns Promise resolving to an object containing teachers and classes arrays
- */
 export function importAllDataFromCSV(
   file: File,
 ): Promise<{ teachers: Teacher[]; classes: Class[] }> {
@@ -4026,11 +3657,6 @@ export function importAllDataFromCSV(
   });
 }
 
-/**
- * Try to parse a simple CSV format without section headers
- * @param csvText - The CSV text content
- * @returns Object containing teachers and classes arrays
- */
 function parseSimpleCsvFormat(csvText: string): {
   teachers: Teacher[];
   classes: Class[];
