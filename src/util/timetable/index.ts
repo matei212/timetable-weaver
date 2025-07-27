@@ -682,14 +682,14 @@ export class Timetable {
    * @returns Array of conflicts
    */
   identifyConflicts(timetable: Timetable): {
-    type: "availability" | "double_booking";
+    type: "availability" | "double_booking" | "same_class";
     className: string;
     day: number;
     period: number;
     teacherName: string;
   }[] {
     const conflicts: {
-      type: "availability" | "double_booking";
+      type: "availability" | "double_booking" | "same_class";
       className: string;
       day: number;
       period: number;
@@ -748,12 +748,58 @@ export class Timetable {
       }
     }
 
-    // Sort conflicts to prioritize double bookings over availability conflicts
+    // Add sameClass conflict detection
+    for (const cls of this.classes) {
+      const schedule = timetable.schedule[cls.name];
+
+      for (let day = 0; day < DAYS; day++) {
+        const subjectCounts = new Map<string, number[]>();
+
+        // Count lessons per subject for this day
+        for (let period = 0; period < PERIODS_PER_DAY; period++) {
+          const lesson = schedule[day][period];
+          if (lesson) {
+            const subjectName = getLessonName(lesson);
+            if (!subjectCounts.has(subjectName)) {
+              subjectCounts.set(subjectName, Array(PERIODS_PER_DAY).fill(0));
+            }
+            subjectCounts.get(subjectName)![period] = 1;
+          }
+        }
+
+        // Check for subjects with more than 2 periods in a day
+        for (const [, periodCounts] of subjectCounts.entries()) {
+          const totalCount = periodCounts.reduce(
+            (sum, count) => sum + count,
+            0,
+          );
+          if (totalCount > 2) {
+            // Find the periods where this subject occurs
+            for (let period = 0; period < PERIODS_PER_DAY; period++) {
+              if (periodCounts[period] > 0) {
+                conflicts.push({
+                  type: "same_class",
+                  className: cls.name,
+                  day,
+                  period,
+                  teacherName: getLessonTeacher(schedule[day][period]!).name,
+                });
+              }
+            }
+            break; // Only add one conflict per subject per day to avoid spam
+          }
+        }
+      }
+    }
+
+    // Sort conflicts to prioritize double bookings over availability conflicts, then sameClass
     return conflicts.sort((a, b) => {
-      if (a.type === "double_booking" && b.type === "availability") {
+      if (a.type === "double_booking" && b.type !== "double_booking") {
         return -1; // Double booking comes first
-      } else if (a.type === "availability" && b.type === "double_booking") {
-        return 1; // Availability conflict comes second
+      } else if (a.type === "availability" && b.type === "same_class") {
+        return -1; // Availability comes before sameClass
+      } else if (a.type === "same_class" && b.type === "availability") {
+        return 1; // sameClass comes after availability
       }
       return 0;
     });
@@ -768,7 +814,7 @@ export class Timetable {
   resolveConflict(
     timetable: Timetable,
     conflict: {
-      type: "availability" | "double_booking";
+      type: "availability" | "double_booking" | "same_class";
       className: string;
       day: number;
       period: number;
@@ -821,6 +867,38 @@ export class Timetable {
       // It's better to have an unscheduled lesson than to violate teacher availability
       console.error(
         `Could not resolve availability conflict. Removing lesson ${getLessonName(lesson)} from class ${className}`,
+      );
+      timetable.schedule[className][day][period] = null;
+      return true;
+    }
+
+    // For sameClass conflicts, we need to move the lesson to another day
+    if (type === "same_class") {
+      // Use the specialized resolveSameClassViolations function
+      const classObj = this.classes.find(cls => cls.name === className);
+      if (classObj) {
+        this.resolveSameClassViolations(timetable, classObj, day, period);
+        return true;
+      }
+
+      // Fallback: Try to move this lesson to another day
+      if (this.moveLessonToValidSlot(timetable, className, day, period)) {
+        return true;
+      }
+
+      // Step 2: Try swapping with a lesson from another day
+      if (this.swapWithCompatibleLesson(timetable, className, day, period)) {
+        return true;
+      }
+
+      // Step 3: Try rebuilding the class schedule
+      if (this.rebuildClassSchedule(timetable, className)) {
+        return true;
+      }
+
+      // Step 4: Remove the lesson if we can't resolve the conflict
+      console.error(
+        `Could not resolve sameClass conflict. Removing lesson ${getLessonName(lesson)} from class ${className}`,
       );
       timetable.schedule[className][day][period] = null;
       return true;
@@ -1022,7 +1100,7 @@ export class Timetable {
     if (mutationType < 0.4) {
       // Swap two random periods within the same day for a class
       this.swapRandomPeriodsInSameDay(clone, randomClass);
-    } else if (mutationType < 0.8) {
+    } else if (mutationType < 0.7) {
       // Swap lessons between two different days
       this.swapLessonsBetweenDays(clone, randomClass);
     } else {
@@ -1146,6 +1224,147 @@ export class Timetable {
     // Put them back
     for (let period = 0; period < PERIODS_PER_DAY; period++) {
       schedule[randomDay][period] = lessons[period];
+    }
+  }
+
+  /**
+   * Resolve sameClass violations by moving lessons to other days
+   * @param timetable - The timetable to modify
+   * @param randomClass - The class to modify
+   */
+  resolveSameClassViolations(
+    timetable: Timetable,
+    randomClass: Class,
+    targetDay?: number,
+    targetPeriod?: number,
+  ): void {
+    const schedule = timetable.schedule[randomClass.name];
+
+    // If target day and period are provided, focus on resolving that specific conflict
+    if (targetDay !== undefined && targetPeriod !== undefined) {
+      const lesson = schedule[targetDay][targetPeriod];
+      if (lesson) {
+        const subjectName = getLessonName(lesson);
+
+        // Count how many times this subject appears on the target day
+        let subjectCount = 0;
+        for (let period = 0; period < PERIODS_PER_DAY; period++) {
+          const otherLesson = schedule[targetDay][period];
+          if (otherLesson && getLessonName(otherLesson) === subjectName) {
+            subjectCount++;
+          }
+        }
+
+        // If this subject appears more than 2 times on this day, try to move this lesson
+        if (subjectCount > 2) {
+          // Try to find a valid slot on another day
+          for (let otherDay = 0; otherDay < DAYS; otherDay++) {
+            if (otherDay === targetDay) continue;
+
+            for (
+              let otherPeriod = 0;
+              otherPeriod < PERIODS_PER_DAY;
+              otherPeriod++
+            ) {
+              const targetSlot = schedule[otherDay][otherPeriod];
+
+              // Check if target slot is empty and teacher is available
+              if (!targetSlot) {
+                const teacher = getLessonTeacher(lesson);
+                if (
+                  teacher.isAvailable(otherDay, otherPeriod) &&
+                  !this.isTeacherBusy(
+                    teacher,
+                    otherDay,
+                    otherPeriod,
+                    randomClass.name,
+                  )
+                ) {
+                  // Move the lesson
+                  schedule[otherDay][otherPeriod] = lesson;
+                  schedule[targetDay][targetPeriod] = null;
+                  return; // Successfully moved the lesson
+                }
+              }
+            }
+          }
+        }
+      }
+      return; // Exit if we were targeting a specific conflict
+    }
+
+    // Original behavior: Find days with sameClass violations randomly
+    for (let day = 0; day < DAYS; day++) {
+      const subjectCounts = new Map<string, number[]>();
+
+      // Count lessons per subject for this day
+      for (let period = 0; period < PERIODS_PER_DAY; period++) {
+        const lesson = schedule[day][period];
+        if (lesson) {
+          const subjectName = getLessonName(lesson);
+          if (!subjectCounts.has(subjectName)) {
+            subjectCounts.set(subjectName, Array(PERIODS_PER_DAY).fill(0));
+          }
+          subjectCounts.get(subjectName)![period] = 1;
+        }
+      }
+
+      // Check for subjects with more than 2 periods in a day
+      for (const [, periodCounts] of subjectCounts.entries()) {
+        const totalCount = periodCounts.reduce((sum, count) => sum + count, 0);
+        if (totalCount > 2) {
+          // Find the periods where this subject occurs
+          const conflictPeriods: number[] = [];
+          for (let period = 0; period < PERIODS_PER_DAY; period++) {
+            if (periodCounts[period] > 0) {
+              conflictPeriods.push(period);
+            }
+          }
+
+          // Try to move one of the conflicting lessons to another day
+          if (conflictPeriods.length > 2) {
+            const periodToMove =
+              conflictPeriods[
+                Math.floor(Math.random() * conflictPeriods.length)
+              ];
+            const lessonToMove = schedule[day][periodToMove];
+
+            if (lessonToMove) {
+              // Try to find a valid slot on another day
+              for (let otherDay = 0; otherDay < DAYS; otherDay++) {
+                if (otherDay === day) continue;
+
+                for (
+                  let otherPeriod = 0;
+                  otherPeriod < PERIODS_PER_DAY;
+                  otherPeriod++
+                ) {
+                  const targetSlot = schedule[otherDay][otherPeriod];
+
+                  // Check if target slot is empty and teacher is available
+                  if (!targetSlot) {
+                    const teacher = getLessonTeacher(lessonToMove);
+                    if (
+                      teacher.isAvailable(otherDay, otherPeriod) &&
+                      !this.isTeacherBusy(
+                        teacher,
+                        otherDay,
+                        otherPeriod,
+                        randomClass.name,
+                      )
+                    ) {
+                      // Move the lesson
+                      schedule[otherDay][otherPeriod] = lessonToMove;
+                      schedule[day][periodToMove] = null;
+                      return; // Successfully moved one lesson
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 
@@ -1778,8 +1997,6 @@ export class Timetable {
     const sortedTeachers = Array.from(teacherSchedules.keys()).sort();
 
     for (const teacherName of sortedTeachers) {
-      const teacherSchedule = teacherSchedules.get(teacherName)!;
-
       // Find the teacher object to check availability
       const teacher = this.classes
         .flatMap(cls => cls.lessons.map(l => getLessonTeacher(l)))
@@ -2382,7 +2599,30 @@ export class Scheduler {
     // Empty spaces are also a hard constraint but less severe
     const emptySpaces = timetable.countEmptySpacePenalty();
 
-    return conflicts + emptySpaces;
+    // Same class penalty as a hard constraint
+    let sameClassesPenalty = 0;
+    for (const cls of timetable.classes) {
+      for (let day = 0; day < DAYS; day++) {
+        const classesObj = {} as { [key: string]: { count: number } };
+        for (let period = 0; period < PERIODS_PER_DAY; period++) {
+          const lesson = timetable.schedule[cls.name][day][period];
+          if (!lesson) {
+            continue;
+          }
+
+          if (getLessonName(lesson) in classesObj) {
+            classesObj[getLessonName(lesson)].count++;
+            if (classesObj[getLessonName(lesson)].count > 1) {
+              sameClassesPenalty += 1000; // High penalty as hard constraint
+            }
+          } else {
+            classesObj[getLessonName(lesson)] = { count: 1 };
+          }
+        }
+      }
+    }
+
+    return conflicts + emptySpaces + sameClassesPenalty;
   }
 
   /**
@@ -2804,37 +3044,13 @@ export class Scheduler {
     // Check if there's at least one free hour in the week where no teaching occurs
     const freeHourPenalty = this.hasFreeHourInWeek(timetable) ? 0 : 100;
 
-    // Too many classes of the same type in a day
-    let sameClassesPenality = 0;
-    for (const cls of timetable.classes) {
-      for (let day = 0; day < DAYS; day++) {
-        const classesObj = {} as { [key: string]: { count: number } };
-        for (let period = 0; period < PERIODS_PER_DAY; period++) {
-          const lesson = timetable.schedule[cls.name][day][period];
-          if (!lesson) {
-            continue;
-          }
-
-          if (getLessonName(lesson) in classesObj) {
-            classesObj[getLessonName(lesson)].count++;
-            if (classesObj[getLessonName(lesson)].count > 2) {
-              sameClassesPenality += 50;
-            }
-          } else {
-            classesObj[getLessonName(lesson)] = { count: 1 };
-          }
-        }
-      }
-    }
-
     return (
       unscheduled +
       freeFirstPeriods +
       distributionPenalty +
       teacherIdlePenalty +
       groupIdlePenalty +
-      freeHourPenalty +
-      sameClassesPenality
+      freeHourPenalty
     );
   }
 
