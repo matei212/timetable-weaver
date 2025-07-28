@@ -166,6 +166,8 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
   };
 
   const errorMsg = useMemo(() => {
+    if (selectedClassIndex === null) return null;
+
     const name = newLessonName.trim();
     if (
       name.length === 0 &&
@@ -190,28 +192,26 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
       return "Nu puteți folosti '/' în nume";
     }
 
-    for (const cls of classes) {
-      for (const lesson of cls.lessons) {
-        if (lessonType === "group" || lessonType === "normal") {
-          if (
-            ((lesson.type === "normal" || lesson.type === "group") &&
-              lesson.name === name) ||
-            (lesson.type === "alternating" &&
-              lesson.names.some(n => n === name))
-          ) {
-            return `Lectia ${name} exista deja`;
+    const cls = classes[selectedClassIndex];
+    for (const lesson of cls.lessons) {
+      if (lessonType === "group" || lessonType === "normal") {
+        if (
+          ((lesson.type === "normal" || lesson.type === "group") &&
+            lesson.name === name) ||
+          (lesson.type === "alternating" && lesson.names.some(n => n === name))
+        ) {
+          return `Lectia ${name} exista deja`;
+        }
+      } else {
+        if (lesson.type === "alternating") {
+          for (const altName of newAltNames) {
+            if (lesson.names.some(n => n === altName)) {
+              return `Lectia ${altName} exista deja`;
+            }
           }
         } else {
-          if (lesson.type === "alternating") {
-            for (const altName of newAltNames) {
-              if (lesson.names.some(n => n === altName)) {
-                return `Lectia ${altName} exista deja`;
-              }
-            }
-          } else {
-            if (altLessonNames.some(n => n === lesson.name)) {
-              return `Lectia ${lesson.name} exista deja`;
-            }
+          if (altLessonNames.some(n => n === lesson.name)) {
+            return `Lectia ${lesson.name} exista deja`;
           }
         }
       }
