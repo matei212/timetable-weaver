@@ -22,6 +22,8 @@ import { PiChalkboardTeacher } from "react-icons/pi";
 import { PiClipboardText } from "react-icons/pi";
 import { MdOutlinePersonSearch } from "react-icons/md";
 
+
+
 interface TeachersTabProps {
   teachers: Teacher[];
   classes: Class[];
@@ -55,7 +57,16 @@ const useTeacherManagement = (
       for (let day = 0; day < DAYS; day++) {
         availability.setDay(day, true);
       }
-      const newTeacher = new Teacher(name.trim(), availability);
+      
+      // Check if teacher email exists in localStorage
+      const savedEmail = localStorage.getItem(`teacher_email_${name.trim()}`);
+      const newTeacher = new Teacher(name.trim(), availability, savedEmail || undefined);
+      
+      // Save email to localStorage if it exists
+      if (savedEmail) {
+        localStorage.setItem(`teacher_email_${name.trim()}`, savedEmail);
+      }
+      
       onTeachersChange([...teachers, newTeacher]);
       return true;
     }
@@ -316,6 +327,7 @@ const TeacherListItem: React.FC<{
     subjectName: string,
     newPeriods: number,
   ) => boolean;
+  onUpdateEmail: (email: string) => void;
 }> = ({
   teacher,
   classes,
@@ -323,10 +335,13 @@ const TeacherListItem: React.FC<{
   onEditAvailability,
   onUpdateName,
   onUpdateLessonPeriods,
+  onUpdateEmail,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(teacher.name);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [emailInput, setEmailInput] = useState(teacher.email || "");
 
   // Get all subjects taught by this teacher
   const subjects = getTeacherSubjects(teacher.name, classes);
@@ -386,12 +401,48 @@ const TeacherListItem: React.FC<{
                 </button>
               </div>
             </div>
+          ) : isEditingEmail ? (
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <input
+                type="email"
+                value={emailInput}
+                onChange={e => setEmailInput(e.target.value)}
+                placeholder="Email profesor"
+                className="flex-1 rounded-lg border border-slate-600/50 bg-slate-200 p-2 transition-all focus:ring-2 focus:ring-blue-500/50 dark:bg-slate-700/30 dark:text-white"
+                autoFocus
+              />
+              <div className="mt-2 flex gap-2 sm:mt-0">
+                <button
+                  onClick={() => {
+                    onUpdateEmail(emailInput);
+                    setIsEditingEmail(false);
+                  }}
+                  className="rounded-lg bg-emerald-600 px-3 py-1 text-xs text-white transition-all duration-300 hover:bg-emerald-700"
+                >
+                  Salvează
+                </button>
+                <button
+                  onClick={() => {
+                    setEmailInput(teacher.email || "");
+                    setIsEditingEmail(false);
+                  }}
+                  className="rounded-lg bg-slate-600 px-3 py-1 text-xs text-white transition-all duration-300 hover:bg-slate-700"
+                >
+                  Anulează
+                </button>
+              </div>
+            </div>
           ) : (
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div className="mb-2 flex flex-col sm:mb-0">
                 <span className="font-medium text-slate-700 dark:text-slate-100">
                   {teacher.name}
                 </span>
+                {teacher.email && (
+                  <span className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                    {teacher.email}
+                  </span>
+                )}
                 {hasSubjects && (
                   <button
                     onClick={() => setIsExpanded(!isExpanded)}
@@ -405,23 +456,32 @@ const TeacherListItem: React.FC<{
                 )}
               </div>
               <ColorButton
-                onClick={handleStartEdit}
-                variant="gray"
+                onClick={() => setIsEditingEmail(true)}
+                variant="blue"
                 className="px-2 py-2 text-sm"
               >
-                Editează Nume
+                {teacher.email ? "Editează Email" : "Adaugă Email"}
               </ColorButton>
             </div>
           )}
         </td>
         <td className="hidden p-3 sm:table-cell">
-          <ColorButton
-            onClick={onEditAvailability}
-            variant="blue"
-            className="px-3 py-1.5"
-          >
-            Setează Disponibilitate
-          </ColorButton>
+          <div className="flex flex-col gap-2">
+            <ColorButton
+              onClick={handleStartEdit}
+              variant="gray"
+              className="px-3 py-1.5"
+            >
+              Editează Nume
+            </ColorButton>
+            <ColorButton
+              onClick={onEditAvailability}
+              variant="blue"
+              className="px-3 py-1.5"
+            >
+              Setează Disponibilitate
+            </ColorButton>
+          </div>
         </td>
         <td className="flex flex-col justify-end gap-2 p-3 text-right sm:flex-row sm:justify-center sm:text-center">
           <button
@@ -529,6 +589,7 @@ const TeacherList: React.FC<{
     newPeriods: number,
   ) => boolean;
   onImportTeachers: (importedTeachers: Teacher[]) => void;
+  onUpdateTeacherEmail: (index: number, email: string) => void;
 }> = ({
   teachers,
   classes,
@@ -537,6 +598,7 @@ const TeacherList: React.FC<{
   onUpdateTeacherName,
   onUpdateLessonPeriods,
   onImportTeachers,
+  onUpdateTeacherEmail,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -649,13 +711,14 @@ const TeacherList: React.FC<{
             <tbody>
               {teachers.map((teacher, index) => (
                 <TeacherListItem
-                  key={index}
+                  key={teacher.name}
                   teacher={teacher}
                   classes={classes}
                   onRemove={() => onRemoveTeacher(index)}
                   onEditAvailability={() => onEditAvailability(index)}
                   onUpdateName={name => onUpdateTeacherName(index, name)}
                   onUpdateLessonPeriods={onUpdateLessonPeriods}
+                  onUpdateEmail={email => onUpdateTeacherEmail(index, email)}
                 />
               ))}
             </tbody>
@@ -704,6 +767,13 @@ const TeachersTab: React.FC<TeachersTabProps> = ({
 
   const handleImportTeachers = (importedTeachers: Teacher[]) => {
     if (importedTeachers.length > 0) {
+      // Save teacher emails to localStorage
+      importedTeachers.forEach(teacher => {
+        if (teacher.email) {
+          localStorage.setItem(`teacher_email_${teacher.name}`, teacher.email);
+        }
+      });
+      
       // Append imported teachers to existing ones
       onTeachersChange([...teachers, ...importedTeachers]);
       alert(
@@ -712,6 +782,21 @@ const TeachersTab: React.FC<TeachersTabProps> = ({
     } else {
       alert("Nu au fost găsiți profesori în fișierul importat.");
     }
+  };
+
+  const handleUpdateTeacherEmail = (index: number, email: string) => {
+    const updatedTeachers = [...teachers];
+    const teacher = updatedTeachers[index];
+    // Update the email property directly
+    teacher.email = email;
+    
+    onTeachersChange(updatedTeachers);
+    // Save to localStorage
+    localStorage.setItem(
+      `teacher_email_${teacher.name}`,
+      email,
+    );
+    // Note: Email will be saved to Firestore when user clicks "Salvează Online"
   };
 
   return (
@@ -747,6 +832,7 @@ const TeachersTab: React.FC<TeachersTabProps> = ({
         onUpdateTeacherName={updateTeacherName}
         onUpdateLessonPeriods={updateLessonPeriods}
         onImportTeachers={handleImportTeachers}
+        onUpdateTeacherEmail={handleUpdateTeacherEmail}
       />
 
       <Note className="mt-6 p-4">

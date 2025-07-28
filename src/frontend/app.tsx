@@ -22,6 +22,7 @@ import {
   Login,
   Signup,
   Profile,
+  EmailVerification,
 } from "./routes";
 import ThemeProvider from "./providers/Theme";
 
@@ -456,6 +457,7 @@ const RoutesConfig: React.FC<{
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/verify-email" element={<EmailVerification />} />
 
         {/* Timetable creation routes */}
         <Route

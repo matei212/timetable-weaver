@@ -353,8 +353,8 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
 
     return (
       <div className="mt-8">
-        <h4 className="mb-4 flex items-center text-lg font-semibold text-blue-500">
-          <span className="mr-2">📚</span> Lecții pentru {currentClass.name}
+        <h4 className="mb-4 flex items-center text-lg font-bold text-blue-500">
+          <span className="mr-2"></span> Lecții pentru {currentClass.name}
         </h4>
         <div className="overflow-x-auto rounded-lg">
           <table className="w-full border-collapse">

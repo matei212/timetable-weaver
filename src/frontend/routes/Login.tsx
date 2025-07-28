@@ -4,9 +4,9 @@ import {
   signOut,
   GoogleAuthProvider,
   signInWithPopup,
+  sendEmailVerification,
 } from "firebase/auth";
 import { auth } from "../services/firebase";
-import { useAuthState } from "react-firebase-hooks/auth";
 import { Link } from "react-router-dom";
 
 const Login: React.FC = () => {
@@ -15,7 +15,7 @@ const Login: React.FC = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-  const [user] = useAuthState(auth);
+  const [showResend, setShowResend] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,12 +23,43 @@ const Login: React.FC = () => {
     setError("");
     setSuccess("");
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      // Do not write to Firestore
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+      if (!userCredential.user.emailVerified) {
+        await signOut(auth);
+        setError("Please verify your email before logging in.");
+        setShowResend(true);
+        return;
+      }
       setSuccess("Logged in successfully!");
     } catch (err) {
       const errorMsg = (err as { message?: string }).message || "Login failed";
       setError(errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setLoading(true);
+    try {
+      const user = auth.currentUser;
+      if (user) {
+        console.log("Resending verification email to:", user.email);
+        await sendEmailVerification(user);
+        console.log("Verification email resent successfully");
+        setSuccess("Verification email sent!");
+        setError("");
+      } else {
+        console.log("No current user found");
+        setError("No user found. Please sign in first.");
+      }
+    } catch (err) {
+      console.error("Error resending verification email:", err);
+      setError("Failed to resend verification email.");
     } finally {
       setLoading(false);
     }
@@ -41,7 +72,6 @@ const Login: React.FC = () => {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      // Do not write to Firestore
       setSuccess("Logged in with Google!");
     } catch (err) {
       const errorMsg =
@@ -92,6 +122,16 @@ const Login: React.FC = () => {
         >
           {loading ? "Logging in..." : "Login"}
         </button>
+        {showResend && (
+          <button
+            type="button"
+            onClick={handleResendVerification}
+            className="mt-2 rounded bg-yellow-500 px-4 py-2 font-semibold text-white hover:bg-yellow-600"
+            disabled={loading}
+          >
+            {loading ? "Sending..." : "Resend Verification Email"}
+          </button>
+        )}
         <div className="mt-2 flex justify-center">
           <button
             type="button"
@@ -147,10 +187,10 @@ const Login: React.FC = () => {
           Sign up
         </Link>
       </div>
-      {user && (
+      {auth.currentUser && (
         <div className="mt-8 flex w-full flex-col items-center">
           <div className="mb-2 font-semibold text-green-700">
-            Logged in as {user.email}
+            Logged in as {auth.currentUser.email}
           </div>
           <button
             onClick={handleLogout}

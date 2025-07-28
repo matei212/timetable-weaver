@@ -45,10 +45,38 @@ export async function ensureUserCollection(user: {
 export async function createUserWithRole(
   uid: string,
   email: string,
-): Promise<"ADMIN" | "TEACHER"> {
+): Promise<"ADMIN" | "TEACHER" | "OWNER"> {
   const usersSnap = await getDocs(collection(db, "users"));
   const isFirstUser = usersSnap.empty;
-  const role: "ADMIN" | "TEACHER" = isFirstUser ? "ADMIN" : "TEACHER";
+  
+  let role: "ADMIN" | "TEACHER" | "OWNER" = "ADMIN";
+  
+  if (!isFirstUser) {
+    try {
+      const allTimetables = await fetchAllTimetables();
+      let isTeacherInAnyTimetable = false;
+      
+      for (const timetable of allTimetables) {
+        try {
+          const teachersData = await fetchTeachersForTimetable(timetable.id);
+          const teacherData = teachersData.find(t => t.email === email);
+          if (teacherData) {
+            isTeacherInAnyTimetable = true;
+            break;
+          }
+        } catch (error) {
+          console.error(`Error checking teachers in timetable ${timetable.id}:`, error);
+        }
+      }
+      
+      if (isTeacherInAnyTimetable) {
+        role = "TEACHER";
+      }
+    } catch (error) {
+      console.error("Error checking if user is teacher:", error);
+    }
+  }
+  
   await setDoc(
     doc(db, "users", uid),
     {
@@ -56,6 +84,7 @@ export async function createUserWithRole(
       email,
       role,
       assignedTimetables: [],
+      ownedTimetables: [],
     },
     { merge: true },
   );
@@ -66,53 +95,58 @@ export async function createUserWithRole(
 export async function createTimetable({
   ownerUid,
   title,
-  teachers,
   classes,
   schedule,
 }: {
   ownerUid: string;
   title: string;
-  teachers: string[];
   classes: unknown;
   schedule: unknown;
 }): Promise<string> {
   const timetableDoc = await addDoc(collection(db, "timetables"), {
     owner: ownerUid,
     title,
-    teachers,
     classes,
     schedule,
+    createdAt: new Date(),
   });
+  
+  // Update owner's ownedTimetables array
+  await updateDoc(doc(db, "users", ownerUid), {
+    ownedTimetables: arrayUnion(timetableDoc.id),
+  });
+  
   return timetableDoc.id;
 }
 
-// 3. Assign timetable to teachers
-export async function assignTimetableToTeachers(
+// Check if user is owner of a timetable
+export async function isUserTimetableOwner(
+  userId: string,
   timetableId: string,
-  teacherEmails: string[],
-): Promise<void> {
-  for (const email of teacherEmails) {
-    const usersSnap = await getDocs(collection(db, "users"));
-    let userDoc: { id: string; data: () => DocumentData } | null = null;
-    usersSnap.forEach(docSnap => {
-      if (docSnap.data().email === email) {
-        userDoc = { id: docSnap.id, data: docSnap.data };
-      }
-    });
-    if (userDoc !== null) {
-      const { id } = userDoc;
-      await updateDoc(doc(db, "users", id), {
-        assignedTimetables: arrayUnion(timetableId),
-      });
-    } else {
-      const newUserRef = doc(collection(db, "users"));
-      await setDoc(newUserRef, {
-        uid: newUserRef.id,
-        email,
-        role: "TEACHER",
-        assignedTimetables: [timetableId],
-      });
+): Promise<boolean> {
+  try {
+    const timetableDoc = await getDoc(doc(db, "timetables", timetableId));
+    if (timetableDoc.exists()) {
+      return timetableDoc.data().owner === userId;
     }
+    return false;
+  } catch (error) {
+    console.error("Error checking timetable ownership:", error);
+    return false;
+  }
+}
+
+// Get user's owned timetables
+export async function getUserOwnedTimetables(userId: string): Promise<string[]> {
+  try {
+    const userDoc = await getDoc(doc(db, "users", userId));
+    if (userDoc.exists()) {
+      return userDoc.data().ownedTimetables || [];
+    }
+    return [];
+  } catch (error) {
+    console.error("Error fetching user's owned timetables:", error);
+    return [];
   }
 }
 
@@ -167,22 +201,103 @@ export async function fetchAllTimetables() {
   }));
 }
 
+// Fetch timetables for a specific user (owned and assigned)
+export async function fetchUserTimetables(userId: string, userEmail?: string) {
+  const userDoc = await getDoc(doc(db, "users", userId));
+  if (!userDoc.exists()) {
+    return { owned: [], assigned: [], teacherIn: [] };
+  }
+  
+  const userData = userDoc.data();
+  const ownedTimetables = userData.ownedTimetables || [];
+  const assignedTimetables = userData.assignedTimetables || [];
+  
+  // Fetch details for owned timetables
+  const ownedDetails = await Promise.all(
+    ownedTimetables.map(async (timetableId: string) => {
+      const timetableDoc = await getDoc(doc(db, "timetables", timetableId));
+      if (timetableDoc.exists()) {
+        return {
+          id: timetableId,
+          ...timetableDoc.data(),
+          isOwner: true,
+        };
+      }
+      return null;
+    })
+  );
+  
+  // Fetch details for assigned timetables
+  const assignedDetails = await Promise.all(
+    assignedTimetables.map(async (timetableId: string) => {
+      const timetableDoc = await getDoc(doc(db, "timetables", timetableId));
+      if (timetableDoc.exists()) {
+        return {
+          id: timetableId,
+          ...timetableDoc.data(),
+          isOwner: false,
+        };
+      }
+      return null;
+    })
+  );
+
+  const teacherInTimetables: Array<{
+    id: string;
+    title?: string;
+    owner?: string;
+    createdAt?: Date;
+    isOwner: boolean;
+    isTeacher: boolean;
+  }> = [];
+  if (userEmail) {
+    try {
+      const allTimetables = await fetchAllTimetables();
+      
+      for (const timetable of allTimetables) {
+        try {
+          const teachersData = await fetchTeachersForTimetable(timetable.id);
+          const teacherData = teachersData.find(t => t.email === userEmail);
+          if (teacherData) {
+            teacherInTimetables.push({
+              ...timetable,
+              isOwner: false,
+              isTeacher: true,
+            });
+          }
+        } catch (error) {
+          console.error(`Error checking teachers in timetable ${timetable.id}:`, error);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching timetables for teacher check:", error);
+    }
+  }
+  
+  return {
+    owned: ownedDetails.filter(t => t !== null),
+    assigned: assignedDetails.filter(t => t !== null),
+    teacherIn: teacherInTimetables,
+  };
+}
+
 // 7. Update teachers and their availability for a specific timetable
 export const updateTimetableTeachers = async (timetableId: string, teachers: Teacher[]) => {
   const batch = writeBatch(db);
 
   teachers.forEach(teacher => {
-    const teacherDocRef = doc(db, `timetables/${timetableId}/allteachers`, teacher.id);
+    const teacherDocRef = doc(db, `timetables/${timetableId}/allteachers`, teacher.name);
     // Convert the Teacher class instance to a plain object for Firestore
     const teacherObject = {
       id: teacher.id,
       name: teacher.name,
+      email: teacher.email || null, // Add email field
       // Manually convert availability to a plain object
       availability: {
         buffer: { ...teacher.availability.buffer }
       }
     };
-    batch.set(teacherDocRef, teacherObject);
+    batch.set(teacherDocRef, teacherObject, { merge: true }); // Use merge to update existing documents
   });
 
   await batch.commit();

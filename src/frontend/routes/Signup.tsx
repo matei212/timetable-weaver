@@ -3,6 +3,8 @@ import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
+  sendEmailVerification,
+  signOut,
 } from "firebase/auth";
 import { auth } from "../services/firebase";
 import { setDoc, doc } from "firebase/firestore";
@@ -29,25 +31,40 @@ const Signup: React.FC = () => {
     }
     setLoading(true);
     try {
+      console.log("Creating user account...");
       const userCred = await createUserWithEmailAndPassword(
         auth,
         email,
         password,
       );
+      console.log("User created successfully:", userCred.user.email);
+      console.log("User email verified status:", userCred.user.emailVerified);
+      
+      console.log("Sending verification email...");
+      try {
+        await sendEmailVerification(userCred.user);
+        console.log("Verification email sent successfully");
+      } catch (emailError) {
+        console.error("Error sending verification email:", emailError);
+        console.log("Continuing with signup despite email error");
+      }
+      
       const role = await createUserWithRole(userCred.user.uid, email);
       await setDoc(
         doc(db, "users", userCred.user.uid),
         { email, judet },
         { merge: true },
-      ); // Optionally merge judet
+      );
+      await signOut(auth);
       setSuccess(
-        `Account created successfully as ${role}! You can now log in.`,
+        `Account created successfully as ${role}! A verification email has been sent. Please verify your email to log in.`,
       );
       setEmail("");
       setPassword("");
       setConfirmPassword("");
       setJudet("");
     } catch (err) {
+      console.error("Error during signup:", err);
       const errorMsg =
         (err as { message?: string }).message || "Sign up failed";
       setError(errorMsg);
