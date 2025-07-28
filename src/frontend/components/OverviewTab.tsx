@@ -387,10 +387,10 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               automatizat de programare.
             </p>
             <div className="flex flex-wrap gap-2">
-              <GradientButton
+              <button
                 onClick={handleGenerateTimetable}
                 disabled={isLoading}
-                className="flex-grow"
+                className="flex-grow rounded-lg border-blue-500/10 bg-blue-200 px-2 py-1 text-lg font-medium text-blue-700 hover:bg-blue-300"
               >
                 {isLoading ? (
                   <div className="flex items-center">
@@ -399,21 +399,19 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 ) : (
                   "Generează orar"
                 )}
-              </GradientButton>
-              <GradientButton
-                variant="cyan"
+              </button>
+              <button
                 onClick={handleSaveOnline}
-                className="flex-grow"
+                className="flex-grow rounded-lg border border-green-500/10 bg-green-200 px-2 py-1 text-lg font-medium text-green-700 hover:bg-green-300"
               >
                 Salvează online
-              </GradientButton>
-              <GradientButton
-                variant="blue"
+              </button>
+              <button
                 onClick={handleImportOnline}
-                className="flex-grow"
+                className="flex-grow rounded-lg border border-violet-500/10 bg-violet-200 px-2 py-1 text-lg font-medium text-violet-700 hover:bg-violet-300"
               >
                 Importă din online
-              </GradientButton>
+              </button>
             </div>
             {saveStatus && (
               <div className="mt-4 rounded-lg bg-blue-50 p-3 text-sm text-blue-700">

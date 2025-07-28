@@ -45,49 +45,52 @@ const Home: React.FC<HomeProps> = ({
 
   useEffect(() => {
     if (user) {
-        const loadTimetables = async () => {
-    try {
-      const data = await fetchUserTimetables(user.uid, user.email || undefined);
-      const allTimetables = [
-        ...data.owned.map(tt => ({
-          id: tt.id,
-          title: tt.title || "(fără titlu)",
-          owner: tt.owner || "necunoscut",
-          isOwner: true,
-          isTeacher: false,
-          createdAt: tt.createdAt,
-        })),
-        ...data.assigned.map(tt => ({
-          id: tt.id,
-          title: tt.title || "(fără titlu)",
-          owner: tt.owner || "necunoscut",
-          isOwner: false,
-          isTeacher: false,
-          createdAt: tt.createdAt,
-        })),
-        ...data.teacherIn.map(tt => ({
-          id: tt.id,
-          title: tt.title || "(fără titlu)",
-          owner: tt.owner || "necunoscut",
-          isOwner: false,
-          isTeacher: true,
-          createdAt: tt.createdAt,
-        }))
-      ];
-      setTimetables(allTimetables);
-      
-      const teacherTimetables = allTimetables.filter(tt => tt.isTeacher);
-      if (teacherTimetables.length > 0) {
-        setIsTeacher(true);
-        setTeacherTimetableId(teacherTimetables[0].id);
-      }
-    } catch (error) {
-      console.error("Error fetching timetables:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-      
+      const loadTimetables = async () => {
+        try {
+          const data = await fetchUserTimetables(
+            user.uid,
+            user.email || undefined,
+          );
+          const allTimetables = [
+            ...data.owned.map(tt => ({
+              id: tt.id,
+              title: tt.title || "(fără titlu)",
+              owner: tt.owner || "necunoscut",
+              isOwner: true,
+              isTeacher: false,
+              createdAt: tt.createdAt,
+            })),
+            ...data.assigned.map(tt => ({
+              id: tt.id,
+              title: tt.title || "(fără titlu)",
+              owner: tt.owner || "necunoscut",
+              isOwner: false,
+              isTeacher: false,
+              createdAt: tt.createdAt,
+            })),
+            ...data.teacherIn.map(tt => ({
+              id: tt.id,
+              title: tt.title || "(fără titlu)",
+              owner: tt.owner || "necunoscut",
+              isOwner: false,
+              isTeacher: true,
+              createdAt: tt.createdAt,
+            })),
+          ];
+          setTimetables(allTimetables);
+
+          const teacherTimetables = allTimetables.filter(tt => tt.isTeacher);
+          if (teacherTimetables.length > 0) {
+            setIsTeacher(true);
+            setTeacherTimetableId(teacherTimetables[0].id);
+          }
+        } catch (error) {
+          console.error("Error fetching timetables:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
       loadTimetables();
     } else {
       setTimetables([]);
@@ -97,29 +100,37 @@ const Home: React.FC<HomeProps> = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (timetableDropdownRef.current && !timetableDropdownRef.current.contains(event.target as Node)) {
+      if (
+        timetableDropdownRef.current &&
+        !timetableDropdownRef.current.contains(event.target as Node)
+      ) {
         setShowTimetableDropdown(false);
       }
-      if (teacherDropdownRef.current && !teacherDropdownRef.current.contains(event.target as Node)) {
+      if (
+        teacherDropdownRef.current &&
+        !teacherDropdownRef.current.contains(event.target as Node)
+      ) {
         setShowTeacherDropdown(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
   const handleCreateTimetable = () => {
-    const selectedTimetableData = timetables.find(tt => tt.id === selectedTimetable);
-    
+    const selectedTimetableData = timetables.find(
+      tt => tt.id === selectedTimetable,
+    );
+
     if (isTeacher && selectedTimetableData?.isTeacher) {
       setTeacherTimetableId(selectedTimetable);
       setShowAvailabilityEditor(true);
       return;
     }
-    
+
     onCreateTimetable(selectedTimetable, selectedTimetableData?.title);
     navigate("/overview");
   };
@@ -189,11 +200,10 @@ const Home: React.FC<HomeProps> = ({
         <h1 className="mb-6 text-3xl font-bold dark:text-white">
           Bine ați venit la Timetable Weaver
         </h1>
-        <p className="mb-4 text-gray-700">
-          Bine ați venit, {user.email}!
-        </p>
+        <p className="mb-4 text-gray-700">Bine ați venit, {user.email}!</p>
         <p className="mb-8 text-gray-700">
-          Ați fost identificat ca profesor. Puteți edita disponibilitatea dumneavoastră.
+          Ați fost identificat ca profesor. Puteți edita disponibilitatea
+          dumneavoastră.
         </p>
 
         {loading ? (
@@ -202,38 +212,57 @@ const Home: React.FC<HomeProps> = ({
           <>
             {timetables.filter(tt => tt.isTeacher).length > 0 && (
               <div className="mb-4">
-                <label className="block mb-2 font-medium">Selectează orarul pentru editarea disponibilității:</label>
+                <label className="mb-2 block font-medium">
+                  Selectează orarul pentru editarea disponibilității:
+                </label>
                 <div className="relative" ref={teacherDropdownRef}>
                   <button
                     onClick={() => setShowTeacherDropdown(!showTeacherDropdown)}
-                    className="text-blue-500 bg-blue-300/30 hover:bg-blue-100 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center w-full justify-between dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-              type="button"
+                    className="inline-flex w-full items-center justify-between rounded-lg bg-blue-300/30 px-5 py-2.5 text-center text-sm font-medium text-blue-500 hover:bg-blue-100 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    type="button"
                   >
-                    {teacherTimetableId ? 
-                      timetables.find(tt => tt.id === teacherTimetableId)?.title || "Selectează orarul" :
-                      "Selectează orarul"
-                    }
-                    <svg className="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4"/>
+                    {teacherTimetableId
+                      ? timetables.find(tt => tt.id === teacherTimetableId)
+                          ?.title || "Selectează orarul"
+                      : "Selectează orarul"}
+                    <svg
+                      className="ms-3 h-2.5 w-2.5"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 10 6"
+                    >
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="m1 1 4 4 4-4"
+                      />
                     </svg>
                   </button>
 
                   {showTeacherDropdown && (
-                    <div className="z-10 absolute top-full left-0 right-0 mt-1 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-full dark:bg-gray-700">
-                      <ul className="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
-                        {timetables.filter(tt => tt.isTeacher).map(tt => (
-                          <li key={tt.id}>
-                            <button
-                              onClick={() => {
-                                setTeacherTimetableId(tt.id);
-                                setShowTeacherDropdown(false);
-                              }}
-                              className="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                            >
-                              {tt.title} (Proprietar: {tt.owner})
-                            </button>
-                          </li>
-                        ))}
+                    <div className="absolute top-full right-0 left-0 z-10 mt-1 w-full divide-y divide-gray-100 rounded-lg bg-white shadow-sm dark:bg-gray-700">
+                      <ul
+                        className="py-2 text-sm text-gray-700 dark:text-gray-200"
+                        aria-labelledby="dropdownDefaultButton"
+                      >
+                        {timetables
+                          .filter(tt => tt.isTeacher)
+                          .map(tt => (
+                            <li key={tt.id}>
+                              <button
+                                onClick={() => {
+                                  setTeacherTimetableId(tt.id);
+                                  setShowTeacherDropdown(false);
+                                }}
+                                className="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                              >
+                                {tt.title} (Proprietar: {tt.owner})
+                              </button>
+                            </li>
+                          ))}
                       </ul>
                     </div>
                   )}
@@ -249,7 +278,7 @@ const Home: React.FC<HomeProps> = ({
               >
                 Editează Disponibilitatea
               </button>
-              
+
               <button
                 onClick={() => auth.signOut()}
                 className="rounded-lg border border-red-500/10 bg-red-200 px-6 py-3 text-lg font-medium text-red-600 backdrop-blur-sm"
@@ -306,9 +335,7 @@ const Home: React.FC<HomeProps> = ({
       <h1 className="mb-6 text-3xl font-bold dark:text-white">
         Bine ați venit la Timetable Weaver
       </h1>
-      <p className="mb-4 text-gray-700">
-        Bine ați venit, {user.email}!
-      </p>
+      <p className="mb-4 text-gray-700">Bine ați venit, {user.email}!</p>
       <p className="mb-8 text-gray-700">
         Creați orare optime pentru școala sau instituția dumneavoastră cu
         sistemul nostru inteligent de programare.
@@ -318,97 +345,121 @@ const Home: React.FC<HomeProps> = ({
         <div className="mb-4">Se încarcă orarele existente...</div>
       ) : (
         <div className="mb-4">
-          <label className="block mb-2 font-medium">Selectează orarul de editat:</label>
+          <label className="mb-2 block font-medium">
+            Selectează orarul de editat:
+          </label>
           <div className="relative" ref={timetableDropdownRef}>
             <button
               onClick={() => setShowTimetableDropdown(!showTimetableDropdown)}
-              className="text-blue-500 bg-blue-300/30 hover:bg-blue-100 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center w-full justify-between dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              className="inline-flex w-full items-center justify-between rounded-lg bg-blue-300/30 px-5 py-2.5 text-center text-sm font-medium text-blue-500 hover:bg-blue-100 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
               type="button"
             >
-              {selectedTimetable ? 
-                timetables.find(tt => tt.id === selectedTimetable)?.title || "Selectează orarul" :
-                "-- Orar nou --"
-              }
-              <svg className="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4"/>
+              {selectedTimetable
+                ? timetables.find(tt => tt.id === selectedTimetable)?.title ||
+                  "Selectează orarul"
+                : "-- Orar nou --"}
+              <svg
+                className="ms-3 h-2.5 w-2.5"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 10 6"
+              >
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="m1 1 4 4 4-4"
+                />
               </svg>
             </button>
 
             {showTimetableDropdown && (
-              <div className="z-10 absolute top-full left-0 right-0 mt-1 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-full dark:bg-gray-700">
-                <ul className="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
+              <div className="absolute top-full right-0 left-0 z-10 mt-1 w-full divide-y divide-gray-100 rounded-lg bg-white shadow-sm dark:bg-gray-700">
+                <ul
+                  className="py-2 text-sm text-gray-700 dark:text-gray-200"
+                  aria-labelledby="dropdownDefaultButton"
+                >
                   <li>
                     <button
                       onClick={() => {
                         setSelectedTimetable("");
                         setShowTimetableDropdown(false);
                       }}
-                      className="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                      className="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                     >
                       -- Orar nou --
                     </button>
                   </li>
-                  
+
                   {timetables.filter(tt => tt.isOwner).length > 0 && (
                     <>
-                      <li className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-600">
+                      <li className="border-t border-gray-100 px-4 py-2 text-xs font-semibold text-gray-500 dark:border-gray-600 dark:text-gray-400">
                         Orarul meu (Owner)
                       </li>
-                      {timetables.filter(tt => tt.isOwner).map(tt => (
-                        <li key={tt.id}>
-                          <button
-                            onClick={() => {
-                              setSelectedTimetable(tt.id);
-                              setShowTimetableDropdown(false);
-                            }}
-                            className="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                          >
-                            {tt.title} (Proprietar)
-                          </button>
-                        </li>
-                      ))}
+                      {timetables
+                        .filter(tt => tt.isOwner)
+                        .map(tt => (
+                          <li key={tt.id}>
+                            <button
+                              onClick={() => {
+                                setSelectedTimetable(tt.id);
+                                setShowTimetableDropdown(false);
+                              }}
+                              className="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                            >
+                              {tt.title} (Proprietar)
+                            </button>
+                          </li>
+                        ))}
                     </>
                   )}
-                  
-                  {timetables.filter(tt => !tt.isOwner && !tt.isTeacher).length > 0 && (
+
+                  {timetables.filter(tt => !tt.isOwner && !tt.isTeacher)
+                    .length > 0 && (
                     <>
-                      <li className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-600">
+                      <li className="border-t border-gray-100 px-4 py-2 text-xs font-semibold text-gray-500 dark:border-gray-600 dark:text-gray-400">
                         Orarul asignat
                       </li>
-                      {timetables.filter(tt => !tt.isOwner && !tt.isTeacher).map(tt => (
-                        <li key={tt.id}>
-                          <button
-                            onClick={() => {
-                              setSelectedTimetable(tt.id);
-                              setShowTimetableDropdown(false);
-                            }}
-                            className="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                          >
-                            {tt.title} (Asignat de: {tt.owner})
-                          </button>
-                        </li>
-                      ))}
+                      {timetables
+                        .filter(tt => !tt.isOwner && !tt.isTeacher)
+                        .map(tt => (
+                          <li key={tt.id}>
+                            <button
+                              onClick={() => {
+                                setSelectedTimetable(tt.id);
+                                setShowTimetableDropdown(false);
+                              }}
+                              className="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                            >
+                              {tt.title} (Asignat de: {tt.owner})
+                            </button>
+                          </li>
+                        ))}
                     </>
                   )}
-                  
+
                   {timetables.filter(tt => tt.isTeacher).length > 0 && (
                     <>
-                      <li className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-600">
+                      <li className="border-t border-gray-100 px-4 py-2 text-xs font-semibold text-gray-500 dark:border-gray-600 dark:text-gray-400">
                         Orarul unde sunt profesor
                       </li>
-                      {timetables.filter(tt => tt.isTeacher).map(tt => (
-                        <li key={tt.id}>
-                          <button
-                            onClick={() => {
-                              setSelectedTimetable(tt.id);
-                              setShowTimetableDropdown(false);
-                            }}
-                            className="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                          >
-                            {tt.title} (Profesor - Proprietar: {tt.owner})
-                          </button>
-                        </li>
-                      ))}
+                      {timetables
+                        .filter(tt => tt.isTeacher)
+                        .map(tt => (
+                          <li key={tt.id}>
+                            <button
+                              onClick={() => {
+                                setSelectedTimetable(tt.id);
+                                setShowTimetableDropdown(false);
+                              }}
+                              className="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                            >
+                              {tt.title} (Profesor - Proprietar: {tt.owner})
+                            </button>
+                          </li>
+                        ))}
                     </>
                   )}
                 </ul>
@@ -427,30 +478,28 @@ const Home: React.FC<HomeProps> = ({
 
       <button
         onClick={handleCreateTimetable}
-        className="rounded-lg border border-blue-500/10 bg-blue-300/30 px-6 py-3 text-lg font-medium text-blue-400 backdrop-blur-sm"
+        className="rounded-lg border border-blue-500/10 bg-blue-300/30 px-6 py-3 text-lg font-medium text-blue-400 backdrop-blur-sm hover:bg-blue-300/70"
         disabled={loading}
       >
-        {selectedTimetable ? 
-          (timetables.find(tt => tt.id === selectedTimetable)?.isTeacher ? 
-            "Editează Disponibilitatea" : 
-            "Editează Orarul Selectat"
-          ) : 
-          "Creează Orar Nou"
-        }
+        {selectedTimetable
+          ? timetables.find(tt => tt.id === selectedTimetable)?.isTeacher
+            ? "Editează Disponibilitatea"
+            : "Editează Orarul Selectat"
+          : "Creează Orar Nou"}
       </button>
 
       {hasData && (
         <div className="mt-4 flex justify-center gap-4">
           <button
             onClick={onClearData}
-            className="rounded-lg border border-red-500/10 bg-red-200 px-6 py-3 text-lg font-medium text-red-600 backdrop-blur-sm"
+            className="rounded-lg border border-red-500/10 bg-red-200 px-6 py-3 text-lg font-medium text-red-600 backdrop-blur-sm hover:bg-red-300"
           >
             Șterge Datele Salvate
           </button>
 
           <button
             onClick={onForceSave}
-            className="rounded-lg border border-green-500/10 bg-green-200 px-6 py-3 text-lg font-medium text-green-700 backdrop-blur-sm"
+            className="rounded-lg border border-green-500/10 bg-green-200 px-6 py-3 text-lg font-medium text-green-700 backdrop-blur-sm hover:bg-green-300"
           >
             Forțează Salvarea Datelor
           </button>
