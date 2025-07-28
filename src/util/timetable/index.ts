@@ -593,7 +593,7 @@ export class Timetable {
             period++
           ) {
             if (schedule[day][period] === null) {
-              penalty += 1000;
+              penalty += 5000;
             }
           }
         }
@@ -2399,6 +2399,9 @@ export class Scheduler {
 
     // Annealing
     best = this.optimizeSoftConstraints(best);
+
+    // Final compaction to remove any remaining gaps
+    best.compactSchedule();
 
     // Final check
     const actualConflicts = best.countTeacherConflicts();

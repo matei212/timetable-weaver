@@ -326,6 +326,31 @@ const getTeacherSubjects = (teacherName: string, classes: Class[]) => {
   return subjects;
 };
 
+const getTeacherHours = (teacherName: string, classes: Class[], teacher: Teacher) => {
+  let assignedHours = 0;
+  let availableHours = 0;
+  
+  classes.forEach(cls => {
+    cls.lessons.forEach(lesson => {
+      for (const t of getAllTeachers(lesson)) {
+        if (t.name === teacherName) {
+          assignedHours += lesson.periodsPerWeek;
+        }
+      }
+    });
+  });
+  
+  for (let day = 0; day < DAYS; day++) {
+    for (let period = 0; period < PERIODS_PER_DAY; period++) {
+      if (teacher.availability.get(day, period)) {
+        availableHours++;
+      }
+    }
+  }
+  
+  return { assignedHours, availableHours };
+};
+
 /**
  * Component for a single teacher list item
  */
@@ -386,6 +411,8 @@ const TeacherListItem: React.FC<{
       onUpdateLessonPeriods(teacher.name, className, subjectName, periods);
     }
   };
+
+  const { assignedHours, availableHours } = getTeacherHours(teacher.name, classes, teacher);
 
   return (
     <>
@@ -478,6 +505,16 @@ const TeacherListItem: React.FC<{
               </ColorButton>
             </div>
           )}
+        </td>
+        <td className="p-3 text-center">
+          <div className="flex flex-col text-sm">
+            <span className="font-medium text-slate-700 dark:text-slate-100">
+              {assignedHours} / {availableHours}
+            </span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">
+              atribuite / disponibile
+            </span>
+          </div>
         </td>
         <td className="hidden p-3 sm:table-cell">
           <div className="flex flex-col gap-2">
@@ -713,6 +750,9 @@ const TeacherList: React.FC<{
               <tr className="bg-slate-200 dark:bg-slate-700/50 dark:text-slate-200">
                 <th className="border-b border-slate-600/50 p-3 text-left font-medium tracking-wide">
                   Nume
+                </th>
+                <th className="border-b border-slate-600/50 p-3 text-center font-medium tracking-wide">
+                  Ore
                 </th>
                 <th className="hidden border-b border-slate-600/50 p-3 text-left font-medium tracking-wide sm:table-cell">
                   Disponibilitate
