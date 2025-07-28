@@ -19,6 +19,8 @@ import ColorButton from "./common/ColorButton";
 import { SiGoogleclassroom } from "react-icons/si";
 import { MdOutlineLibraryBooks } from "react-icons/md";
 import { MdOutlineSummarize } from "react-icons/md";
+import { LuBookMarked } from "react-icons/lu";
+import { TfiExport, TfiImport } from "react-icons/tfi";
 
 interface LessonsTabProps {
   classes: Class[];
@@ -163,7 +165,66 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
     setAltTeacherIndexes([null, null]);
   };
 
+  const errorMsg = useMemo(() => {
+    const name = newLessonName.trim();
+    if (
+      name.length === 0 &&
+      (lessonType === "normal" || lessonType === "group")
+    ) {
+      return null;
+    }
+    const newAltNames = altLessonNames.map(name => name.trim());
+    if (
+      newAltNames.every(name => name.length === 0) &&
+      lessonType === "alternating"
+    ) {
+      return null;
+    }
+
+    if (
+      (name.includes("/") &&
+        (lessonType === "group" || lessonType === "normal")) ||
+      (altLessonNames.some(name => name.includes("/")) &&
+        lessonType === "alternating")
+    ) {
+      return "Nu puteți folosti '/' în nume";
+    }
+
+    for (const cls of classes) {
+      for (const lesson of cls.lessons) {
+        if (lessonType === "group" || lessonType === "normal") {
+          if (
+            ((lesson.type === "normal" || lesson.type === "group") &&
+              lesson.name === name) ||
+            (lesson.type === "alternating" &&
+              lesson.names.some(n => n === name))
+          ) {
+            return `Lectia ${name} exista deja`;
+          }
+        } else {
+          if (lesson.type === "alternating") {
+            for (const altName of newAltNames) {
+              if (lesson.names.some(n => n === altName)) {
+                return `Lectia ${altName} exista deja`;
+              }
+            }
+          } else {
+            if (altLessonNames.some(n => n === lesson.name)) {
+              return `Lectia ${lesson.name} exista deja`;
+            }
+          }
+        }
+      }
+    }
+
+    return null;
+  }, [newLessonName, altLessonNames, lessonType, classes]);
+
   const isDisabledButton = useMemo(() => {
+    if (errorMsg !== null) {
+      return true;
+    }
+
     if (lessonType === "normal") {
       return (
         newLessonName.trim().length === 0 ||
@@ -191,6 +252,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
       );
     }
   }, [
+    errorMsg,
     lessonType,
     newLessonName,
     selectedTeacherIndex,
@@ -632,7 +694,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
       {classes.length === 0 ? (
         <GradientContainer className="p-8">
           <div className="flex flex-col items-center justify-center py-8">
-            <span className="mb-4 text-4xl">📚</span>
+            <LuBookMarked className="mb-4 text-4xl" />
             <p className="mb-2 text-slate-300">
               Nu există clase disponibile. Vă rugăm adăugați clase mai întâi.
             </p>
@@ -763,9 +825,9 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                   />
                   <label
                     htmlFor={`import-class-${selectedClassIndex}`}
-                    className="flex cursor-pointer items-center rounded-lg bg-indigo-500/20 px-3 py-1.5 text-indigo-500 transition-all duration-300 hover:bg-indigo-500/30 hover:text-indigo-200"
+                    className="flex cursor-pointer items-center rounded-lg bg-indigo-500/20 px-3 py-1.5 text-indigo-500 transition-all duration-300 hover:bg-indigo-500/30 hover:text-indigo-400"
                   >
-                    <span className="mr-2">📤</span>
+                    <TfiImport className="mr-2" />
                     <span>Importă</span>
                   </label>
 
@@ -775,7 +837,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                     }
                     className="flex items-center px-3 py-1.5"
                   >
-                    <span className="mr-2">📥</span>
+                    <TfiExport className="mr-2" />
                     <span>Exportă</span>
                   </ColorButton>
                 </div>
@@ -1090,6 +1152,9 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                 >
                   Adaugă Lecție
                 </button>
+                {errorMsg && (
+                  <p className="mt-2 font-bold text-red-600">{errorMsg}</p>
+                )}
               </div>
 
               {/* Show list of lessons for this class with ability to edit periods */}

@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import {
   Class,
   Lesson,
@@ -13,6 +13,7 @@ import ColorButton from "./common/ColorButton";
 import ThemeButton from "./common/ThemeButton";
 import { PiClipboardText } from "react-icons/pi";
 import { SiGoogleclassroom } from "react-icons/si";
+import { HiOutlineBuildingLibrary } from "react-icons/hi2";
 
 interface ClassesTabProps {
   classes: Class[];
@@ -28,6 +29,14 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
     null,
   );
   const [editingClassName, setEditingClassName] = useState("");
+
+  const errorMsg = useMemo(() => {
+    const name = newClassName.trim();
+    if (classes.some(cls => cls.name === name)) {
+      return `${newClassName} exista deja`;
+    }
+    return null;
+  }, [classes, newClassName]);
 
   const handleAddClass = () => {
     if (newClassName.trim()) {
@@ -148,12 +157,14 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
             className="flex-1 p-3"
           />
           <button
+            disabled={errorMsg !== null}
             type="submit"
-            className="rounded-md bg-black px-6 py-3 font-medium text-white hover:bg-gray-400"
+            className={`rounded-md bg-black px-6 py-3 font-medium text-white hover:bg-gray-400 ${errorMsg && "cursor-not-allowed bg-gray-400"}`}
           >
             Adaugă Clasă
           </button>
         </form>
+        {errorMsg && <p className="mt-2 font-bold text-red-600">{errorMsg}</p>}
       </GradientContainer>
       <GradientContainer className="mb-8 p-8">
         <div className="mb-6 flex items-center justify-between">
@@ -330,7 +341,7 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-8">
-            <span className="mb-4 text-4xl">🏛️</span>
+            <HiOutlineBuildingLibrary className="mb-4 text-4xl" />
             <p className="mb-2 text-slate-300">
               Nu există clase adăugate încă. Adăugați prima clasă mai sus.
             </p>

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import {
   Teacher,
   Availability,
@@ -20,8 +20,7 @@ import ThemeButton from "./common/ThemeButton";
 import { PiChalkboardTeacher } from "react-icons/pi";
 
 import { PiClipboardText } from "react-icons/pi";
-
-
+import { MdOutlinePersonSearch } from "react-icons/md";
 
 interface TeachersTabProps {
   teachers: Teacher[];
@@ -56,16 +55,20 @@ const useTeacherManagement = (
       for (let day = 0; day < DAYS; day++) {
         availability.setDay(day, true);
       }
-      
+
       // Check if teacher email exists in localStorage
       const savedEmail = localStorage.getItem(`teacher_email_${name.trim()}`);
-      const newTeacher = new Teacher(name.trim(), availability, savedEmail || undefined);
-      
+      const newTeacher = new Teacher(
+        name.trim(),
+        availability,
+        savedEmail || undefined,
+      );
+
       // Save email to localStorage if it exists
       if (savedEmail) {
         localStorage.setItem(`teacher_email_${name.trim()}`, savedEmail);
       }
-      
+
       onTeachersChange([...teachers, newTeacher]);
       return true;
     }
@@ -244,9 +247,20 @@ const useTeacherManagement = (
  * Component for adding new teachers
  */
 const TeacherForm: React.FC<{
+  teachers: Teacher[];
   onAddTeacher: (name: string) => boolean;
-}> = ({ onAddTeacher }) => {
+}> = ({ teachers, onAddTeacher }) => {
   const [newTeacherName, setNewTeacherName] = useState("");
+  const errorMsg = useMemo(() => {
+    const name = newTeacherName.trim();
+    if (teachers.some(t => t.name === name)) {
+      return `${newTeacherName} exista deja`;
+    }
+    if (name.includes("/")) {
+      return "Nu puteți folosti '/' în nume";
+    }
+    return null;
+  }, [teachers, newTeacherName]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -271,13 +285,14 @@ const TeacherForm: React.FC<{
           className="flex-1 p-3"
         />
         <button
-          //variant="blue"
+          disabled={errorMsg !== null}
           type="submit"
-          className="rounded-md bg-black px-6 py-3 font-medium text-white hover:bg-gray-400"
+          className={`rounded-md bg-black px-6 py-3 font-medium text-white hover:bg-gray-400 ${errorMsg && "cursor-not-allowed bg-gray-400"}`}
         >
           Adaugă Profesor
         </button>
       </form>
+      {errorMsg && <p className="mt-2 font-bold text-red-600">{errorMsg}</p>}
     </GradientContainer>
   );
 };
@@ -465,7 +480,7 @@ const TeacherListItem: React.FC<{
                   {teacher.name}
                 </span>
                 {teacher.email && (
-                  <span className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                  <span className="mt-1 text-xs text-blue-700 dark:text-blue-300">
                     {teacher.email}
                   </span>
                 )}
@@ -765,7 +780,7 @@ const TeacherList: React.FC<{
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-8">
-          <span className="mb-4 text-4xl">👨‍🏫</span>
+          <MdOutlinePersonSearch className="mb-4 text-4xl" />
           <p className="mb-2 text-center text-slate-300">
             Nu există profesori adăugați încă. Adăugați primul profesor mai sus.
           </p>
@@ -812,9 +827,9 @@ const TeachersTab: React.FC<TeachersTabProps> = ({
           localStorage.setItem(`teacher_email_${teacher.name}`, teacher.email);
         }
       });
-      
+
       // Append imported teachers to existing ones
-      onTeachersChange([...teachers, ...importedTeachers]);
+      onTeachersChange([...importedTeachers]);
       alert(
         `Au fost importați cu succes ${importedTeachers.length} profesori.`,
       );
@@ -828,13 +843,10 @@ const TeachersTab: React.FC<TeachersTabProps> = ({
     const teacher = updatedTeachers[index];
     // Update the email property directly
     teacher.email = email;
-    
+
     onTeachersChange(updatedTeachers);
     // Save to localStorage
-    localStorage.setItem(
-      `teacher_email_${teacher.name}`,
-      email,
-    );
+    localStorage.setItem(`teacher_email_${teacher.name}`, email);
     // Note: Email will be saved to Firestore when user clicks "Salvează Online"
   };
 
@@ -861,7 +873,7 @@ const TeachersTab: React.FC<TeachersTabProps> = ({
         <ThemeButton />
       </div>
 
-      <TeacherForm onAddTeacher={addTeacher} />
+      <TeacherForm teachers={teachers} onAddTeacher={addTeacher} />
 
       <TeacherList
         teachers={teachers}
