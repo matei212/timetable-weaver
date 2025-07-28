@@ -167,7 +167,19 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
 
   const errorMsg = useMemo(() => {
     const name = newLessonName.trim();
-    if (name.length === 0) return null;
+    if (
+      name.length === 0 &&
+      (lessonType === "normal" || lessonType === "group")
+    ) {
+      return null;
+    }
+    const newAltNames = altLessonNames.map(name => name.trim());
+    if (
+      newAltNames.every(name => name.length === 0) &&
+      lessonType === "alternating"
+    ) {
+      return null;
+    }
 
     if (
       (name.includes("/") &&
@@ -178,19 +190,28 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
       return "Nu puteți folosti '/' în nume";
     }
 
-    if (lessonType === "group" || lessonType === "normal") {
-      for (const cls of classes) {
-        for (const lesson of cls.lessons) {
+    for (const cls of classes) {
+      for (const lesson of cls.lessons) {
+        if (lessonType === "group" || lessonType === "normal") {
           if (
-            (lesson.type === "normal" || lesson.type === "group") &&
-            lesson.name === name
+            ((lesson.type === "normal" || lesson.type === "group") &&
+              lesson.name === name) ||
+            (lesson.type === "alternating" &&
+              lesson.names.some(n => n === name))
           ) {
             return `Lectia ${name} exista deja`;
-          } else if (
-            lesson.type === "alternating" &&
-            lesson.names.some(name => name === name)
-          ) {
-            return `Lectia ${name} exista deja`;
+          }
+        } else {
+          if (lesson.type === "alternating") {
+            for (const altName of newAltNames) {
+              if (lesson.names.some(n => n === altName)) {
+                return `Lectia ${altName} exista deja`;
+              }
+            }
+          } else {
+            if (altLessonNames.some(n => n === lesson.name)) {
+              return `Lectia ${lesson.name} exista deja`;
+            }
           }
         }
       }
@@ -200,6 +221,10 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
   }, [newLessonName, altLessonNames, lessonType, classes]);
 
   const isDisabledButton = useMemo(() => {
+    if (errorMsg !== null) {
+      return true;
+    }
+
     if (lessonType === "normal") {
       return (
         newLessonName.trim().length === 0 ||
@@ -227,6 +252,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
       );
     }
   }, [
+    errorMsg,
     lessonType,
     newLessonName,
     selectedTeacherIndex,
