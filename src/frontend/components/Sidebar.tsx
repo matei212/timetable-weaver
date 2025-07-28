@@ -276,15 +276,11 @@ const Sidebar: React.FC<SidebarProps> = ({ mode, onModeChange, timetableName }) 
           {/* Show timetable name when in timetable mode */}
           {mode === "timetable" && (
             <p className="mt-2 flex items-center text-sm font-light text-blue-500">
-              {/* Animated dot indicator */}
-              <span className="mr-2 animate-pulse text-cyan-400">◉</span>
               
-              {/* 
-                This container will hold the timetable name.
-                The 'truncate' class will automatically add '...' 
-                if the text is too long to fit.
-              */}
-              <span className="truncate">
+              <span className="mr-2 animate-pulse text-cyan-900">◉</span>
+              
+              
+              <span className="truncate text-bold">
                 {/* We show the timetable name, or "Orar Nou" as a default. */}
                 {timetableName || "Orar Nou"}
               </span>
