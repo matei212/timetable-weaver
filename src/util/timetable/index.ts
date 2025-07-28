@@ -3194,7 +3194,27 @@ export function importLessonsFromCSV(
                 );
                 continue;
               }
-            } else {
+            } else if (subjectParts.length === 1 && teacherParts.length === 2) {
+              const teachersFound = [
+                teachers.find(t => t.name === teacherParts[0].trim()),
+                teachers.find(t => t.name === teacherParts[1].trim()),
+              ];
+              if (teachersFound[0] && teachersFound[1]) {
+                const periodsPerWeek = parseInt(periodsPerWeekStr) || 1;
+                lesson = {
+                  name: subjectParts[0],
+                  teachers: [teachersFound[0], teachersFound[1]],
+                  periodsPerWeek,
+                  type: "group",
+                };
+              } else {
+                console.warn(
+                  `One or both teachers for split lesson "${subjectName}" not found, skipping.`,
+                );
+                continue;
+              }
+            }
+            else {
               // Find the teacher by name
               const teacher = teachers.find(t => t.name === teacherName.trim());
               if (!teacher) {
