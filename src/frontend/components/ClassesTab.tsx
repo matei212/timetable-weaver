@@ -166,15 +166,15 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
         {errorMsg && <p className="mt-2 font-bold text-red-600">{errorMsg}</p>}
       </GradientContainer>
       <GradientContainer className="mb-8 p-8">
-        <div className="mb-6 flex items-center justify-between">
-          <h3 className="mb-6 flex items-center text-lg text-xl font-semibold">
+        <div className="mb-6 flex flex-col items-center justify-between md:flex-row">
+          <h3 className="mb-6 flex items-center text-xl font-semibold">
             <span className="mr-3 text-2xl">
               <PiClipboardText />
             </span>{" "}
             Listă Clase
           </h3>
 
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <input
               type="file"
               accept=".csv"
