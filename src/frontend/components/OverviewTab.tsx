@@ -817,7 +817,7 @@ const Setting = ({
           min={min}
           max={max}
           step={step}
-          className="min-w-33 rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+          className="w-33 rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 focus:ring-2 focus:ring-blue-500"
         />
       </div>
     </div>
@@ -858,7 +858,6 @@ const AdvancedSettings = () => {
                 title="Max Iterations"
                 description="Numar maxim de iterații ale algoritmului"
                 min={100}
-                max={10000}
                 step={50}
                 valuePath="maxESIterations"
               />
