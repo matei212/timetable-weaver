@@ -33,8 +33,8 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   const errorMsg = useMemo(() => {
-    const name = newClassName.trim();
-    if (classes.some(cls => cls.name === name)) {
+    const name = newClassName.toLocaleLowerCase().trim();
+    if (classes.some(cls => cls.name.toLocaleLowerCase() === name)) {
       return `${newClassName} exista deja`;
     }
     return null;

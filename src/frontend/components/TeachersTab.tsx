@@ -253,8 +253,8 @@ const TeacherForm: React.FC<{
 }> = ({ teachers, onAddTeacher }) => {
   const [newTeacherName, setNewTeacherName] = useState("");
   const errorMsg = useMemo(() => {
-    const name = newTeacherName.trim();
-    if (teachers.some(t => t.name === name)) {
+    const name = newTeacherName.toLocaleLowerCase().trim();
+    if (teachers.some(t => t.name.toLocaleLowerCase() === name)) {
       return `${newTeacherName} exista deja`;
     }
     if (name.includes("/")) {

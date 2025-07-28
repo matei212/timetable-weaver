@@ -171,14 +171,16 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
   const errorMsg = useMemo(() => {
     if (selectedClassIndex === null) return null;
 
-    const name = newLessonName.trim();
+    const name = newLessonName.toLowerCase().trim();
     if (
       name.length === 0 &&
       (lessonType === "normal" || lessonType === "group")
     ) {
       return null;
     }
-    const newAltNames = altLessonNames.map(name => name.trim());
+    const newAltNames = altLessonNames.map(name =>
+      name.toLocaleLowerCase().trim(),
+    );
     if (
       newAltNames.every(name => name.length === 0) &&
       lessonType === "alternating"
@@ -200,20 +202,21 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
       if (lessonType === "group" || lessonType === "normal") {
         if (
           ((lesson.type === "normal" || lesson.type === "group") &&
-            lesson.name === name) ||
-          (lesson.type === "alternating" && lesson.names.some(n => n === name))
+            lesson.name.toLocaleLowerCase() === name) ||
+          (lesson.type === "alternating" &&
+            lesson.names.some(n => n.toLocaleLowerCase() === name))
         ) {
           return `Lectia ${name} exista deja`;
         }
       } else {
         if (lesson.type === "alternating") {
           for (const altName of newAltNames) {
-            if (lesson.names.some(n => n === altName)) {
+            if (lesson.names.some(n => n.toLocaleLowerCase() === altName)) {
               return `Lectia ${altName} exista deja`;
             }
           }
         } else {
-          if (altLessonNames.some(n => n === lesson.name)) {
+          if (newAltNames.some(n => lesson.name.toLocaleLowerCase() === n)) {
             return `Lectia ${lesson.name} exista deja`;
           }
         }
