@@ -775,7 +775,7 @@ const TeachersTab: React.FC<TeachersTabProps> = ({
       });
       
       // Append imported teachers to existing ones
-      onTeachersChange([...teachers, ...importedTeachers]);
+      onTeachersChange([...importedTeachers]);
       alert(
         `Au fost importați cu succes ${importedTeachers.length} profesori.`,
       );
