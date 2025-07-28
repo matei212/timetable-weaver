@@ -98,7 +98,7 @@ const Profile: React.FC = () => {
           <select
             value={judet}
             onChange={e => setJudet(e.target.value)}
-            className="mt-[2vh] block w-full text-sm font-medium text-white rounded-xl bg-gradient-to-r to-white from-black px-4 py-2"
+            className="mt-[2vh] block w-full text-sm font-medium rounded-xl px-4 py-2"
           >
             <option value="">Selectează județul</option>
             <option value="Alba">Alba</option>
