@@ -166,16 +166,38 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
   };
 
   const errorMsg = useMemo(() => {
+    const name = newLessonName.trim();
+    if (name.length === 0) return null;
+
     if (
-      (newLessonName.includes("/") &&
+      (name.includes("/") &&
         (lessonType === "group" || lessonType === "normal")) ||
       (altLessonNames.some(name => name.includes("/")) &&
         lessonType === "alternating")
     ) {
       return "Nu puteți folosti '/' în nume";
     }
+
+    if (lessonType === "group" || lessonType === "normal") {
+      for (const cls of classes) {
+        for (const lesson of cls.lessons) {
+          if (
+            (lesson.type === "normal" || lesson.type === "group") &&
+            lesson.name === name
+          ) {
+            return `Lectia ${name} exista deja`;
+          } else if (
+            lesson.type === "alternating" &&
+            lesson.names.some(name => name === name)
+          ) {
+            return `Lectia ${name} exista deja`;
+          }
+        }
+      }
+    }
+
     return null;
-  }, [newLessonName, altLessonNames, lessonType]);
+  }, [newLessonName, altLessonNames, lessonType, classes]);
 
   const isDisabledButton = useMemo(() => {
     if (lessonType === "normal") {

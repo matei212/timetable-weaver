@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import {
   Class,
   Lesson,
@@ -29,6 +29,14 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
     null,
   );
   const [editingClassName, setEditingClassName] = useState("");
+
+  const errorMsg = useMemo(() => {
+    const name = newClassName.trim();
+    if (classes.some(cls => cls.name === name)) {
+      return `${newClassName} exista deja`;
+    }
+    return null;
+  }, [classes, newClassName]);
 
   const handleAddClass = () => {
     if (newClassName.trim()) {
@@ -149,12 +157,14 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
             className="flex-1 p-3"
           />
           <button
+            disabled={errorMsg !== null}
             type="submit"
-            className="rounded-md bg-black px-6 py-3 font-medium text-white hover:bg-gray-400"
+            className={`rounded-md bg-black px-6 py-3 font-medium text-white hover:bg-gray-400 ${errorMsg && "cursor-not-allowed bg-gray-400"}`}
           >
             Adaugă Clasă
           </button>
         </form>
+        {errorMsg && <p className="mt-2 font-bold text-red-600">{errorMsg}</p>}
       </GradientContainer>
       <GradientContainer className="mb-8 p-8">
         <div className="mb-6 flex items-center justify-between">

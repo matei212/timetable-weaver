@@ -247,15 +247,20 @@ const useTeacherManagement = (
  * Component for adding new teachers
  */
 const TeacherForm: React.FC<{
+  teachers: Teacher[];
   onAddTeacher: (name: string) => boolean;
-}> = ({ onAddTeacher }) => {
+}> = ({ teachers, onAddTeacher }) => {
   const [newTeacherName, setNewTeacherName] = useState("");
   const errorMsg = useMemo(() => {
-    if (newTeacherName.includes("/")) {
+    const name = newTeacherName.trim();
+    if (teachers.some(t => t.name === name)) {
+      return `${newTeacherName} exista deja`;
+    }
+    if (name.includes("/")) {
       return "Nu puteți folosti '/' în nume";
     }
     return null;
-  }, [newTeacherName]);
+  }, [teachers, newTeacherName]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -828,7 +833,7 @@ const TeachersTab: React.FC<TeachersTabProps> = ({
         <ThemeButton />
       </div>
 
-      <TeacherForm onAddTeacher={addTeacher} />
+      <TeacherForm teachers={teachers} onAddTeacher={addTeacher} />
 
       <TeacherList
         teachers={teachers}
