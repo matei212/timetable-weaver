@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   signInWithEmailAndPassword,
   signOut,
@@ -84,14 +84,18 @@ const Login: React.FC = () => {
 
   const handleLogout = async () => {
     setError("");
-    setSuccess("");
     try {
       await signOut(auth);
+      setSuccess("");
     } catch (err) {
       const errorMsg = (err as { message?: string }).message || "Logout failed";
       setError(errorMsg);
     }
   };
+
+  useEffect(() => {
+    console.log(auth.currentUser);
+  })
 
   return (
     <div className="mx-auto mt-16 flex max-w-md flex-col items-center rounded bg-white p-8 shadow">
