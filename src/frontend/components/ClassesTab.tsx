@@ -1,11 +1,9 @@
-import { FormEvent, useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   Class,
-  Lesson,
   exportClassesToCSV,
   importClassesFromCSV,
 } from "../../util/timetable";
-import GradientButton from "./common/GradientButton";
 import GradientContainer from "./common/GradientContainer";
 import TextInput from "./common/TextInput";
 import Note from "./common/Note";
@@ -14,6 +12,7 @@ import ThemeButton from "./common/ThemeButton";
 import { PiClipboardText } from "react-icons/pi";
 import { SiGoogleclassroom } from "react-icons/si";
 import { HiOutlineBuildingLibrary } from "react-icons/hi2";
+import ConfirmModal from "./common/ConfirmModal";
 
 interface ClassesTabProps {
   classes: Class[];
@@ -29,6 +28,9 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
     null,
   );
   const [editingClassName, setEditingClassName] = useState("");
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   const errorMsg = useMemo(() => {
     const name = newClassName.trim();
@@ -85,24 +87,7 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
   const handleImportCSV = async (file: File) => {
     try {
       const updatedClasses = await importClassesFromCSV(file);
-      console.log(updatedClasses);
-      onClassesChange(prev => {
-        const out = [...prev];
-        for (const cls of updatedClasses) {
-          let exists = false;
-          for (const c of out) {
-            if (c.name === cls.name) {
-              exists = true;
-              break;
-            }
-          }
-          if (exists) {
-            continue;
-          }
-          out.push(cls);
-        }
-        return out;
-      });
+      onClassesChange(updatedClasses);
     } catch (error) {
       console.error("Error importing classes:", error);
       alert("Eroare la importarea claselor. Vă rugăm verificați fișierul CSV.");
@@ -115,6 +100,20 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
 
   return (
     <div className="mx-auto w-full max-w-5xl p-8">
+      <ConfirmModal
+        message="Aceasta actiune va sterge toate datele introduse. Continuati?"
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={() => {
+          if (!fileInputRef.current) return;
+          if (fileInputRef.current.files && fileInputRef.current.files[0]) {
+            handleImportCSV(fileInputRef.current.files[0]);
+          }
+          fileInputRef.current.value = ""; // reset
+          setIsConfirmModalOpen(false);
+        }}
+      />
+
       <div className="mb-4 flex items-center gap-2 px-4">
         <svg
           className="h-6 w-6 text-gray-800 dark:text-white"
@@ -137,7 +136,7 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
         <ThemeButton />
       </div>
       <GradientContainer className="mb-8 p-8">
-        <h3 className="mb-6 flex items-center text-lg text-xl font-semibold">
+        <h3 className="mb-6 flex items-center text-xl font-semibold">
           <span className="mr-3 text-2xl">
             <SiGoogleclassroom strokeWidth={0.1} />
           </span>{" "}
@@ -180,10 +179,9 @@ const ClassesTab: React.FC<ClassesTabProps> = ({
               type="file"
               accept=".csv"
               className="hidden"
-              onChange={e => {
-                if (e.target.files && e.target.files[0]) {
-                  handleImportCSV(e.target.files[0]);
-                }
+              ref={fileInputRef}
+              onChange={() => {
+                setIsConfirmModalOpen(true);
               }}
               id="import-all-lessons"
             />

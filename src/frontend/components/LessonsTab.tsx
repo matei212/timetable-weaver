@@ -21,6 +21,7 @@ import { MdOutlineLibraryBooks } from "react-icons/md";
 import { MdOutlineSummarize } from "react-icons/md";
 import { LuBookMarked } from "react-icons/lu";
 import { TfiExport, TfiImport } from "react-icons/tfi";
+import ConfirmModal from "./common/ConfirmModal";
 
 interface LessonsTabProps {
   classes: Class[];
@@ -70,7 +71,9 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
   const [editingLesson, setEditingLesson] = useState<EditingLesson | null>(
     null,
   );
+
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   // Create refs array for class imports
   const classFileInputRefs = useRef<Array<HTMLInputElement | null>>([]);
@@ -218,7 +221,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
     }
 
     return null;
-  }, [newLessonName, altLessonNames, lessonType, classes]);
+  }, [newLessonName, altLessonNames, lessonType, classes, selectedClassIndex]);
 
   const isDisabledButton = useMemo(() => {
     if (errorMsg !== null) {
@@ -668,6 +671,19 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-2 p-8">
+      <ConfirmModal
+        message="Aceasta actiune va sterge toate datele introduse. Continuati?"
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={() => {
+          if (!fileInputRef.current) return;
+          if (fileInputRef.current.files && fileInputRef.current.files[0]) {
+            handleImportFromCSV(fileInputRef.current.files[0]);
+          }
+          fileInputRef.current.value = ""; // reset
+          setIsConfirmModalOpen(false);
+        }}
+      />
       <div className="mb-4 flex items-center gap-2 px-4">
         <svg
           className="h-6 w-6 text-gray-800 dark:text-white"
@@ -707,7 +723,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
       ) : (
         <>
           <GradientContainer className="mb-8 p-8">
-            <h3 className="mb-6 flex items-center text-lg text-xl font-semibold">
+            <h3 className="mb-6 flex items-center text-xl font-semibold">
               <span className="mr-3 text-2xl">
                 <SiGoogleclassroom strokeWidth={0.1} />
               </span>{" "}
@@ -740,9 +756,7 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                 ref={fileInputRef}
                 accept=".csv"
                 onChange={e => {
-                  if (e.target.files && e.target.files[0]) {
-                    handleImportFromCSV(e.target.files[0]);
-                  }
+                  setIsConfirmModalOpen(true);
                 }}
                 className="hidden"
                 id="import-all-lessons"

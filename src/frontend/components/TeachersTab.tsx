@@ -21,6 +21,7 @@ import { PiChalkboardTeacher } from "react-icons/pi";
 
 import { PiClipboardText } from "react-icons/pi";
 import { MdOutlinePersonSearch } from "react-icons/md";
+import ConfirmModal from "./common/ConfirmModal";
 
 interface TeachersTabProps {
   teachers: Teacher[];
@@ -326,10 +327,14 @@ const getTeacherSubjects = (teacherName: string, classes: Class[]) => {
   return subjects;
 };
 
-const getTeacherHours = (teacherName: string, classes: Class[], teacher: Teacher) => {
+const getTeacherHours = (
+  teacherName: string,
+  classes: Class[],
+  teacher: Teacher,
+) => {
   let assignedHours = 0;
   let availableHours = 0;
-  
+
   classes.forEach(cls => {
     cls.lessons.forEach(lesson => {
       for (const t of getAllTeachers(lesson)) {
@@ -339,7 +344,7 @@ const getTeacherHours = (teacherName: string, classes: Class[], teacher: Teacher
       }
     });
   });
-  
+
   for (let day = 0; day < DAYS; day++) {
     for (let period = 0; period < PERIODS_PER_DAY; period++) {
       if (teacher.availability.get(day, period)) {
@@ -347,7 +352,7 @@ const getTeacherHours = (teacherName: string, classes: Class[], teacher: Teacher
       }
     }
   }
-  
+
   return { assignedHours, availableHours };
 };
 
@@ -412,7 +417,11 @@ const TeacherListItem: React.FC<{
     }
   };
 
-  const { assignedHours, availableHours } = getTeacherHours(teacher.name, classes, teacher);
+  const { assignedHours, availableHours } = getTeacherHours(
+    teacher.name,
+    classes,
+    teacher,
+  );
 
   return (
     <>
@@ -652,6 +661,7 @@ const TeacherList: React.FC<{
   onUpdateTeacherEmail,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   const handleExportToCSV = () => {
     exportTeachersToCSV(teachers, "teachers.csv");
@@ -673,8 +683,22 @@ const TeacherList: React.FC<{
 
   return (
     <GradientContainer className="p-8">
+      <ConfirmModal
+        message="Aceasta actiune va sterge toate datele introduse. Continuati?"
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={() => {
+          if (!fileInputRef.current) return;
+          if (fileInputRef.current.files && fileInputRef.current.files[0]) {
+            handleImportFromCSV(fileInputRef.current.files[0]);
+          }
+          fileInputRef.current.value = ""; // reset
+          setIsConfirmModalOpen(false);
+        }}
+      />
+
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="flex items-center text-lg text-xl font-semibold">
+        <h3 className="flex items-center text-xl font-semibold">
           <span className="mr-3 text-2xl">
             <PiClipboardText />
           </span>{" "}
@@ -686,10 +710,8 @@ const TeacherList: React.FC<{
             type="file"
             ref={fileInputRef}
             accept=".csv"
-            onChange={e => {
-              if (e.target.files && e.target.files[0]) {
-                handleImportFromCSV(e.target.files[0]);
-              }
+            onChange={() => {
+              setIsConfirmModalOpen(true);
             }}
             className="hidden"
             id="import-teachers-file"

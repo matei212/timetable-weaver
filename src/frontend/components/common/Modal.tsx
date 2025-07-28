@@ -1,12 +1,12 @@
 import { PropsWithChildren, useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 
-type Props = {
+export type ModalProps = {
   isOpen?: boolean;
   onClose?: () => void;
   className?: string;
 } & PropsWithChildren;
-const Modal = ({ isOpen, children, onClose, className }: Props) => {
+const Modal = ({ isOpen, children, onClose, className }: ModalProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
   useLayoutEffect(() => {
     if (isOpen) {

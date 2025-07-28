@@ -239,14 +239,18 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           }
         }
 
-        const newTeacher = new Teacher(t.name, availability, t.email || undefined);
+        const newTeacher = new Teacher(
+          t.name,
+          availability,
+          t.email || undefined,
+        );
         newTeacher.id = t.name; // Use teacher name as ID since that's the document ID in Firestore
-        
+
         // Debug: Log teacher data to verify email loading
         if (t.email) {
           console.log(`Loaded teacher ${t.name} with email: ${t.email}`);
         }
-        
+
         return newTeacher;
       });
 

@@ -3131,9 +3131,6 @@ export function importLessonsFromCSV(
 
         // Create a map of classes for easy access
         const classMap = new Map<string, Class>();
-        classes.forEach(cls => {
-          classMap.set(cls.name, new Class(cls.name, [...cls.lessons]));
-        });
 
         // Parse CSV content
         const lines = csvText.split("\n");
