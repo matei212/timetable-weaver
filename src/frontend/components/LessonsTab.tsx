@@ -165,6 +165,18 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
     setAltTeacherIndexes([null, null]);
   };
 
+  const errorMsg = useMemo(() => {
+    if (
+      (newLessonName.includes("/") &&
+        (lessonType === "group" || lessonType === "normal")) ||
+      (altLessonNames.some(name => name.includes("/")) &&
+        lessonType === "alternating")
+    ) {
+      return "Nu puteți folosti '/' în nume";
+    }
+    return null;
+  }, [newLessonName, altLessonNames, lessonType]);
+
   const isDisabledButton = useMemo(() => {
     if (lessonType === "normal") {
       return (
@@ -1092,6 +1104,9 @@ const LessonsTab: React.FC<LessonsTabProps> = ({
                 >
                   Adaugă Lecție
                 </button>
+                {errorMsg && (
+                  <p className="mt-2 font-bold text-red-600">{errorMsg}</p>
+                )}
               </div>
 
               {/* Show list of lessons for this class with ability to edit periods */}
