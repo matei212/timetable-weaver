@@ -38,8 +38,9 @@ p {
   fill: yellow;
 }
 
+/* Nu am reusit altcumva */
 .inverted .lightning {
-  filter: invert(1);
+  fill: rgb(161, 161, 232);
 }
 
 .light,

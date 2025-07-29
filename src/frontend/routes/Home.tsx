@@ -193,7 +193,8 @@ const Home: React.FC<HomeProps> = ({
           <g transform="translate(25, 25) scale(10)">
             <path
               d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09z"
-              fill="yellow"
+              fill="none"
+              className="lightning"
             ></path>
           </g>
         </svg>
