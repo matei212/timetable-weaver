@@ -16,7 +16,6 @@
 
 .inverted {
   filter: invert(1);
-  
 }
 /* .light{
   filter: invert(0);
@@ -32,6 +31,14 @@ p {
 
 .inverted .logo,
 .inverted dialog {
+  filter: invert(1);
+}
+
+.lightning {
+  fill: yellow;
+}
+
+.inverted .lightning {
   filter: invert(1);
 }
 
